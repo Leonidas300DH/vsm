@@ -1,0 +1,168 @@
+:root {
+  --font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --line-height: 1.5;
+  --font-weight: 400;
+
+  --color-bg: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-border: #e9ecef;
+  --color-text: #212529;
+  --color-text-secondary: #6c757d;
+  --color-primary: #0d6efd;
+  --color-primary-hover: #0b5ed7;
+  --color-danger: #dc3545;
+  --color-success: #198754;
+  --color-warning: #ffc107;
+
+  --sidebar-width: 250px;
+  --properties-width: 300px;
+  --header-height: 60px;
+  --footer-height: 200px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  line-height: var(--line-height);
+  font-weight: var(--font-weight);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Node Hover Effect */
+.node-hover {
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0px 0px 6px rgba(0, 140, 255, 0.4) !important;
+  border: 2px solid rgba(0, 140, 255, 0.6) !important;
+  /* Ensure border radius is respected if overridden by inline styles, though inline usually wins. 
+     We might need to rely on the component's inline style for radius, or force it here if consistent.
+     The user provided border-radius: 8px, but Actor nodes have 16px. 
+     I will omit border-radius here to let the component handle it, or use !important if needed.
+     Let's try without !important on radius first to avoid breaking Actor shape.
+  */
+}
+
+/* Edge Highlight Effect */
+.edge-highlight path {
+  stroke: #008cff !important;
+  stroke-width: 3px !important;
+}
+
+/* If using custom edges, we might need to target the path specifically or the group */
+.react-flow__edge.edge-highlight .react-flow__edge-path {
+  stroke: #008cff !important;
+  stroke-width: 3px !important;
+}
+
+/* Selection Highlight Effects */
+.node-selected {
+  box-shadow: 0px 0px 8px rgba(0, 140, 255, 0.6) !important;
+  border: 2px solid #008CFF !important;
+}
+
+.node-upstream {
+  border: 2px solid #3CB043 !important;
+  box-shadow: 0px 0px 6px rgba(60, 176, 67, 0.5) !important;
+}
+
+.node-downstream {
+  border: 2px solid #E63946 !important;
+  box-shadow: 0px 0px 6px rgba(230, 57, 70, 0.5) !important;
+}
+
+.edge-upstream path,
+.react-flow__edge.edge-upstream .react-flow__edge-path {
+  stroke: #37A137 !important;
+  stroke-width: 3px !important;
+}
+
+.edge-downstream path,
+.react-flow__edge.edge-downstream .react-flow__edge-path {
+  stroke: #D62828 !important;
+  stroke-width: 3px !important;
+}
+
+/* Animated Flow Direction */
+@keyframes flow {
+  from {
+    stroke-dashoffset: 12;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.edge-flow path,
+.react-flow__edge.edge-flow .react-flow__edge-path {
+  stroke-dasharray: 6 6;
+  animation: flow 1.2s linear infinite;
+}
+
+/* Timeline Highlight */
+.timeline-step {
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.timeline-step-selected {
+  border-bottom: 3px solid #008CFF !important;
+  box-shadow: 0px 0px 6px rgba(0, 140, 255, 0.4);
+  background-color: rgba(0, 140, 255, 0.05);
+  /* Subtle background tint */
+}
+
+/* Item Lineage Highlighting */
+.node-lineage {
+  border: 2px solid var(--lineage-color) !important;
+  box-shadow: 0 0 8px var(--lineage-color) !important;
+  z-index: 10;
+}
+
+.edge-lineage path,
+.react-flow__edge.edge-lineage .react-flow__edge-path {
+  stroke: var(--lineage-color) !important;
+  stroke-width: 3px !important;
+  opacity: 1 !important;
+  stroke-dasharray: 6 6;
+  animation: flow 1.2s linear infinite;
+  z-index: 10;
+}
+
+.node-dimmed {
+  opacity: 0.3;
+  filter: grayscale(100%);
+  transition: opacity 0.3s ease;
+}
+
+.edge-dimmed {
+  opacity: 0.1;
+  transition: opacity 0.3s ease;
+}
