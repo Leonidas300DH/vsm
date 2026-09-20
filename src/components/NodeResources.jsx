@@ -37,9 +37,10 @@ export default function NodeResources({ id, data }) {
         const ids = data[config.field] || [];
         return <div className="resource-branch" key={kind}>
           {ids.length > 0 && (side
-            // Side layout: one straight wire at orb height, from the diamond through every orb (port 110px, satellites 100px each).
+            // Side layout, mirror of the vertical wires: first orb on a straight line at orb height,
+            // each further orb on its own curve that dips under the previous ones (port 110px, satellites 100px each).
             ? <svg className="resource-wires" viewBox={`0 0 ${110 + ids.length * 100} 100`} preserveAspectRatio="none" aria-hidden="true">
-                <path d={`M4 33.5 L${110 + (ids.length - 1) * 100 + 46.5} 33.5`} />
+                {ids.map((resourceId, index) => { const x = 110 + index * 100 + 46.5; return <path key={resourceId} d={index === 0 ? `M4 33.5 L${x} 33.5` : `M4 33.5 C60 96 ${x - 60} 96 ${x} 33.5`} />; })}
               </svg>
             : <svg className="resource-wires" viewBox={`0 0 100 ${32 + ids.length * 100}`} preserveAspectRatio="none" aria-hidden="true">
                 {ids.map((resourceId, index) => <path key={resourceId} d={index === 0 ? 'M50 4 L50 55' : `M50 4 C2 35 2 ${index * 100 + 35} 50 ${index * 100 + 55}`} />)}

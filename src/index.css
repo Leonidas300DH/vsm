@@ -318,7 +318,7 @@ input, select, textarea { background: var(--c-0b141b); }
 .step-with-resources[data-layout=side] { width:auto; display:flex; align-items:center; gap:0; }
 .step-with-resources[data-layout=side] .node-resources { display:flex; flex-direction:column; align-items:flex-start; gap:4px; width:auto; padding:0; }
 .step-with-resources[data-layout=side] .resource-branch { display:flex; flex-direction:row; align-items:stretch; height:100px; align-self:auto; }
-.step-with-resources[data-layout=side] .resource-port { width:110px; height:100px; padding:46px 0 0 10px; flex-direction:row; justify-content:flex-start; align-items:flex-start; gap:3px; }
+.step-with-resources[data-layout=side] .resource-port { width:110px; height:100px; padding:6px 0 0 10px; flex-direction:row; justify-content:flex-start; align-items:flex-start; gap:3px; }
 .step-with-resources[data-layout=side] .resource-diamond { top:33.5px; left:-4px; transform:translateY(-50%) rotate(45deg); }
 .step-with-resources[data-layout=side] .resource-port-label { writing-mode:horizontal-tb; transform:none; font-size:10px; letter-spacing:.02em; white-space:nowrap; }
 .step-with-resources[data-layout=side] .resource-satellite { width:100px; height:100px; padding:10px 0 0 23px; align-items:flex-start; }
