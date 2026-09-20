@@ -134,6 +134,9 @@ const VSMCanvas = ({ onInspect }) => {
             id: `lane:${b.key}`,
             type: 'lane',
             position: { x: b.x, y: b.y },
+            // Explicit size: React Flow keeps a node hidden until it knows width and height,
+            // and bands never receive measurements because they are not in the store.
+            width: b.width, height: b.height,
             data: { label: b.label, width: b.width, height: b.height, orientation },
             draggable: false, selectable: false, connectable: false, focusable: false,
             zIndex: -1,
