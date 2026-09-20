@@ -20,9 +20,10 @@ export const calculateMetrics = (nodes, edges) => {
     nodes.forEach(n => {
         adj[n.id] = [];
         inDegree[n.id] = 0;
-        // Initialize volume streams
-        n.data.volumeStreamIn = [];
-        n.data.volumeStreamOut = [];
+        // Initialize volume streams on the working copy, never on the input
+        const copy = nodeMap.get(n.id);
+        copy.data.volumeStreamIn = [];
+        copy.data.volumeStreamOut = [];
     });
 
     edges.forEach(e => {
