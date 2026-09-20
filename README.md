@@ -22,7 +22,7 @@ Voir [le diagnostic et le plan de reprise](docs/REPRISE.md).
 
 `npm run lint`, `npm test` et `npm run build` passent. Utiliser **Exemple** pour charger le processus bancaire, **Aligner** pour ordonner les étapes de gauche à droite, et les boutons de panneaux pour ajuster l’espace. La sélection ouvre l’inspecteur. Les formules métier restent inchangées. Sauvegarder via File > Save ; la sauvegarde automatique reste à implémenter.
 
-Version locale uniquement : aucun déploiement Vercel effectué.
+Déployé sur Vercel (projet `vsm`) : production sur https://vsm-mauve.vercel.app, préversions automatiques par commit sur `main`. Déploiement depuis le commit GitHub, pas depuis l'arbre de travail local.
 
 ## Remédiation du 20 septembre 2026
 
