@@ -26,17 +26,21 @@ export const calculateMetrics = (nodes, edges) => {
         copy.data.volumeStreamOut = [];
     });
 
+    // Edges pointing to an unknown node are reported, never traversed.
+    const validEdges = [];
     edges.forEach(e => {
-        if (adj[e.source]) {
-            adj[e.source].push(e);
-        }
-        if (inDegree[e.target] !== undefined) {
-            inDegree[e.target]++;
-        }
-        // Initialize edge status
         const edge = edgeMap.get(e.id);
         edge.data.isError = false;
         edge.data.volumeStream = [];
+        if (!nodeMap.has(e.source) || !nodeMap.has(e.target)) {
+            edge.data.isError = true;
+            edge.data.label = 'Missing step';
+            edge.data.volume = '0.0';
+            return;
+        }
+        validEdges.push(e);
+        adj[e.source].push(e);
+        inDegree[e.target]++;
     });
 
     // 2. Topological Sort (Kahn's Algorithm)
@@ -72,7 +76,7 @@ export const calculateMetrics = (nodes, edges) => {
             }));
         } else {
             // Other Nodes: Sum incoming streams
-            const incomingEdges = edges.filter(e => e.target === nodeId);
+            const incomingEdges = validEdges.filter(e => e.target === nodeId);
             const itemMap = new Map();
 
             incomingEdges.forEach(e => {
@@ -129,7 +133,7 @@ export const calculateMetrics = (nodes, edges) => {
             // --- Validation: Disconnected (Skip for Actor/IT) ---
             if (!isSupport(node)) {
                 // Check incoming edges
-                const incomingEdgeCount = edges.filter(e => e.target === nodeId).length;
+                const incomingEdgeCount = validEdges.filter(e => e.target === nodeId).length;
                 if (incomingEdgeCount === 0) {
                     errors.push("No incoming flow (disconnected).");
                 }
