@@ -38,3 +38,37 @@ test('une arête vers un nœud absent est marquée en erreur sans planter', () =
   assert.equal(result.nodes.find(n => n.id === 'e').data.volume_in, 10);
   assert.equal(result.nodes.find(n => n.id === 'p').data.process_time_total, 20);
 });
+
+test('un cycle est signalé sur ses étapes et n’empêche pas le calcul du reste', () => {
+  // s -> p -> e (50 %) et s -> p -> q -> r -> q (boucle q/r, 50 %)
+  const g = graph();
+  g.nodes.push(
+    { id: 'q', type: 'process', data: { cycleTimes: { x: 1 } } },
+    { id: 'r', type: 'process', data: { cycleTimes: { x: 1 } } },
+  );
+  g.edges = [
+    { id: 'a', source: 's', target: 'p', data: {} },
+    { id: 'b', source: 'p', target: 'e', data: { percentage: 50 } },
+    { id: 'c', source: 'p', target: 'q', data: { percentage: 50 } },
+    { id: 'd', source: 'q', target: 'r', data: {} },
+    { id: 'f', source: 'r', target: 'q', data: {} },
+  ];
+  const result = calculateMetrics(g.nodes, g.edges);
+  for (const id of ['q', 'r']) {
+    const n = result.nodes.find(n => n.id === id);
+    assert.deepEqual(n.data.errors, ['Part of a loop: volume cannot be computed.']);
+    assert.equal(n.data.volume_in, 0);
+    assert.equal(n.data.process_time_total, 0);
+  }
+  assert.equal(result.edges.find(e => e.id === 'd').data.isError, true);
+  assert.equal(result.edges.find(e => e.id === 'f').data.isError, true);
+  assert.deepEqual([...result.metrics.cycleNodeIds].sort(), ['q', 'r']);
+  // Le chemin sain est calculé
+  assert.equal(result.nodes.find(n => n.id === 'p').data.process_time_total, 20);
+  assert.equal(result.nodes.find(n => n.id === 'e').data.volume_in, 5);
+});
+
+test('metrics.cycleNodeIds est vide sur un graphe acyclique', () => {
+  const g = graph();
+  assert.deepEqual(calculateMetrics(g.nodes, g.edges).metrics.cycleNodeIds, []);
+});

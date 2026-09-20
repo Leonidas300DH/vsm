@@ -61,6 +61,28 @@ export const calculateMetrics = (nodes, edges) => {
         }
     }
 
+    // Nodes left out of the topological order belong to a cycle.
+    const sortedSet = new Set(sortedOrder);
+    const cycleNodeIds = nodes.map(n => n.id).filter(id => !sortedSet.has(id));
+    const cycleSet = new Set(cycleNodeIds);
+    cycleNodeIds.forEach(id => {
+        const node = nodeMap.get(id);
+        node.data.volumeStreamIn = [];
+        node.data.volumeStreamOut = [];
+        node.data.volume_in = 0;
+        node.data.process_time_total = 0;
+        node.data.fte_required = 0;
+        node.data.utilization = 0;
+        node.data.errors = ['Part of a loop: volume cannot be computed.'];
+    });
+    validEdges.forEach(e => {
+        if (cycleSet.has(e.source) && cycleSet.has(e.target)) {
+            const edge = edgeMap.get(e.id);
+            edge.data.isError = true;
+            edge.data.label = 'Loop';
+        }
+    });
+
     // 3. Propagate Volume and Calculate Metrics
     sortedOrder.forEach(nodeId => {
         const node = nodeMap.get(nodeId);
@@ -414,7 +436,8 @@ export const calculateMetrics = (nodes, edges) => {
         metrics: {
             totalProcessTime,
             totalLeadTime: grandTotalLeadTime,
-            efficiency
+            efficiency,
+            cycleNodeIds
         }
     };
 };
