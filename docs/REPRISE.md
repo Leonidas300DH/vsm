@@ -112,7 +112,7 @@ Hors périmètre, à planifier : placement des étiquettes d'arêtes en O(E²), 
 
 ## Orientation et focus (20 septembre 2026)
 
-- Palette et analyse masquées au démarrage (préférences `vsm.panel.v2.*`, l'ancienne clé est ignorée). Les boutons de la barre les affichent ; le chevron interne les masque.
+- Palette et analyse repliées au démarrage, rail fin avec chevron (préférences `vsm.panel.v2.*`, l'ancienne clé est ignorée). Le chevron ou les boutons de la barre les déplient ; elles ne sont jamais retirées de l'écran.
 - `layoutGraph(nodes, edges, { orientation })` dans `src/utils/layout.js` : axes abstraits flux / couloir projetés en x/y. `horizontalLayout` est conservé comme alias. Orientation mémorisée dans `vsm.orientation` ; un fichier ouvert garde ses positions jusqu'au prochain « Aligner ». Le basculement relance la disposition après remesure des cartes (double `requestAnimationFrame`), car leur forme change avec l'orientation.
 - Focus (`src/utils/focus.js`, testé dans `tests/focus.test.mjs`) : le sélecteur **Focus** liste les outils, les acteurs internes et les équipes externes (acteurs `scope: 'external'` regroupés par champ Équipe). Une sélection allume les étapes qui utilisent la ressource (`node-lineage`), leurs connexions mutuelles (`edge-lineage`) et les satellites correspondants (`is-focused`) ; tout le reste est estompé (`node-dimmed` / `edge-dimmed`). La carte ne bouge pas. État de session, jamais sauvegardé.
 - Une première version « couloirs » (swimlanes) a été livrée puis retirée le même jour : elle réorganisait la carte au lieu de montrer les interactions avec une ressource.

@@ -11,7 +11,7 @@ import { createExample } from './data/example';
 import { layoutGraph } from './utils/layout';
 import { focusOptions, focusedNodeIds } from './utils/focus';
 
-// v2: palette and analysis start hidden; the key changed so stored v1 values no longer apply.
+// v2: palette and analysis start collapsed (thin rail with a handle); the key changed so stored v1 values no longer apply.
 function usePanelPreference(key, initial) {
   const storageKey = `vsm.panel.v2.${key}`;
   const [value, setValue] = useState(() => {
@@ -105,13 +105,13 @@ function Workspace() {
     {focus && !lastDeletion && <div className="workspace-notice is-focus" role="status">{FOCUS_KIND_LABEL[focus.kind]} « {focus.label} » · {focusCount} étape{focusCount > 1 ? 's' : ''} concernée{focusCount > 1 ? 's' : ''} · le reste est estompé<button className="notice-action" onClick={() => setFocus(null)}>Retirer le focus</button></div>}
     {notice && !lastDeletion && !focus && <div className="workspace-notice" role="status">{notice}<button aria-label="Fermer le message" onClick={() => setNotice('')}><X size={13} /></button></div>}
     <main className="workspace-main">
-      {sidebar && <Sidebar collapsed={false} onToggle={() => setSidebar(false)} onExpand={() => setSidebar(true)} />}
+      <Sidebar collapsed={!sidebar} onToggle={() => setSidebar(!sidebar)} onExpand={() => setSidebar(true)} />
       <section className="canvas-column" aria-label="Carte de processus">
         <div className="canvas-stage"><VSMCanvas onInspect={() => setProperties(true)} />
           {!nodes.length && <div className="empty-canvas"><span className="empty-symbol">◇</span><h2>Dessinez votre flux.</h2><p>Glissez une étape depuis la palette<br />ou explorez un parcours KYC complet.</p><button onClick={loadExample}>Explorer l’exemple <ArrowRight size={15} /></button></div>}
           <div className="canvas-caption">{orientation === 'vertical' ? 'HAUT → BAS' : 'GAUCHE → DROITE'} <span>Glisser pour explorer · Molette pour zoomer</span></div>
         </div>
-        {analysis && <Timeline collapsed={false} onToggle={() => setAnalysis(false)} />}
+        <Timeline collapsed={!analysis} onToggle={() => setAnalysis(!analysis)} />
       </section>
       <div className="inspector-shell" hidden={!properties}><PropertiesPanel onClose={() => setProperties(false)} /></div>
       {!properties && <button className="inspector-tab" aria-label="Ouvrir l’inspecteur" onClick={() => setProperties(true)}><PanelRight size={16} /><span>Inspecteur</span></button>}
