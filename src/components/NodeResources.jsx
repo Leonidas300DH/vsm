@@ -36,11 +36,14 @@ export default function NodeResources({ id, data }) {
         const Icon = resourceIcons[kind];
         const ids = data[config.field] || [];
         return <div className="resource-branch" key={kind}>
-          {ids.length > 0 && <svg className="resource-wires" viewBox={side ? `0 0 ${32 + ids.length * 100} 100` : `0 0 100 ${32 + ids.length * 100}`} preserveAspectRatio="none" aria-hidden="true">
-            {ids.map((resourceId, index) => <path key={resourceId} d={side
-              ? (index === 0 ? 'M4 50 L78 36' : `M4 50 C40 96 ${index * 100 + 40} 96 ${index * 100 + 78} 36`)
-              : (index === 0 ? 'M50 4 L50 55' : `M50 4 C2 35 2 ${index * 100 + 35} 50 ${index * 100 + 55}`)} />)}
-          </svg>}
+          {ids.length > 0 && (side
+            // Side layout: one straight wire at orb height, from the diamond through every orb (port 110px, satellites 100px each).
+            ? <svg className="resource-wires" viewBox={`0 0 ${110 + ids.length * 100} 100`} preserveAspectRatio="none" aria-hidden="true">
+                <path d={`M4 33.5 L${110 + (ids.length - 1) * 100 + 46.5} 33.5`} />
+              </svg>
+            : <svg className="resource-wires" viewBox={`0 0 100 ${32 + ids.length * 100}`} preserveAspectRatio="none" aria-hidden="true">
+                {ids.map((resourceId, index) => <path key={resourceId} d={index === 0 ? 'M50 4 L50 55' : `M50 4 C2 35 2 ${index * 100 + 35} 50 ${index * 100 + 55}`} />)}
+              </svg>)}
           <button className="resource-port" title={`Rattacher : ${config.label}`} onClick={() => setPicker(kind)}><span className="resource-diamond"/><span className="resource-port-label">{config.label}</span><Plus size={12}/></button>
           {(data[config.field] || []).map(resourceId => {
             const entry = store[kind].find(r => r.id === resourceId);
