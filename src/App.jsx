@@ -1,75 +1,80 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
+import { ReactFlowProvider, useReactFlow } from 'reactflow';
+import { PanelLeft, PanelRight, ChartNoAxesCombined, AlignHorizontalSpaceAround, Scan, FlaskConical, ArrowRight, X } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import PropertiesPanel from './components/PropertiesPanel';
 import Timeline from './components/Timeline';
 import VSMCanvas from './components/VSMCanvas';
 import Header from './components/Header';
+import useStore from './store/useStore';
+import { createExample } from './data/example';
+import { horizontalLayout } from './utils/layout';
 
-import { ReactFlowProvider } from 'reactflow';
-
-function App() {
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
-  const [isPropertiesOpen, setIsPropertiesOpen] = React.useState(true);
-
-  return (
-    <ReactFlowProvider>
-      <div style={{ display: 'flex', height: '100vh', width: '100vw', flexDirection: 'column' }}>
-        <Header />
-        <div style={{ display: 'flex', flex: 1, position: 'relative', overflow: 'hidden' }}>
-          {isSidebarOpen && <Sidebar onClose={() => setIsSidebarOpen(false)} />}
-          {!isSidebarOpen && (
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              style={{
-                position: 'absolute',
-                top: '1rem',
-                left: '1rem',
-                zIndex: 10,
-                background: '#fff',
-                border: '1px solid var(--color-border)',
-                borderRadius: '4px',
-                padding: '0.5rem',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }}
-              title="Open Sidebar"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
-            </button>
-          )}
-
-          <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ flex: 1, position: 'relative' }}>
-              <VSMCanvas />
-            </div>
-            <Timeline />
-          </div>
-
-          {isPropertiesOpen && <PropertiesPanel onClose={() => setIsPropertiesOpen(false)} />}
-          {!isPropertiesOpen && (
-            <button
-              onClick={() => setIsPropertiesOpen(true)}
-              style={{
-                position: 'absolute',
-                top: '1rem',
-                right: '1rem',
-                zIndex: 10,
-                background: '#fff',
-                border: '1px solid var(--color-border)',
-                borderRadius: '4px',
-                padding: '0.5rem',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }}
-              title="Open Properties"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg>
-            </button>
-          )}
-        </div>
-      </div>
-    </ReactFlowProvider>
-  );
+function usePanelPreference(key, initial) {
+  const [value, setValue] = useState(() => {
+    try { const saved = JSON.parse(localStorage.getItem(`vsm.panel.${key}`)); return typeof saved === 'boolean' ? saved : initial; } catch { return initial; }
+  });
+  useEffect(() => { try { localStorage.setItem(`vsm.panel.${key}`, JSON.stringify(value)); } catch { /* Layout remains usable without storage. */ } }, [key, value]);
+  return [value, setValue];
 }
 
-export default App;
+function Workspace() {
+  const [sidebar, setSidebar] = usePanelPreference('sidebar', true);
+  const [properties, setProperties] = usePanelPreference('properties', false);
+  const [analysis, setAnalysis] = usePanelPreference('analysis', true);
+  const [notice, setNotice] = useState('');
+  const { nodes, edges, setGraph, setFileHandle, selectedNodeId } = useStore();
+  const { fitView, getNodes } = useReactFlow();
+  const frame = () => requestAnimationFrame(() => requestAnimationFrame(() => fitView({ padding: 0.15, duration: 0, minZoom: 0.1, maxZoom: 1 })));
+  const loadExample = () => {
+    if (nodes.length && !window.confirm('Remplacer la carte actuelle par l’exemple ? Enregistrez votre travail avant de continuer.')) return;
+    const example = createExample();
+    useStore.getState().mergeLibraries(example);
+    setGraph(example.nodes, example.edges, example.title);
+    setFileHandle(null);
+    setNotice('KYC fictif · 100 dossiers/jour · Routages et temps illustratifs · Aucune décision réelle.');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const result = horizontalLayout(getNodes(), useStore.getState().edges);
+      if (result.nodes) useStore.setState({ nodes: result.nodes });
+      frame();
+    }));
+  };
+  const arrange = () => {
+    const result = horizontalLayout(getNodes(), edges);
+    if (result.error) return setNotice(result.error);
+    useStore.setState({ nodes: result.nodes });
+    setNotice('Disposition de gauche à droite · branches parallèles et convergence à droite.');
+    frame();
+  };
+  return <div className="workspace">
+    <Header>
+    <div className="workspace-toolbar">
+      <div className="toolbar-group">
+        <button onClick={loadExample}><FlaskConical size={14} /> Exemple</button>
+        <button onClick={arrange} disabled={!nodes.length}><AlignHorizontalSpaceAround size={14} /> Aligner</button>
+        <button onClick={frame}><Scan size={14} /> Vue globale</button>
+        {selectedNodeId && <button onClick={() => fitView({ nodes:[{id:selectedNodeId}], padding:0.5, maxZoom:1, duration:200 })}>Centrer l’étape</button>}
+        <span className="toolbar-divider" />
+        <button aria-label="Palette" aria-pressed={sidebar} onClick={() => setSidebar(!sidebar)}><PanelLeft size={16} /></button>
+        <button aria-label="Analyse" aria-pressed={analysis} onClick={() => setAnalysis(!analysis)}><ChartNoAxesCombined size={16} /></button>
+        <button aria-label="Inspecteur" aria-pressed={properties} onClick={() => setProperties(!properties)}><PanelRight size={16} /></button>
+      </div>
+    </div>
+    </Header>
+    {notice && <div className="workspace-notice" role="status">{notice}<button aria-label="Fermer le message" onClick={() => setNotice('')}><X size={13} /></button></div>}
+    <main className="workspace-main">
+      <Sidebar collapsed={!sidebar} onToggle={() => setSidebar(!sidebar)} onExpand={() => setSidebar(true)} />
+      <section className="canvas-column" aria-label="Carte de processus">
+        <div className="canvas-stage"><VSMCanvas onInspect={() => setProperties(true)} />
+          {!nodes.length && <div className="empty-canvas"><span className="empty-symbol">◇</span><h2>Dessinez votre flux.</h2><p>Glissez une étape depuis la palette<br />ou explorez un parcours KYC complet.</p><button onClick={loadExample}>Explorer l’exemple <ArrowRight size={15} /></button></div>}
+          <div className="canvas-caption">GAUCHE → DROITE <span>Glisser pour explorer · Molette pour zoomer</span></div>
+        </div>
+        <Timeline collapsed={!analysis} onToggle={() => setAnalysis(!analysis)} />
+      </section>
+      <div className="inspector-shell" hidden={!properties}><PropertiesPanel onClose={() => setProperties(false)} /></div>
+      {!properties && <button className="inspector-tab" aria-label="Ouvrir l’inspecteur" onClick={() => setProperties(true)}><PanelRight size={16} /><span>Inspecteur</span></button>}
+    </main>
+    <footer className="statusbar"><span><i /> ESPACE LOCAL</span><span>{selectedNodeId ? 'Étape sélectionnée' : 'Sélectionnez une étape ou une connexion pour la modifier'}</span><span>VSM / PROCESS STUDIO</span></footer>
+  </div>;
+}
+export default function App() { return <ReactFlowProvider><Workspace /></ReactFlowProvider>; }

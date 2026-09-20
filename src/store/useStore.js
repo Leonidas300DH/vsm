@@ -1,8 +1,14 @@
 import { create } from 'zustand';
 import { addEdge, applyNodeChanges, applyEdgeChanges } from 'reactflow';
+import { resourceKinds, referencedResources, mergeResources } from '../utils/resources';
 import { calculateMetrics } from '../utils/calculations';
 
+const readLibrary = (kind) => {
+  try { const value = JSON.parse(localStorage.getItem(`vsm_global_${kind}`) || '[]'); return Array.isArray(value) ? value : []; }
+  catch { return []; }
+};
 const useStore = create((set, get) => ({
+  edgeLabelSizes: {},
   nodes: [],
   edges: [],
   metrics: {
@@ -36,7 +42,38 @@ const useStore = create((set, get) => ({
     }
   })(),
 
-  setProjectTitle: (title) => set({ projectTitle: title }),
+  actors: readLibrary('actors'),
+  knowledge: readLibrary('knowledge'),
+  setLibrary: (kind, entries) => {
+    if (!resourceKinds[kind]) return;
+    localStorage.setItem(`vsm_global_${kind}`, JSON.stringify(entries));
+    set({ [kind]: entries });
+  },
+  mergeLibraries: (libraries) => {
+    Object.keys(resourceKinds).forEach(kind => get().setLibrary(kind, mergeResources(get()[kind], libraries[kind])));
+  },
+  saveResource: (kind, resource) => {
+    const entry = { ...resource, id: resource.id || crypto.randomUUID() };
+    get().setLibrary(kind, mergeResources(get()[kind], [entry]));
+    return entry.id;
+  },
+  deleteResource: (kind, id) => {
+    if (referencedResources(get().nodes, kind, id).length) return false;
+    get().setLibrary(kind, get()[kind].filter(r => r.id !== id));
+    return true;
+  },
+  attachResource: (nodeId, kind, resourceId) => {
+    const node = get().nodes.find(n => n.id === nodeId);
+    if (!node || !get()[kind].some(r => r.id === resourceId)) return;
+    const field = resourceKinds[kind].field;
+    get().updateNodeData(nodeId, { [field]: [...new Set([...(node.data[field] || []), resourceId])] });
+  },
+  detachResource: (nodeId, kind, resourceId) => {
+    const node = get().nodes.find(n => n.id === nodeId);
+    if (!node) return;
+    const field = resourceKinds[kind].field;
+    get().updateNodeData(nodeId, { [field]: (node.data[field] || []).filter(id => id !== resourceId) });
+  },
   setProjectTitle: (title) => set({ projectTitle: title }),
   setFileHandle: (handle) => set({ fileHandle: handle }),
 
@@ -67,6 +104,7 @@ const useStore = create((set, get) => ({
   },
 
   deleteTool: (id) => {
+    if (referencedResources(get().nodes, "tools", id).length) return;
     const newTools = get().tools.filter(t => t.id !== id);
     localStorage.setItem('vsm_global_tools', JSON.stringify(newTools));
     set({ tools: newTools });
@@ -194,6 +232,7 @@ const useStore = create((set, get) => ({
       nodes: calculatedNodes,
       edges: calculatedEdges,
       metrics,
+      selectedNodeId: null, selectedStepId: null, selectedItemId: null,
       projectTitle: title || 'Untitled VSM'
     });
   },

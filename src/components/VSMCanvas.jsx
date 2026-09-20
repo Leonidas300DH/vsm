@@ -2,9 +2,10 @@ import React, { useCallback, useRef, useMemo, useState } from 'react';
 import ReactFlow, {
     Background,
     Controls,
-    MiniMap
+    MiniMap,
+    useReactFlow
 } from 'reactflow';
-import 'reactflow/dist/style.css';
+
 import useStore from '../store/useStore';
 import { v4 as uuidv4 } from 'uuid';
 import ProcessNode from '../nodes/ProcessNode';
@@ -14,7 +15,8 @@ import FlowEdge from '../edges/FlowEdge';
 
 import { computeLineage } from '../utils/lineageUtils';
 
-const VSMCanvas = () => {
+const VSMCanvas = ({ onInspect }) => {
+    const { screenToFlowPosition } = useReactFlow();
     const reactFlowWrapper = useRef(null);
     const {
         nodes,
@@ -57,10 +59,7 @@ const VSMCanvas = () => {
 
             const data = dataString ? JSON.parse(dataString) : {};
 
-            const position = {
-                x: event.clientX - 250, // Adjust for sidebar width
-                y: event.clientY - 60,  // Adjust for header
-            };
+            const position = screenToFlowPosition({ x: event.clientX, y: event.clientY });
 
             const newNode = {
                 id: uuidv4(),
@@ -71,7 +70,7 @@ const VSMCanvas = () => {
 
             addNode(newNode);
         },
-        [addNode]
+        [addNode, screenToFlowPosition]
     );
 
     // Hover & Selection Logic
@@ -85,12 +84,13 @@ const VSMCanvas = () => {
 
     const onNodeClick = useCallback((_, node) => {
         setSelectedNodeId(node.id);
+        onInspect();
         if (node.type === 'process') {
             setSelectedStepId(node.id);
         } else {
             setSelectedStepId(null);
         }
-    }, [setSelectedNodeId, setSelectedStepId]);
+    }, [setSelectedNodeId, setSelectedStepId, onInspect]);
 
     const onPaneClick = useCallback(() => {
         setSelectedNodeId(null);
@@ -202,15 +202,19 @@ const VSMCanvas = () => {
                 onNodeMouseEnter={onNodeMouseEnter}
                 onNodeMouseLeave={onNodeMouseLeave}
                 onNodeClick={onNodeClick}
+                onEdgeClick={onInspect}
+                minZoom={0.15}
+                maxZoom={2}
+                fitViewOptions={{ padding: 0.15 }}
                 onPaneClick={onPaneClick}
                 nodeTypes={nodeTypes}
                 edgeTypes={edgeTypes}
                 defaultEdgeOptions={{ type: 'flow', markerEnd: { type: 'arrowclosed' } }}
                 fitView
             >
-                <Background color="#f8f9fa" gap={16} />
+                <Background color="#2b404d" gap={24} size={1} />
                 <Controls />
-                <MiniMap />
+                <MiniMap pannable zoomable nodeColor="#496877" maskColor="rgba(9, 16, 22, 0.65)" />
             </ReactFlow>
         </div>
     );

@@ -1,15 +1,15 @@
 import React, { memo } from 'react';
 import { Handle, Position } from 'reactflow';
-import { PlayCircle, StopCircle, Paperclip } from 'lucide-react';
+import { ArrowRightToLine, ArrowRightFromLine, Paperclip } from 'lucide-react';
 
-const StartEndNode = ({ id, data, selected }) => {
+const StartEndNode = ({ data, selected }) => {
     const isStart = data.type === 'start';
     const hasAttachments = data.attachments && data.attachments.length > 0;
-    const nodeBorder = isStart ? '#198754' : '#dc3545'; // Dark Green / Dark Red
-    const nodeBg = isStart ? '#d1e7dd' : '#f8d7da'; // Light Green / Light Red
+    const nodeBorder = '#f36f79';
+    const nodeBg = '#381c26';
 
     return (
-        <div style={{
+        <div className="terminal-card" title={isStart ? "Entrée (Input)" : "Sortie (Output)"} style={{
             background: nodeBg,
             border: `1px solid ${selected ? nodeBorder : nodeBorder}`,
             borderRadius: '20px',
@@ -24,15 +24,15 @@ const StartEndNode = ({ id, data, selected }) => {
             justifyContent: 'center',
             position: 'relative'
         }}>
-            {!isStart && <Handle type="target" position={Position.Left} style={{ background: '#555', width: '12px', height: '12px', left: '-6px' }} />}
+            {!isStart && <Handle type="target" position={Position.Left} style={{ background: '#7e99a8', width: '12px', height: '12px', left: '-6px' }} />}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                {isStart ? <PlayCircle size={16} color={nodeBorder} /> : <StopCircle size={16} color={nodeBorder} />}
+                {isStart ? <ArrowRightToLine size={20} aria-label="Entrée (Input)" color={nodeBorder} /> : <ArrowRightFromLine size={20} aria-label="Sortie (Output)" color={nodeBorder} />}
                 <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{data.label}</span>
             </div>
 
             {data.description && (
-                <div style={{ fontSize: '0.7rem', color: '#6c757d', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: '0.7rem', color: '#9aadb9', textAlign: 'center', whiteSpace: 'nowrap' }}>
                     {data.description}
                 </div>
             )}
@@ -45,7 +45,7 @@ const StartEndNode = ({ id, data, selected }) => {
                             alignItems: 'center',
                             gap: '0.25rem',
                             fontSize: '0.7rem',
-                            color: '#495057',
+                            color: '#9fadb9',
                             marginBottom: '0.1rem'
                         }}>
                             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></div>
@@ -57,12 +57,12 @@ const StartEndNode = ({ id, data, selected }) => {
             )}
 
             {hasAttachments && (
-                <div style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#fff', borderRadius: '50%', padding: '2px', border: '1px solid #dee2e6' }}>
-                    <Paperclip size={12} color="#6c757d" />
+                <div style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#14212a', borderRadius: '50%', padding: '2px', border: '1px solid #30434f' }}>
+                    <Paperclip size={12} color="#9aadb9" />
                 </div>
             )}
 
-            {isStart && <Handle type="source" position={Position.Right} style={{ background: '#555', width: '12px', height: '12px', right: '-6px' }} />}
+            {isStart && <Handle type="source" position={Position.Right} style={{ background: '#7e99a8', width: '12px', height: '12px', right: '-6px' }} />}
         </div>
     );
 };

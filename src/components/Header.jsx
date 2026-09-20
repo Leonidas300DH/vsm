@@ -6,54 +6,25 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { hasFileSystemAccess, openFile, saveFile, saveFileAs } from '../utils/fileSystem';
 
-const Header = () => {
+const Header = ({ children }) => {
     const {
         nodes,
         edges,
-        updateNodeData,
         setGraph,
         resetGraph,
         projectTitle,
         setProjectTitle,
         fileHandle,
         setFileHandle,
-        recentFiles,
         addToRecentFiles,
-        clearRecentFiles,
         tools,
-        setTools
+        actors, knowledge, mergeLibraries
     } = useStore();
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const fileInputRef = useRef(null);
     const titleInputRef = useRef(null);
-
-    const handleAutoBalance = () => {
-        // Simple auto-balance logic:
-        // If utilization > 85%, suggest adding FTE.
-        // If utilization < 50%, suggest reducing FTE.
-        // For MVP, we'll just alert the suggestions.
-
-        const suggestions = nodes
-            .filter(n => n.type === 'process')
-            .map(n => {
-                const util = parseFloat(n.data.utilization || 0);
-                if (util > 85) {
-                    return `${n.data.label}: High utilization (${util}%). Consider adding FTE.`;
-                } else if (util < 50 && util > 0) {
-                    return `${n.data.label}: Low utilization (${util}%). Consider reducing FTE.`;
-                }
-                return null;
-            })
-            .filter(Boolean);
-
-        if (suggestions.length > 0) {
-            alert("Auto-Balancing Suggestions:\n\n" + suggestions.join("\n"));
-        } else {
-            alert("Process is balanced! No significant utilization issues found.");
-        }
-    };
 
     const handleNew = () => {
         if (window.confirm('Are you sure you want to start a new project? Unsaved changes will be lost.')) {
@@ -73,7 +44,7 @@ const Header = () => {
         title: projectTitle,
         nodes,
         edges,
-        tools // Save tools
+        tools, actors, knowledge // Portable resource libraries
     });
 
     const handleSave = async () => {
@@ -164,7 +135,7 @@ const Header = () => {
                 setGraph(loadedNodes, loadedEdges, loadedTitle);
 
                 // Restore tools
-                setTools(loadedTools);
+                mergeLibraries({ tools: loadedTools, actors: data.actors, knowledge: data.knowledge });
 
                 setFileHandle(handle);
                 addToRecentFiles({ title: loadedTitle, content: data });
@@ -174,40 +145,6 @@ const Header = () => {
         } catch (error) {
             console.error("Error loading project:", error);
             alert(`Failed to load project: ${error.message}`);
-        }
-    };
-
-    const handleRecentFileClick = (fileData) => {
-        console.log("Opening recent file:", fileData);
-        if (!fileData) {
-            alert("Error: Recent file data is missing.");
-            return;
-        }
-        if (!fileData.content) {
-            alert("Error: Recent file content is missing.");
-            return;
-        }
-
-        if (window.confirm('Open recent file? Unsaved changes will be lost.')) {
-            let content = fileData.content;
-            if (typeof content === 'string') {
-                try {
-                    content = JSON.parse(content);
-                } catch (e) {
-                    console.error("Failed to parse recent file content", e);
-                    alert("Failed to parse recent file content. The file might be corrupted.");
-                    return;
-                }
-            }
-            loadProject(content, fileData.title);
-            setIsMenuOpen(false);
-        }
-    };
-
-    const handleClearRecent = () => {
-        if (window.confirm('Clear all recent files?')) {
-            clearRecentFiles();
-            setIsMenuOpen(false);
         }
     };
 
@@ -306,7 +243,7 @@ const Header = () => {
         }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <LayoutTemplate size={20} color="var(--color-primary)" />
+                    <LayoutTemplate size={20} color="var(--color-primary)" /><span className="workspace-label">VSM STUDIO</span>
 
                     {/* File Menu */}
                     <div style={{ position: 'relative' }}>
@@ -335,7 +272,7 @@ const Header = () => {
                                 top: '100%',
                                 left: 0,
                                 marginTop: '0.25rem',
-                                background: '#fff',
+                                background: '#14212a',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: '4px',
                                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
@@ -404,11 +341,7 @@ const Header = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem' }}>
-
-
-
-            </div>
+            {children}
 
             {/* Overlay to close menu when clicking outside */}
             {isMenuOpen && (
@@ -436,11 +369,11 @@ const MenuItem = ({ icon, label, onClick, danger, small, hasSubmenu }) => (
             textAlign: 'left',
             fontSize: small ? '0.8rem' : '0.875rem',
             cursor: 'pointer',
-            color: danger ? '#dc3545' : 'var(--color-text)',
+            color: danger ? '#df9296' : 'var(--color-text)',
             transition: 'background 0.1s',
             paddingLeft: small ? '1.5rem' : '1rem'
         }}
-        onMouseEnter={(e) => e.currentTarget.style.background = '#f8f9fa'}
+        onMouseEnter={(e) => e.currentTarget.style.background = '#0d171e'}
         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
     >
         {icon}

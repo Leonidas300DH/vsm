@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
 import { Handle, Position } from 'reactflow';
-import { Paperclip, AlertTriangle, Plus, User, Server, Wrench, Box } from 'lucide-react';
+import { Paperclip, AlertTriangle, Plus, User, Workflow, Bot, Box } from 'lucide-react';
 import { getFile } from '../utils/db';
+import NodeResources from '../components/NodeResources';
 import useStore from '../store/useStore';
 
 const ProcessNode = ({ id, data, selected }) => {
-    const { addNextNode, tools } = useStore();
-    const headerColor = data.headerColor || '#0d6efd'; // Default to Blue
+    const { addNextNode } = useStore();
     const hasAttachments = data.attachments && data.attachments.length > 0;
     const subtype = data.subtype || 'standard';
 
@@ -18,26 +18,28 @@ const ProcessNode = ({ id, data, selected }) => {
         HeaderIcon = User;
         variantStyle = { borderRadius: '16px' }; // Rounded for Actor
     } else if (subtype === 'it') {
-        HeaderIcon = Server;
-        variantStyle = { border: '2px solid #0d6efd' }; // Thicker border for IT
+        HeaderIcon = Workflow;
+        variantStyle = { border: '2px solid #8bb8cb' }; // Thicker border for IT
     }
 
+    if (subtype === 'ai') HeaderIcon = Bot;
+
     // Global Color Scheme
-    let nodeColor = '#ffffff'; // Body is always white
-    let borderColor = '#dee2e6';
-    let headerBg = '#0d6efd'; // Default Blue for Standard Steps
-    let headerText = '#ffffff';
+    let nodeColor = '#14212a'; // Body is always white
+    let borderColor = '#30434f';
+    let headerBg = '#8bb8cb'; // Default Blue for Standard Steps
+    let headerText = '#14212a';
 
     if (subtype === 'actor') {
-        headerBg = '#495057'; // Dark Grey for Actors
-        borderColor = '#495057';
+        headerBg = '#9fadb9'; // Dark Grey for Actors
+        borderColor = '#9fadb9';
     } else if (subtype === 'it') {
-        headerBg = '#fd7e14'; // Orange for IT
-        borderColor = '#fd7e14';
+        headerBg = '#b6a1d1'; // Orange for IT
+        borderColor = '#b6a1d1';
     } else {
         // Standard
-        headerBg = '#0d6efd'; // Blue
-        borderColor = '#0d6efd';
+        headerBg = '#8bb8cb'; // Blue
+        borderColor = '#8bb8cb';
     }
 
     // Volume Rounding
@@ -53,7 +55,7 @@ const ProcessNode = ({ id, data, selected }) => {
     };
 
     const cellStyle = {
-        border: '1px solid #dee2e6',
+        border: '1px solid #30434f',
         padding: '2px 4px',
         textAlign: 'right'
     };
@@ -62,21 +64,20 @@ const ProcessNode = ({ id, data, selected }) => {
         ...cellStyle,
         textAlign: 'left',
         fontWeight: 500,
-        color: '#495057'
+        color: '#9fadb9'
     };
 
-    // Resolve Tools
-    const usedTools = (data.toolsUsed || []).map(toolId => tools.find(t => t.id === toolId)).filter(Boolean);
-
     return (
-        <div
+        <div className="step-with-resources"><div className="process-card" data-kind={subtype}
+            onDragOver={e => { if (e.dataTransfer.types.includes("application/vsm-resource")) { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "link"; } }}
+            onDrop={e => { const raw = e.dataTransfer.getData("application/vsm-resource"); if (raw) { e.preventDefault(); e.stopPropagation(); try { const resource = JSON.parse(raw); useStore.getState().attachResource(id, resource.kind, resource.id); } catch { /* Ignore foreign drag data. */ } } }}
             style={{
                 minWidth: '220px',
                 maxWidth: '400px',
                 width: 'fit-content',
                 background: nodeColor,
-                color: '#212529',
-                border: `1px solid ${selected ? '#0d6efd' : borderColor}`,
+                color: '#dce6ec',
+                border: `1px solid ${selected ? '#8bb8cb' : borderColor}`,
                 borderRadius: subtype === 'actor' ? '16px' : '8px',
                 fontSize: '0.8rem',
                 boxShadow: selected ? '0 0 0 2px rgba(13, 110, 253, 0.25)' : '0 2px 4px rgba(0,0,0,0.05)',
@@ -89,7 +90,7 @@ const ProcessNode = ({ id, data, selected }) => {
                 type="target"
                 position={Position.Left}
                 style={{
-                    background: '#555',
+                    background: '#7e99a8',
                     width: '12px',
                     height: '12px',
                     left: '-6px',
@@ -128,10 +129,10 @@ const ProcessNode = ({ id, data, selected }) => {
                 {data.description && (
                     <div style={{
                         fontSize: '0.75rem',
-                        color: '#6c757d',
+                        color: '#9aadb9',
                         marginBottom: '0.5rem',
                         fontStyle: 'italic',
-                        borderBottom: '1px solid #eee',
+                        borderBottom: '1px solid #293c47',
                         paddingBottom: '0.25rem'
                     }}>
                         {data.description}
@@ -141,10 +142,10 @@ const ProcessNode = ({ id, data, selected }) => {
                 <table style={tableStyle}>
                     <thead>
                         <tr>
-                            <th style={{ ...cellStyle, textAlign: 'left', color: '#6c757d', fontWeight: 500 }}>Item</th>
-                            <th style={{ ...cellStyle, color: '#6c757d', fontWeight: 500 }}>C/T</th>
-                            <th style={{ ...cellStyle, color: '#6c757d', fontWeight: 500 }}>Vol</th>
-                            <th style={{ ...cellStyle, color: '#6c757d', fontWeight: 500 }}>Time</th>
+                            <th style={{ ...cellStyle, textAlign: 'left', color: '#9aadb9', fontWeight: 500 }}>Item</th>
+                            <th style={{ ...cellStyle, color: '#9aadb9', fontWeight: 500 }}>C/T</th>
+                            <th style={{ ...cellStyle, color: '#9aadb9', fontWeight: 500 }}>Vol</th>
+                            <th style={{ ...cellStyle, color: '#9aadb9', fontWeight: 500 }}>Time</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -160,7 +161,7 @@ const ProcessNode = ({ id, data, selected }) => {
                                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60px' }} title={item.name}>{item.name}</span>
                                             </div>
                                         </td>
-                                        <td style={{ ...cellStyle, color: ct === 0 ? '#dc3545' : 'inherit', fontWeight: ct === 0 ? 'bold' : 'inherit' }}>{ct}</td>
+                                        <td style={{ ...cellStyle, color: ct === 0 ? '#df9296' : 'inherit', fontWeight: ct === 0 ? 'bold' : 'inherit' }}>{ct}</td>
                                         <td style={cellStyle}>{parseFloat(item.value).toFixed(2)}</td>
                                         <td style={cellStyle}>{parseFloat(procTime).toFixed(2)}</td>
                                     </tr>
@@ -172,11 +173,11 @@ const ProcessNode = ({ id, data, selected }) => {
                             </tr>
                         )}
 
-                        <tr style={{ borderTop: '2px solid #dee2e6' }}>
+                        <tr style={{ borderTop: '2px solid #30434f' }}>
                             <td colSpan="3" style={{ ...labelCellStyle, fontWeight: 600 }}>Total Proc Time</td>
-                            <td style={{ ...cellStyle, fontWeight: 600 }}>{data.process_time_total || 0}</td>
+                            <td style={{ ...cellStyle, fontWeight: 600 }}>{Number(data.process_time_total || 0).toLocaleString('fr-FR', { maximumFractionDigits: 2 })}</td>
                         </tr>
-                        {subtype === 'standard' && (
+                        {(data.executionMode === 'step' || subtype === 'standard' || subtype === 'ai') && (
                             <>
                                 <tr>
                                     <td colSpan="3" style={labelCellStyle}>FTE Req</td>
@@ -191,27 +192,6 @@ const ProcessNode = ({ id, data, selected }) => {
                     </tbody>
                 </table>
 
-                {/* Tools Used Section */}
-                {usedTools.length > 0 && (
-                    <div style={{ marginTop: '0.5rem', borderTop: '1px solid #eee', paddingTop: '0.5rem' }}>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#6c757d', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <Wrench size={10} /> Tools Used:
-                        </div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                            {usedTools.map(tool => (
-                                <span key={tool.id} style={{
-                                    fontSize: '0.65rem',
-                                    background: '#e9ecef',
-                                    padding: '1px 4px',
-                                    borderRadius: '3px',
-                                    color: '#495057'
-                                }}>
-                                    {tool.name}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                )}
             </div>
 
             {/* Attachments */}
@@ -219,11 +199,11 @@ const ProcessNode = ({ id, data, selected }) => {
                 <div style={{
                     padding: '0.5rem',
                     borderTop: `1px solid ${borderColor}`,
-                    background: '#f8f9fa',
+                    background: '#0d171e',
                     borderBottomLeftRadius: subtype === 'actor' ? '15px' : '7px',
                     borderBottomRightRadius: subtype === 'actor' ? '15px' : '7px',
                 }}>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#6c757d', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#9aadb9', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                         <Paperclip size={10} /> Documents:
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
@@ -257,7 +237,7 @@ const ProcessNode = ({ id, data, selected }) => {
                                     borderRadius: '4px',
                                     padding: '2px 6px',
                                     fontSize: '0.7rem',
-                                    color: '#495057',
+                                    color: '#9fadb9',
                                     cursor: 'pointer',
                                     maxWidth: '100%',
                                     overflow: 'hidden',
@@ -279,17 +259,17 @@ const ProcessNode = ({ id, data, selected }) => {
                     position: 'absolute',
                     top: '-8px',
                     right: '-8px',
-                    background: '#fff',
+                    background: '#14212a',
                     borderRadius: '50%',
                     padding: '4px',
-                    border: '1px solid #dee2e6',
+                    border: '1px solid #30434f',
                     boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 10
                 }}>
-                    <Paperclip size={14} color="#6c757d" />
+                    <Paperclip size={14} color="#9aadb9" />
                 </div>
             )}
 
@@ -299,17 +279,17 @@ const ProcessNode = ({ id, data, selected }) => {
                     position: 'absolute',
                     top: '-15px',
                     left: '-15px',
-                    background: '#fff',
+                    background: '#14212a',
                     borderRadius: '50%',
                     padding: '4px',
-                    border: '1px solid #dc3545',
+                    border: '1px solid #df9296',
                     boxShadow: '0 1px 2px rgba(220, 53, 69, 0.2)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 10
                 }} title={data.errors.join('\n')}>
-                    <AlertTriangle size={14} color="#dc3545" />
+                    <AlertTriangle size={14} color="#df9296" />
                 </div>
             )}
 
@@ -325,8 +305,8 @@ const ProcessNode = ({ id, data, selected }) => {
                     right: '-24px',
                     top: 'calc(50% + 14px)',
                     transform: 'translateY(-50%)',
-                    background: '#fff',
-                    border: '1px solid #dee2e6',
+                    background: '#14212a',
+                    border: '1px solid #30434f',
                     borderRadius: '50%',
                     width: '20px',
                     height: '20px',
@@ -336,15 +316,15 @@ const ProcessNode = ({ id, data, selected }) => {
                     cursor: 'pointer',
                     boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                     zIndex: 10,
-                    color: '#6c757d'
+                    color: '#9aadb9'
                 }}
                 onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#f8f9fa';
-                    e.currentTarget.style.color = '#0d6efd';
+                    e.currentTarget.style.background = '#0d171e';
+                    e.currentTarget.style.color = '#8bb8cb';
                 }}
                 onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#fff';
-                    e.currentTarget.style.color = '#6c757d';
+                    e.currentTarget.style.background = '#14212a';
+                    e.currentTarget.style.color = '#9aadb9';
                 }}
             >
                 <Plus size={12} />
@@ -354,13 +334,13 @@ const ProcessNode = ({ id, data, selected }) => {
                 type="source"
                 position={Position.Right}
                 style={{
-                    background: '#555',
+                    background: '#7e99a8',
                     width: '12px',
                     height: '12px',
                     right: '-6px'
                 }}
             />
-        </div>
+        </div><NodeResources id={id} data={data}/></div>
     );
 };
 

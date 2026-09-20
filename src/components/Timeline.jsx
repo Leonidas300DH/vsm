@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
 import useStore from '../store/useStore';
-import { Wrench, Activity, BarChart3, AlertTriangle } from 'lucide-react';
+import { Wrench, Activity, BarChart3, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 
-const Timeline = () => {
-    const { metrics, nodes, edges, tools, selectedStepId, setSelectedStepId, selectedNodeId, setSelectedNodeId } = useStore();
+const Timeline = ({ collapsed, onToggle }) => {
+    const { metrics, nodes, edges, tools, selectedStepId, setSelectedStepId, setSelectedNodeId } = useStore();
     const [activeTab, setActiveTab] = useState('flow');
 
 
@@ -38,12 +38,13 @@ const Timeline = () => {
                 value: totalWait,
                 label: 'Wait',
                 details: inventoryText.join(', '),
-                color: '#ffc107'
+                color: '#cfb77a'
             });
         }
 
         // 2. Add Process Step or Actor/IT Wait Step
-        const isActorOrIT = node.data.subtype === 'actor' || node.data.subtype === 'it';
+        const isActorOrIT = node.data.executionMode !== 'step' && (node.data.subtype === 'actor' || node.data.subtype === 'it');
+        if (!isActorOrIT && node.data.executionMode === 'step' && Number(node.data.wait_time) > 0) timelineSteps.push({ type:'wait', id:`node-wait-${node.id}`, value:Number(node.data.wait_time), label:node.data.label, details:'Attente', color:'#f5a454' });
 
         if (isActorOrIT) {
             // Treat Actor/IT as a Wait Step
@@ -55,7 +56,7 @@ const Timeline = () => {
                     value: waitTime,
                     label: node.data.label, // Use node label (e.g. "User Action")
                     details: 'Wait Time',
-                    color: node.data.subtype === 'it' ? '#fd7e14' : '#495057' // Orange (IT) or Dark Grey (Actor)
+                    color: node.data.subtype === 'it' ? '#53cf91' : '#f5a454' // Orange (IT) or Dark Grey (Actor)
                 });
             }
         } else {
@@ -66,7 +67,7 @@ const Timeline = () => {
                 id: node.id,
                 value: node.data.process_time_total || 0,
                 label: node.data.label,
-                color: '#0d6efd', // Standard Blue
+                color: ({ ai:'#4bafff', it:'#53cf91', actor:'#f5a454' })[node.data.subtype] || '#a5aeb8',
                 tools: usedTools
             });
         }
@@ -99,32 +100,36 @@ const Timeline = () => {
                     description: props.painPoint,
                     location: `${sourceNode?.data?.label || 'Unknown'} → ${targetNode?.data?.label || 'Unknown'} `,
                     item: item?.name || 'Unknown Item',
-                    color: item?.color || '#000'
+                    color: item?.color || '#dce6ec'
                 });
             }
         });
     });
 
     return (
-        <div style={{
-            height: 'var(--footer-height)',
+        <div className={`analysis-panel ${collapsed ? 'is-collapsed' : ''}`} style={{
+            height: collapsed ? 36 : 'var(--footer-height)',
             background: 'var(--color-surface)',
             borderTop: '1px solid var(--color-border)',
             display: 'flex',
             flexDirection: 'column',
             zIndex: 10,
-            position: 'absolute',
-            bottom: 0,
+            flexShrink: 0,
+            minHeight: 0,
             width: '100%'
         }}>
+            <div className="analysis-summary">
+                <button onClick={onToggle} aria-expanded={!collapsed} aria-label={collapsed ? 'Déplier l’analyse' : 'Replier l’analyse'}>{collapsed ? <ChevronUp size={15} /> : <ChevronDown size={15} />} Analyse</button>
+                <div><span>Processing time <strong>{metrics.totalProcessTime} min</strong></span><span>Attente <strong>{metrics.totalLeadTime - metrics.totalProcessTime} min</strong></span><span>Lead time <strong>{metrics.totalLeadTime} min</strong></span></div>
+            </div>
             {/* Tabs Header */}
-            <div style={{ display: 'flex', borderBottom: '1px solid var(--color-border)', background: '#f8f9fa' }}>
+            <div className="analysis-tabs" style={{ display: 'flex', borderBottom: '1px solid var(--color-border)', background: '#0d171e' }}>
                 <button
                     onClick={() => setActiveTab('flow')}
                     style={{
                         padding: '0.5rem 1rem',
                         border: 'none',
-                        background: activeTab === 'flow' ? '#fff' : 'transparent',
+                        background: activeTab === 'flow' ? '#14212a' : 'transparent',
                         borderBottom: activeTab === 'flow' ? '2px solid var(--color-primary)' : 'none',
                         color: activeTab === 'flow' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                         fontWeight: 600,
@@ -142,7 +147,7 @@ const Timeline = () => {
                     style={{
                         padding: '0.5rem 1rem',
                         border: 'none',
-                        background: activeTab === 'tools' ? '#fff' : 'transparent',
+                        background: activeTab === 'tools' ? '#14212a' : 'transparent',
                         borderBottom: activeTab === 'tools' ? '2px solid var(--color-primary)' : 'none',
                         color: activeTab === 'tools' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                         fontWeight: 600,
@@ -160,7 +165,7 @@ const Timeline = () => {
                     style={{
                         padding: '0.5rem 1rem',
                         border: 'none',
-                        background: activeTab === 'painPoints' ? '#fff' : 'transparent',
+                        background: activeTab === 'painPoints' ? '#14212a' : 'transparent',
                         borderBottom: activeTab === 'painPoints' ? '2px solid var(--color-primary)' : 'none',
                         color: activeTab === 'painPoints' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                         fontWeight: 600,
@@ -177,12 +182,13 @@ const Timeline = () => {
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '1rem', fontSize: '0.75rem', color: 'var(--color-text-secondary)', gap: '1rem' }}>
                     <span>Total Lead Time: <strong style={{ color: 'var(--color-text)' }}>{metrics.totalLeadTime}m</strong></span>
                     <span>Process Time: <strong style={{ color: 'var(--color-text)' }}>{metrics.totalProcessTime}m</strong></span>
+                    <span>Wait: <strong style={{ color: 'var(--color-warning)' }}>{metrics.totalLeadTime - metrics.totalProcessTime}m</strong></span>
                     <span>Efficiency: <strong style={{ color: 'var(--color-primary)' }}>{metrics.efficiency}%</strong></span>
                 </div>
             </div>
 
             {/* Content */}
-            <div style={{ flex: 1, padding: '1rem', overflow: 'auto', background: '#fff' }}>
+            <div style={{ flex: 1, padding: '1rem', overflow: 'auto', background: '#14212a' }}>
                 {activeTab === 'flow' && (
                     <div style={{ height: '100%', position: 'relative', minWidth: 'fit-content' }}>
                         {timelineSteps.length === 0 ? (
@@ -190,7 +196,7 @@ const Timeline = () => {
                                 Add Process nodes to see the Sawtooth Diagram.
                             </div>
                         ) : (
-                            <svg width={Math.max(timelineSteps.length * 120, 100) + "%"} height="100%">
+                            <svg width={Math.max(timelineSteps.length * 120 + 80, 600)} height="100%">
                                 {timelineSteps.map((step, index) => {
                                     const x = index * 120 + 40;
                                     const yBase = 80;
@@ -219,7 +225,7 @@ const Timeline = () => {
 
                                             {/* Connection Line */}
                                             {index < timelineSteps.length - 1 && (
-                                                <line x1={x + width} y1={yBase} x2={x + 120} y2={yBase} stroke="#dee2e6" strokeWidth="2" />
+                                                <line x1={x + width} y1={yBase} x2={x + 120} y2={yBase} stroke="#30434f" strokeWidth="2" />
                                             )}
 
                                             {/* Step Line */}
@@ -231,18 +237,18 @@ const Timeline = () => {
                                             />
 
                                             {/* Label (Bottom) */}
-                                            <text x={x + width / 2} y={yBase + 20} textAnchor="middle" fontSize="10" fill={step.id === selectedStepId ? "#008CFF" : "#495057"} fontWeight="600" style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80px' }}>
+                                            <text x={x + width / 2} y={yBase + 20} textAnchor="middle" fontSize="10" fill={step.id === selectedStepId ? "#008CFF" : "#9fadb9"} fontWeight="600" style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80px' }}>
                                                 {step.label.length > 12 ? step.label.substring(0, 10) + '...' : step.label}
                                             </text>
 
                                             {/* Tools Used (Below Label) */}
                                             {isProcess && step.tools && step.tools.length > 0 && (
                                                 <g>
-                                                    <text x={x + width / 2} y={yBase + 35} textAnchor="middle" fontSize="8" fill="#6c757d">
+                                                    <text x={x + width / 2} y={yBase + 35} textAnchor="middle" fontSize="8" fill="#9aadb9">
                                                         Tools:
                                                     </text>
                                                     {step.tools.map((t, i) => (
-                                                        <text key={i} x={x + width / 2} y={yBase + 45 + (i * 10)} textAnchor="middle" fontSize="8" fill="#0d6efd">
+                                                        <text key={i} x={x + width / 2} y={yBase + 45 + (i * 10)} textAnchor="middle" fontSize="8" fill="#8bb8cb">
                                                             {t.name}
                                                         </text>
                                                     ))}
@@ -270,25 +276,25 @@ const Timeline = () => {
                         ) : (
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
                                 <thead>
-                                    <tr style={{ borderBottom: '2px solid #dee2e6' }}>
-                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#495057' }}>Tool Name</th>
-                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#495057' }}>Used In Steps</th>
-                                        <th style={{ textAlign: 'right', padding: '0.5rem', color: '#495057' }}>Total Process Time</th>
+                                    <tr style={{ borderBottom: '2px solid #30434f' }}>
+                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#9fadb9' }}>Tool Name</th>
+                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#9fadb9' }}>Used In Steps</th>
+                                        <th style={{ textAlign: 'right', padding: '0.5rem', color: '#9fadb9' }}>Total Process Time</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {toolSummary.map(tool => (
-                                        <tr key={tool.id} style={{ borderBottom: '1px solid #eee' }}>
+                                        <tr key={tool.id} style={{ borderBottom: '1px solid #293c47' }}>
                                             <td style={{ padding: '0.5rem', fontWeight: 600 }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                    <Wrench size={14} color="#6c757d" />
+                                                    <Wrench size={14} color="#9aadb9" />
                                                     {tool.name}
                                                 </div>
                                             </td>
                                             <td style={{ padding: '0.5rem' }}>
                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
                                                     {tool.steps.map((step, i) => (
-                                                        <span key={i} style={{ background: '#e9ecef', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem' }}>
+                                                        <span key={i} style={{ background: '#293c47', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem' }}>
                                                             {step}
                                                         </span>
                                                     ))}
@@ -314,16 +320,16 @@ const Timeline = () => {
                         ) : (
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
                                 <thead>
-                                    <tr style={{ borderBottom: '2px solid #dee2e6' }}>
-                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#495057' }}>Pain Point</th>
-                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#495057' }}>Location (Flow)</th>
-                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#495057' }}>Item</th>
+                                    <tr style={{ borderBottom: '2px solid #30434f' }}>
+                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#9fadb9' }}>Pain Point</th>
+                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#9fadb9' }}>Location (Flow)</th>
+                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#9fadb9' }}>Item</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {painPoints.map(pp => (
-                                        <tr key={pp.id} style={{ borderBottom: '1px solid #eee' }}>
-                                            <td style={{ padding: '0.5rem', fontWeight: 600, color: '#dc3545' }}>
+                                        <tr key={pp.id} style={{ borderBottom: '1px solid #293c47' }}>
+                                            <td style={{ padding: '0.5rem', fontWeight: 600, color: '#df9296' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                                     <AlertTriangle size={14} />
                                                     {pp.description}

@@ -1,16 +1,27 @@
-# React + Vite
+# VSM v2
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Reprise locale de [Leonidas300DH/vsm](https://github.com/Leonidas300DH/vsm).
+Première refonte graphique sur la branche `reprise/v2` : thème sombre, canevas horizontal et exemple bancaire. La version héritée reste accessible dans l’historique Git.
 
-Currently, two official plugins are available:
+## Démarrage
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```sh
+npm ci
+npm run dev -- --host 127.0.0.1
+```
 
-## React Compiler
+Ouvrir l'adresse affichée par Vite. `npm run build` compile l'application, `npm run lint` contrôle le code.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## État initial
 
-## Expanding the ESLint configuration
+Installation, compilation et affichage initial vérifiés le 20 septembre 2026. Le lint relève 18 erreurs héritées et npm signale 18 vulnérabilités dans les dépendances. Les fonctions métier et l'import/export restent à valider.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Voir [le diagnostic et le plan de reprise](docs/REPRISE.md).
+
+Sur ce Mac, Git fonctionne avec `DEVELOPER_DIR=/Library/Developer/CommandLineTools git ...` si le Git par défaut est bloqué par la licence Xcode. Aucun changement système nécessaire.
+
+## Première version graphique
+
+`npm run lint`, `npm test` et `npm run build` passent. Utiliser **Exemple** pour charger le processus bancaire, **Aligner** pour ordonner les étapes de gauche à droite, et les boutons de panneaux pour ajuster l’espace. La sélection ouvre l’inspecteur. Les formules métier restent inchangées. Sauvegarder via File > Save ; la sauvegarde automatique reste à implémenter.
+
+Version locale uniquement : aucun déploiement Vercel effectué. Les vulnérabilités des dépendances et l’avertissement de taille du bundle restent à traiter.

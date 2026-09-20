@@ -1,3 +1,5 @@
+// Older projects retain their information-only actor/IT semantics.
+const isSupport = node => node.data.executionMode !== 'step' && ['actor', 'it'].includes(node.data.subtype);
 
 /**
  * Performs a forward pass calculation on the VSM graph.
@@ -91,7 +93,7 @@ export const calculateMetrics = (nodes, edges) => {
 
         // --- Process Metrics Calculation ---
         if (node.type === 'process') {
-            if (node.data.subtype === 'actor' || node.data.subtype === 'it') {
+            if (isSupport(node)) {
                 // Actor / IT: No process time, no FTE
                 node.data.process_time_total = 0;
                 node.data.fte_required = 0;
@@ -116,7 +118,7 @@ export const calculateMetrics = (nodes, edges) => {
 
             // --- Validation: Incomplete Data ---
             const errors = [];
-            if (node.data.subtype === 'standard' || !node.data.subtype) {
+            if (!isSupport(node)) {
                 const hasIncompleteItems = inputStream.some(item => item.value > 0 && parseFloat(node.data.cycleTimes?.[item.id] || 0) === 0);
                 if (hasIncompleteItems) {
                     errors.push("Missing cycle time for active items.");
@@ -124,7 +126,7 @@ export const calculateMetrics = (nodes, edges) => {
             }
 
             // --- Validation: Disconnected (Skip for Actor/IT) ---
-            if (node.data.subtype !== 'actor' && node.data.subtype !== 'it') {
+            if (!isSupport(node)) {
                 // Check incoming edges
                 const incomingEdgeCount = edges.filter(e => e.target === nodeId).length;
                 if (incomingEdgeCount === 0) {
@@ -154,8 +156,7 @@ export const calculateMetrics = (nodes, edges) => {
 
             allOutgoingEdges.forEach(e => {
                 const targetNode = nodeMap.get(e.target);
-                const subtype = targetNode.data.subtype;
-                if (subtype === 'actor' || subtype === 'it') {
+                if (isSupport(targetNode)) {
                     infoEdges.push(e);
                 } else {
                     materialEdges.push(e);
@@ -184,11 +185,6 @@ export const calculateMetrics = (nodes, edges) => {
 
             if (totalEdges > 0) {
                 // Validation Tracking
-                const globalTotalPct = outgoingEdges.reduce((sum, e) => {
-                    const edge = edgeMap.get(e.id);
-                    return sum + (parseFloat(edge.data.percentage) || 0);
-                }, 0);
-
                 // Check if we are using Item Routing on ANY edge
                 const hasItemRouting = outgoingEdges.some(e => edgeMap.get(e.id).data.routingType === 'item');
 
@@ -324,14 +320,13 @@ export const calculateMetrics = (nodes, edges) => {
                             edge.data.label = `Rem (${firstPct.toFixed(0)}%)`;
                         } else if (items.length <= 5) {
                             edge.data.label = items.map(item => `${item.name}: ${item._calculatedPct.toFixed(0)}%`).join('\n');
-                        } else {
                         }
                     });
                 }
 
                 // --- Validation Logic ---
                 // Skip validation for Actor/IT nodes (they are independent)
-                if (node.data.subtype !== 'actor' && node.data.subtype !== 'it') {
+                if (!isSupport(node)) {
                     // If we have a Remaining edge, we assume it balances out, UNLESS standard edges exceed 100%
                     const hasRemaining = remainingEdges.length > 0;
 
@@ -388,7 +383,7 @@ export const calculateMetrics = (nodes, edges) => {
     const totalLeadTime = Array.from(nodeMap.values())
         .reduce((sum, n) => {
             if (n.type === 'inventory') return sum + (parseFloat(n.data.waitTime) || 0);
-            if (n.type === 'process' && (n.data.subtype === 'actor' || n.data.subtype === 'it')) {
+            if (n.type === 'process' && (isSupport(n) || n.data.executionMode === 'step')) {
                 return sum + (parseFloat(n.data.wait_time) || 0);
             }
             return sum;

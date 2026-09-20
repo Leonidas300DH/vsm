@@ -1,4 +1,4 @@
-import { getOutgoers, getIncomers } from 'reactflow';
+
 
 /**
  * Extracts all unique items from the nodes, mapping ID to Name.
@@ -80,7 +80,6 @@ export const computeLineage = (nodes, edges, selectedItemId, tools = []) => {
             // Check if this edge carries the item (by ID or Name)
             // AND if the routing percentage is > 0
             const routingData = routing[selectedItemId] || routing[selectedItemName];
-            const carriesItem = routingData && routingData.percent > 0;
 
             // Relaxed condition: If the current node is part of the lineage, and we are flowing out,
             // assume the item flows if no specific routing excludes it (or if it's a simple flow).
@@ -158,17 +157,20 @@ export const computeLineage = (nodes, edges, selectedItemId, tools = []) => {
         const cycleTime = n.data.cycleTimes?.[selectedItemId] || 0;
 
         // Determine Colors
-        let color = '#0d6efd'; // Default Blue
-        let borderColor = '#0d6efd';
+        let color = '#a5aeb8'; // Standard process
+        let borderColor = '#a5aeb8';
         let bgColor = '#ffffff';
 
         if (n.type === 'process') {
             if (n.data.subtype === 'actor') {
-                color = '#495057';
-                borderColor = '#495057';
+                color = '#f5a454';
+                borderColor = '#f5a454';
+            } else if (n.data.subtype === 'ai') {
+                color = '#4bafff';
+                borderColor = '#4bafff';
             } else if (n.data.subtype === 'it') {
-                color = '#fd7e14';
-                borderColor = '#fd7e14';
+                color = '#53cf91';
+                borderColor = '#53cf91';
             }
         } else if (n.type === 'startEnd') {
             // Check data.type instead of subtype for StartEndNode

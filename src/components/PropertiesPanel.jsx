@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import useStore from '../store/useStore';
 import { Paperclip, X, Download, FileText, Plus, Trash2, AlertTriangle, Wrench, ChevronRight } from 'lucide-react';
 import { saveFile, deleteFile } from '../utils/db';
@@ -63,15 +63,15 @@ const PropertiesPanel = ({ onClose }) => {
                                 {lineageData.entryNodes.map(node => (
                                     <div key={node.nodeId} style={{
                                         padding: '0.75rem',
-                                        background: '#f8f9fa',
-                                        border: '1px solid #dee2e6',
+                                        background: '#0d171e',
+                                        border: '1px solid #30434f',
                                         borderRadius: '6px',
                                         fontSize: '0.9rem',
                                         fontWeight: 500
                                     }}>
                                         {node.label}
                                         {node.volume > 0 && (
-                                            <div style={{ fontSize: '0.8rem', color: '#6c757d', marginTop: '0.25rem' }}>
+                                            <div style={{ fontSize: '0.8rem', color: '#9aadb9', marginTop: '0.25rem' }}>
                                                 Volume: {node.volume}
                                             </div>
                                         )}
@@ -97,7 +97,7 @@ const PropertiesPanel = ({ onClose }) => {
                                         {/* Header */}
                                         <div style={{
                                             background: step.color,
-                                            color: '#fff',
+                                            color: '#14212a',
                                             padding: '0.75rem 1rem',
                                             fontWeight: 600,
                                             fontSize: '0.95rem'
@@ -109,17 +109,17 @@ const PropertiesPanel = ({ onClose }) => {
                                         <div style={{ padding: '1rem' }}>
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                                                 <div>
-                                                    <div style={{ fontSize: '0.75rem', color: '#6c757d', marginBottom: '0.25rem' }}>Cycle Time</div>
+                                                    <div style={{ fontSize: '0.75rem', color: '#9aadb9', marginBottom: '0.25rem' }}>Cycle Time</div>
                                                     <div style={{ fontWeight: 500 }}>{step.cycleTime} min</div>
                                                 </div>
                                                 <div>
-                                                    <div style={{ fontSize: '0.75rem', color: '#6c757d', marginBottom: '0.25rem' }}>Volume</div>
+                                                    <div style={{ fontSize: '0.75rem', color: '#9aadb9', marginBottom: '0.25rem' }}>Volume</div>
                                                     <div style={{ fontWeight: 500 }}>{step.volume}</div>
                                                 </div>
                                             </div>
 
                                             <div style={{ marginBottom: '1rem' }}>
-                                                <div style={{ fontSize: '0.75rem', color: '#6c757d', marginBottom: '0.25rem' }}>Total Processing Time</div>
+                                                <div style={{ fontSize: '0.75rem', color: '#9aadb9', marginBottom: '0.25rem' }}>Total Processing Time</div>
                                                 <div style={{ fontWeight: 600, fontSize: '1rem' }}>{step.processingTime} min</div>
                                             </div>
 
@@ -132,21 +132,21 @@ const PropertiesPanel = ({ onClose }) => {
 
                                             {/* Tools */}
                                             {step.tools.length > 0 && (
-                                                <div style={{ background: '#f1f3f5', padding: '0.5rem', borderRadius: '4px', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
-                                                    <span style={{ color: '#6c757d', marginRight: '0.25rem' }}>Tools:</span>
+                                                <div style={{ background: '#192933', padding: '0.5rem', borderRadius: '4px', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                                                    <span style={{ color: '#9aadb9', marginRight: '0.25rem' }}>Tools:</span>
                                                     {step.tools.join(', ')}
                                                 </div>
                                             )}
 
                                             {/* Attachments */}
                                             {step.attachments.length > 0 && (
-                                                <div style={{ background: '#f8f9fa', padding: '0.5rem', borderRadius: '4px', fontSize: '0.8rem', border: '1px solid #dee2e6' }}>
-                                                    <div style={{ color: '#6c757d', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                                <div style={{ background: '#0d171e', padding: '0.5rem', borderRadius: '4px', fontSize: '0.8rem', border: '1px solid #30434f' }}>
+                                                    <div style={{ color: '#9aadb9', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                                                         <Paperclip size={10} /> Documents:
                                                     </div>
                                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                                                         {step.attachments.map((file, idx) => (
-                                                            <span key={idx} style={{ background: '#fff', padding: '2px 6px', borderRadius: '3px', border: '1px solid #dee2e6' }}>
+                                                            <span key={idx} style={{ background: '#14212a', padding: '2px 6px', borderRadius: '3px', border: '1px solid #30434f' }}>
                                                                 {file.name}
                                                             </span>
                                                         ))}
@@ -162,9 +162,9 @@ const PropertiesPanel = ({ onClose }) => {
                                             marginTop: '0.5rem',
                                             marginLeft: '1rem',
                                             paddingLeft: '1rem',
-                                            borderLeft: '2px solid #e9ecef'
+                                            borderLeft: '2px solid #293c47'
                                         }}>
-                                            <div style={{ fontSize: '0.8rem', color: '#6c757d', fontStyle: 'italic', marginBottom: '0.25rem' }}>Outgoing Flow</div>
+                                            <div style={{ fontSize: '0.8rem', color: '#9aadb9', fontStyle: 'italic', marginBottom: '0.25rem' }}>Outgoing Flow</div>
                                             {step.outgoingEdges.map(edge => (
                                                 <div key={edge.edgeId} style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>
                                                     <div style={{ fontWeight: 500 }}>To: {edge.targetLabel}</div>
@@ -174,9 +174,9 @@ const PropertiesPanel = ({ onClose }) => {
                                                     </div>
                                                     {/* Wait Time & Pain Points */}
                                                     {(edge.wait > 0 || edge.painPoint) && (
-                                                        <div style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#495057', paddingLeft: '0.5rem', borderLeft: '2px solid #dee2e6' }}>
+                                                        <div style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#9fadb9', paddingLeft: '0.5rem', borderLeft: '2px solid #30434f' }}>
                                                             {edge.wait > 0 && <div>Wait: {edge.wait} min</div>}
-                                                            {edge.painPoint && <div style={{ color: '#dc3545' }}>Pain: {edge.painPoint}</div>}
+                                                            {edge.painPoint && <div style={{ color: '#df9296' }}>Pain: {edge.painPoint}</div>}
                                                         </div>
                                                     )}
                                                 </div>
@@ -196,8 +196,8 @@ const PropertiesPanel = ({ onClose }) => {
                                 {lineageData.exitNodes.map(node => (
                                     <div key={node.nodeId} style={{
                                         padding: '0.75rem',
-                                        background: '#f8f9fa',
-                                        border: '1px solid #dee2e6',
+                                        background: '#0d171e',
+                                        border: '1px solid #30434f',
                                         borderRadius: '6px',
                                         fontSize: '0.9rem',
                                         fontWeight: 500
@@ -279,15 +279,15 @@ const PropertiesPanel = ({ onClose }) => {
                     <div style={{ marginTop: '1.5rem' }}>
                         <label style={labelStyle}>Item Configuration</label>
                         {volumeStream.map(item => (
-                            <div key={item.id} style={{ marginBottom: '1rem', padding: '0.75rem', border: '1px solid var(--color-border)', borderRadius: '8px', background: '#fff' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>
+                            <div key={item.id} style={{ marginBottom: '1rem', padding: '0.75rem', border: '1px solid var(--color-border)', borderRadius: '8px', background: '#14212a' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', borderBottom: '1px solid #293c47', paddingBottom: '0.5rem' }}>
                                     <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: item.color }}></div>
                                     <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{item.name}</span>
                                 </div>
 
                                 {/* Routing Percentage (if Item Routing) */}
                                 {selectedEdge.data?.routingType === 'item' && (
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', background: '#f8f9fa', padding: '0.5rem', borderRadius: '4px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', background: '#0d171e', padding: '0.5rem', borderRadius: '4px' }}>
                                         <label style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-text-primary)' }}>Routing</label>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                                             <input
@@ -372,7 +372,7 @@ const PropertiesPanel = ({ onClose }) => {
                     </div>
 
                     {selectedEdge.data?.isError && (
-                        <div style={{ marginTop: '1rem', padding: '0.5rem', background: '#ffe6e6', border: '1px solid #dc3545', borderRadius: '4px', color: '#dc3545', fontSize: '0.8rem' }}>
+                        <div style={{ marginTop: '1rem', padding: '0.5rem', background: '#30262c', border: '1px solid #df9296', borderRadius: '4px', color: '#df9296', fontSize: '0.8rem' }}>
                             <strong>Routing Error:</strong> Total percentage does not equal 100%. Please adjust.
                         </div>
                     )}
@@ -390,7 +390,7 @@ const PropertiesPanel = ({ onClose }) => {
             id: crypto.randomUUID(),
             name: 'New Item',
             value: 0,
-            color: '#' + Math.floor(Math.random() * 16777215).toString(16)
+            color: ['#91bbc8', '#b6a1d1', '#cfb77a', '#83bba7'][currentItems.length % 4]
         };
         handleNodeChange('volumeItems', [...currentItems, newItem]);
     };
@@ -464,7 +464,7 @@ const PropertiesPanel = ({ onClose }) => {
             <div style={headerStyle}>
                 <div>
                     <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Properties</h3>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{selectedNode.type}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{selectedNode.data.subtype === 'ai' ? 'AI Agent' : selectedNode.type}</span>
                 </div>
                 <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)' }}>
                     <ChevronRight size={18} />
@@ -494,6 +494,13 @@ const PropertiesPanel = ({ onClose }) => {
                     </div>
                 )}
 
+                {selectedNode.type === 'process' && <div style={formGroupStyle}>
+                    <label style={labelStyle}>Exécution de l’étape
+                    <select style={inputStyle} value={selectedNode.data.subtype || 'standard'} onChange={e => useStore.getState().updateNodeData(selectedNode.id, { subtype:e.target.value, executionMode:'step' })}>
+                      <option value="standard">Notre équipe · gris</option><option value="actor">Autre équipe / acteur · orange</option><option value="it">Système IT · vert</option><option value="ai">AI Agent · bleu</option>
+                    </select></label>
+                    {['actor','it'].includes(selectedNode.data.subtype) && <label style={labelStyle}>Rôle dans le flux<select style={inputStyle} value={selectedNode.data.executionMode || 'support'} onChange={e => handleNodeChange('executionMode', e.target.value)}><option value="step">Étape exécutée (volume et processing time)</option><option value="support">Support / information (modèle historique)</option></select></label>}
+                </div>}
                 <div style={formGroupStyle}>
                     <label style={labelStyle}>Label</label>
                     <input
@@ -529,7 +536,7 @@ const PropertiesPanel = ({ onClose }) => {
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                     {(selectedNode.data.volumeItems || []).map(item => (
-                                        <div key={item.id} style={{ padding: '0.5rem', border: '1px solid var(--color-border)', borderRadius: '4px', background: '#fff' }}>
+                                        <div key={item.id} style={{ padding: '0.5rem', border: '1px solid var(--color-border)', borderRadius: '4px', background: '#14212a' }}>
                                             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                                                 <input
                                                     type="color"
@@ -543,7 +550,7 @@ const PropertiesPanel = ({ onClose }) => {
                                                     onChange={(e) => handleUpdateVolumeItem(item.id, 'name', e.target.value)}
                                                     style={{ ...inputStyle, padding: '0.25rem', fontSize: '0.8rem' }}
                                                 />
-                                                <button onClick={() => handleRemoveVolumeItem(item.id)} style={{ background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer' }}>
+                                                <button onClick={() => handleRemoveVolumeItem(item.id)} style={{ background: 'none', border: 'none', color: '#df9296', cursor: 'pointer' }}>
                                                     <Trash2 size={14} />
                                                 </button>
                                             </div>
@@ -598,13 +605,13 @@ const PropertiesPanel = ({ onClose }) => {
 
                         {/* PROCESS NODE SPECIFIC FIELDS */}
                         {/* Standard Process Fields */}
-                        {(selectedNode.data.subtype === 'standard' || !selectedNode.data.subtype) && (
+                        {(selectedNode.data.executionMode === 'step' || selectedNode.data.subtype === 'standard' || selectedNode.data.subtype === 'ai' || !selectedNode.data.subtype) && (
                             <>
                                 <div style={formGroupStyle}>
                                     <label style={labelStyle}>Process Time (min)</label>
                                     <input
                                         type="number"
-                                        style={{ ...inputStyle, background: '#e9ecef', color: '#495057', cursor: 'not-allowed' }}
+                                        style={{ ...inputStyle, background: '#293c47', color: '#9fadb9', cursor: 'not-allowed' }}
                                         value={selectedNode.data.process_time_total || 0}
                                         readOnly
                                     />
@@ -613,7 +620,7 @@ const PropertiesPanel = ({ onClose }) => {
                                     <label style={labelStyle}>FTE Required</label>
                                     <input
                                         type="number"
-                                        style={{ ...inputStyle, background: '#e9ecef', color: '#495057', cursor: 'not-allowed' }}
+                                        style={{ ...inputStyle, background: '#293c47', color: '#9fadb9', cursor: 'not-allowed' }}
                                         value={selectedNode.data.fte_required || 0}
                                         readOnly
                                     />
@@ -623,7 +630,7 @@ const PropertiesPanel = ({ onClose }) => {
                         )}
 
                         {/* Actor / IT Specific Fields */}
-                        {(selectedNode.data.subtype === 'actor' || selectedNode.data.subtype === 'it') && (
+                        {(selectedNode.data.executionMode === 'step' || selectedNode.data.subtype === 'actor' || selectedNode.data.subtype === 'it') && (
                             <div style={formGroupStyle}>
                                 <label style={labelStyle}>Total Wait Time (min)</label>
                                 <input
@@ -689,8 +696,8 @@ const PropertiesPanel = ({ onClose }) => {
                                         if (e.key === 'Enter') {
                                             const input = e.target;
                                             if (input.value.trim()) {
-                                                const newTool = { id: Date.now().toString(), name: input.value.trim() };
-                                                useStore.getState().addTool(newTool);
+                                                const newTool = { id: useStore.getState().saveResource('tools', { name: input.value.trim() }), name: input.value.trim() };
+                                                
                                                 const currentTools = selectedNode.data.toolsUsed || [];
                                                 handleNodeChange('toolsUsed', [...currentTools, newTool.id]);
                                                 input.value = '';
@@ -702,8 +709,8 @@ const PropertiesPanel = ({ onClose }) => {
                                     onClick={() => {
                                         const input = document.getElementById('new-tool-prop-input');
                                         if (input.value.trim()) {
-                                            const newTool = { id: Date.now().toString(), name: input.value.trim() };
-                                            useStore.getState().addTool(newTool);
+                                            const newTool = { id: useStore.getState().saveResource('tools', { name: input.value.trim() }), name: input.value.trim() };
+                                            
                                             const currentTools = selectedNode.data.toolsUsed || [];
                                             handleNodeChange('toolsUsed', [...currentTools, newTool.id]);
                                             input.value = '';
@@ -711,7 +718,7 @@ const PropertiesPanel = ({ onClose }) => {
                                     }}
                                     style={{
                                         background: 'var(--color-primary)',
-                                        color: '#fff',
+                                        color: '#14212a',
                                         border: 'none',
                                         borderRadius: '4px',
                                         width: '32px',
@@ -738,10 +745,10 @@ const PropertiesPanel = ({ onClose }) => {
                                             alignItems: 'center',
                                             gap: '0.25rem',
                                             padding: '0.25rem 0.5rem',
-                                            background: '#e9ecef',
+                                            background: '#293c47',
                                             borderRadius: '16px',
                                             fontSize: '0.75rem',
-                                            color: '#495057'
+                                            color: '#9fadb9'
                                         }}>
                                             <Wrench size={10} />
                                             <span>{tool.name}</span>
@@ -755,7 +762,7 @@ const PropertiesPanel = ({ onClose }) => {
                                                     border: 'none',
                                                     padding: 0,
                                                     cursor: 'pointer',
-                                                    color: '#dc3545',
+                                                    color: '#df9296',
                                                     display: 'flex',
                                                     marginLeft: '0.25rem'
                                                 }}
@@ -794,7 +801,7 @@ const PropertiesPanel = ({ onClose }) => {
                                 fontSize: '0.875rem',
                                 color: 'var(--color-text-secondary)',
                                 justifyContent: 'center',
-                                background: '#f8f9fa'
+                                background: '#0d171e'
                             }}
                         >
                             <Paperclip size={16} />
@@ -809,12 +816,12 @@ const PropertiesPanel = ({ onClose }) => {
                                 alignItems: 'center',
                                 gap: '0.5rem',
                                 padding: '0.5rem',
-                                background: '#fff',
+                                background: '#14212a',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: '4px',
                                 fontSize: '0.8rem'
                             }}>
-                                <FileText size={14} color="#6c757d" />
+                                <FileText size={14} color="#9aadb9" />
                                 <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                     {file.name}
                                 </div>
@@ -834,7 +841,7 @@ const PropertiesPanel = ({ onClose }) => {
                                         background: 'transparent',
                                         cursor: 'pointer',
                                         padding: 0,
-                                        color: '#dc3545',
+                                        color: '#df9296',
                                         display: 'flex'
                                     }}
                                 >
