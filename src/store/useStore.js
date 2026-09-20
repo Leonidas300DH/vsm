@@ -12,17 +12,13 @@ const useStore = create((set, get) => ({
   edgeLabelSizes: {},
   // Reading preferences: local only, never written to the .vsm file.
   orientation: (() => { try { return localStorage.getItem('vsm.orientation') === 'vertical' ? 'vertical' : 'horizontal'; } catch { return 'horizontal'; } })(),
-  viewMode: (() => { try { const v = localStorage.getItem('vsm.view'); return ['flow', 'tools', 'actors', 'teams'].includes(v) ? v : 'flow'; } catch { return 'flow'; } })(),
-  laneBands: [],
+  // Focus: one resource whose steps stay lit while the rest of the canvas dims. Session only.
+  focus: null,
   setOrientation: (orientation) => {
     try { localStorage.setItem('vsm.orientation', orientation); } catch { /* preference stays for the session */ }
     set({ orientation });
   },
-  setViewMode: (viewMode) => {
-    try { localStorage.setItem('vsm.view', viewMode); } catch { /* preference stays for the session */ }
-    set({ viewMode });
-  },
-  setLaneBands: (laneBands) => set({ laneBands }),
+  setFocus: (focus) => set({ focus }),
   nodes: [],
   edges: [],
   metrics: {
@@ -296,7 +292,7 @@ const useStore = create((set, get) => ({
       nodes: calculatedNodes,
       edges: calculatedEdges,
       metrics,
-      laneBands: [],
+      focus: null,
       lastDeletion: null, pendingRemovedEdges: [],
       selectedNodeId: null, selectedStepId: null, selectedItemId: null,
       projectTitle: title || 'Untitled VSM'
@@ -308,7 +304,7 @@ const useStore = create((set, get) => ({
       nodes: [],
       edges: [],
       edgeLabelSizes: {},
-      laneBands: [],
+      focus: null,
       lastDeletion: null, pendingRemovedEdges: [],
       metrics: {
         totalProcessTime: 0,

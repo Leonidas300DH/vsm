@@ -10,11 +10,11 @@ import useStore from '../store/useStore';
 import { v4 as uuidv4 } from 'uuid';
 import ProcessNode from '../nodes/ProcessNode';
 import StartEndNode from '../nodes/StartEndNode';
-import LaneNode from '../nodes/LaneNode';
 
 import FlowEdge from '../edges/FlowEdge';
 
 import { computeLineage } from '../utils/lineageUtils';
+import { focusedNodeIds } from '../utils/focus';
 
 const VSMCanvas = ({ onInspect }) => {
     const { screenToFlowPosition } = useReactFlow();
@@ -30,15 +30,14 @@ const VSMCanvas = ({ onInspect }) => {
         setSelectedNodeId,
         setSelectedStepId,
         selectedItemId, // New
-        laneBands,
-        orientation
+        focus,
+        actors
     } = useStore();
     const [hoveredNodeId, setHoveredNodeId] = useState(null);
 
     const nodeTypes = useMemo(() => ({
         process: ProcessNode,
         startEnd: StartEndNode,
-        lane: LaneNode,
     }), []);
 
     const edgeTypes = useMemo(() => ({
@@ -79,7 +78,6 @@ const VSMCanvas = ({ onInspect }) => {
 
     // Hover & Selection Logic
     const onNodeMouseEnter = useCallback((_, node) => {
-        if (node.type === 'lane') return;
         setHoveredNodeId(node.id);
     }, []);
 
@@ -88,7 +86,6 @@ const VSMCanvas = ({ onInspect }) => {
     }, []);
 
     const onNodeClick = useCallback((_, node) => {
-        if (node.type === 'lane') return;
         setSelectedNodeId(node.id);
         onInspect();
         if (node.type === 'process') {
@@ -128,24 +125,19 @@ const VSMCanvas = ({ onInspect }) => {
     }, [selectedItemId, nodes, edges]);
 
     // Compute nodes and edges with classes
+    // Focus on a resource: the steps using it stay lit, everything else dims.
+    const focusIds = useMemo(() => focusedNodeIds(nodes, focus, { actors }), [nodes, focus, actors]);
+
     const displayNodes = useMemo(() => {
-        // Swimlane bands live only here: never in the store, never in the saved file.
-        const bands = laneBands.map(b => ({
-            id: `lane:${b.key}`,
-            type: 'lane',
-            position: { x: b.x, y: b.y },
-            // Explicit size: React Flow keeps a node hidden until it knows width and height,
-            // and bands never receive measurements because they are not in the store.
-            width: b.width, height: b.height,
-            data: { label: b.label, width: b.width, height: b.height, orientation },
-            draggable: false, selectable: false, connectable: false, focusable: false,
-            zIndex: -1,
-        }));
-        const decorated = nodes.map(node => {
+        return nodes.map(node => {
             let className = node.className || '';
 
-            // Lineage Logic (Overrides everything else if active)
-            if (selectedItemId && lineageData) {
+            // Focus (overrides everything else)
+            if (focus) {
+                className += focusIds.has(node.id) ? ' node-lineage' : ' node-dimmed';
+            }
+            // Lineage Logic (Overrides selection and hover if active)
+            else if (selectedItemId && lineageData) {
                 if (lineageData.lineageNodeIds.includes(node.id)) {
                     className += ' node-lineage';
                 } else {
@@ -169,15 +161,18 @@ const VSMCanvas = ({ onInspect }) => {
 
             return { ...node, className };
         });
-        return [...bands, ...decorated];
-    }, [nodes, laneBands, orientation, hoveredNodeId, selectedNodeId, upstreamNodes, downstreamNodes, selectedItemId, lineageData]);
+    }, [nodes, focus, focusIds, hoveredNodeId, selectedNodeId, upstreamNodes, downstreamNodes, selectedItemId, lineageData]);
 
     const displayEdges = useMemo(() => {
         return edges.map(edge => {
             let className = (edge.className || '') + ' edge-flow';
 
+            // Focus: only connections between two focused steps stay lit
+            if (focus) {
+                className += focusIds.has(edge.source) && focusIds.has(edge.target) ? ' edge-lineage' : ' edge-dimmed';
+            }
             // Lineage Logic
-            if (selectedItemId && lineageData) {
+            else if (selectedItemId && lineageData) {
                 if (lineageData.lineageEdgeIds.includes(edge.id)) {
                     className += ' edge-lineage';
                 } else {
@@ -199,7 +194,7 @@ const VSMCanvas = ({ onInspect }) => {
 
             return { ...edge, className };
         });
-    }, [edges, hoveredNodeId, selectedNodeId, upstreamEdges, downstreamEdges, selectedItemId, lineageData]);
+    }, [edges, focus, focusIds, hoveredNodeId, selectedNodeId, upstreamEdges, downstreamEdges, selectedItemId, lineageData]);
 
     return (
         <div
@@ -207,7 +202,7 @@ const VSMCanvas = ({ onInspect }) => {
             style={{
                 width: '100%',
                 height: '100%',
-                '--lineage-color': lineageData?.itemColor || '#7A3E9D'
+                '--lineage-color': focus ? '#8bb8cb' : (lineageData?.itemColor || '#7A3E9D')
             }}
         >
             <ReactFlow

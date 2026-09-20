@@ -9,9 +9,7 @@ import Header from './components/Header';
 import useStore from './store/useStore';
 import { createExample } from './data/example';
 import { layoutGraph } from './utils/layout';
-import { assignLanes } from './utils/lanes';
-
-const VIEW_LABELS = { flow: 'flux', tools: 'outils', actors: 'acteurs', teams: 'équipes' };
+import { focusOptions, focusedNodeIds } from './utils/focus';
 
 // v2: palette and analysis start hidden; the key changed so stored v1 values no longer apply.
 function usePanelPreference(key, initial) {
@@ -23,52 +21,61 @@ function usePanelPreference(key, initial) {
   return [value, setValue];
 }
 
+const FOCUS_KIND_LABEL = { tool: 'Outil', actor: 'Acteur', team: 'Équipe' };
+
 function Workspace() {
   const [sidebar, setSidebar] = usePanelPreference('sidebar', false);
   const [properties, setProperties] = usePanelPreference('properties', false);
   const [analysis, setAnalysis] = usePanelPreference('analysis', false);
   const [notice, setNotice] = useState('');
-  const { nodes, setGraph, setFileHandle, selectedNodeId, orientation, viewMode, setOrientation, setViewMode, lastDeletion, undoDeletion, dismissDeletion } = useStore();
+  const { nodes, setGraph, setFileHandle, selectedNodeId, orientation, setOrientation, lastDeletion, undoDeletion, dismissDeletion, tools, actors, focus, setFocus } = useStore();
+  const { fitView, getNodes } = useReactFlow();
+  const frame = () => requestAnimationFrame(() => requestAnimationFrame(() => fitView({ padding: 0.15, duration: 0, minZoom: 0.1, maxZoom: 1 })));
+
   const deletionLabel = lastDeletion
     ? (lastDeletion.nodes.length
         ? `${lastDeletion.nodes.length > 1 ? `${lastDeletion.nodes.length} étapes supprimées` : `Étape « ${lastDeletion.nodes[0].data?.label || lastDeletion.nodes[0].id} » supprimée`}${lastDeletion.edges.length ? ` avec ${lastDeletion.edges.length} connexion${lastDeletion.edges.length > 1 ? 's' : ''}` : ''}.`
         : `${lastDeletion.edges.length} connexion${lastDeletion.edges.length > 1 ? 's' : ''} supprimée${lastDeletion.edges.length > 1 ? 's' : ''}.`)
     : '';
-  const { fitView, getNodes } = useReactFlow();
-  const frame = () => requestAnimationFrame(() => requestAnimationFrame(() => fitView({ padding: 0.15, duration: 0, minZoom: 0.1, maxZoom: 1 })));
 
-  // One entry point for every re-layout: measured nodes (without lane bands) + current preferences.
-  const applyLayout = (nextOrientation, nextView) => {
-    const graphNodes = getNodes().filter(n => n.type !== 'lane');
+  // Focus picker: tools, internal actors, external teams. Value encodes kind and id.
+  const options = focusOptions({ tools, actors });
+  const focusValue = focus ? `${focus.kind}:${focus.id}` : '';
+  const focusCount = focus ? focusedNodeIds(nodes, focus, { actors }).size : 0;
+  const changeFocus = (value) => {
+    if (!value) return setFocus(null);
+    const kind = value.slice(0, value.indexOf(':'));
+    const id = value.slice(value.indexOf(':') + 1);
+    const option = [...options.tools, ...options.actors, ...options.teams].find(o => o.kind === kind && o.id === id);
+    setFocus(option ? { kind, id, label: option.label } : null);
+  };
+
+  // One entry point for every re-layout: measured nodes + current orientation.
+  const applyLayout = (nextOrientation) => {
+    const graphNodes = getNodes();
     if (!graphNodes.length) return;
-    const { tools, actors, edges: currentEdges } = useStore.getState();
-    const grouping = nextView === 'flow' ? null : assignLanes(graphNodes, currentEdges, nextView, { tools, actors });
-    const result = layoutGraph(graphNodes, currentEdges, { orientation: nextOrientation, lanes: grouping?.lanes, laneLabels: grouping?.labels });
+    const result = layoutGraph(graphNodes, useStore.getState().edges, { orientation: nextOrientation });
     if (result.error) return setNotice(result.error);
-    useStore.setState({ nodes: result.nodes, laneBands: result.bands });
-    const direction = nextOrientation === 'vertical' ? 'de haut en bas' : 'de gauche à droite';
-    if (nextView === 'flow') {
-      setNotice(`Disposition ${direction} · branches parallèles et convergence en fin de flux.`);
-    } else {
-      const count = grouping.labels.length;
-      const multi = grouping.multi.length
-        ? ` · ${grouping.multi.length} étape${grouping.multi.length > 1 ? 's' : ''} avec plusieurs ${VIEW_LABELS[nextView]}, placée${grouping.multi.length > 1 ? 's' : ''} dans le premier couloir : ${grouping.multi.map(m => m.label).join(', ')}`
-        : '';
-      setNotice(`Vue par ${VIEW_LABELS[nextView]} · ${count} couloir${count > 1 ? 's' : ''} ${direction}${multi}`);
-    }
+    useStore.setState({ nodes: result.nodes });
+    setNotice(`Disposition ${nextOrientation === 'vertical' ? 'de haut en bas' : 'de gauche à droite'} · branches parallèles et convergence en fin de flux.`);
     frame();
   };
-  const arrange = () => applyLayout(orientation, viewMode);
-  const toggleOrientation = () => { const next = orientation === 'vertical' ? 'horizontal' : 'vertical'; setOrientation(next); applyLayout(next, viewMode); };
-  const changeView = (next) => { setViewMode(next); applyLayout(orientation, next); };
+  const arrange = () => applyLayout(orientation);
+  // Cards change shape with the orientation (resources below vs. beside): lay out after they are re-measured.
+  const toggleOrientation = () => {
+    const next = orientation === 'vertical' ? 'horizontal' : 'vertical';
+    setOrientation(next);
+    requestAnimationFrame(() => requestAnimationFrame(() => applyLayout(next)));
+  };
   const loadExample = () => {
     if (nodes.length && !window.confirm('Remplacer la carte actuelle par l’exemple ? Enregistrez votre travail avant de continuer.')) return;
     const example = createExample();
     useStore.getState().mergeLibraries(example);
     setGraph(example.nodes, example.edges, example.title);
     setFileHandle(null);
+    setFocus(null);
     setNotice('KYC fictif · 100 dossiers/jour · Routages et temps illustratifs · Aucune décision réelle.');
-    requestAnimationFrame(() => requestAnimationFrame(() => applyLayout(orientation, viewMode)));
+    requestAnimationFrame(() => requestAnimationFrame(() => applyLayout(orientation)));
   };
   return <div className="workspace">
     <Header>
@@ -79,11 +86,11 @@ function Workspace() {
         <button onClick={toggleOrientation} disabled={!nodes.length} aria-label="Basculer l’orientation" title="Basculer entre lecture horizontale et verticale">
           {orientation === 'vertical' ? <AlignVerticalSpaceAround size={14} /> : <AlignHorizontalSpaceAround size={14} />} {orientation === 'vertical' ? 'Vertical' : 'Horizontal'}
         </button>
-        <select className="toolbar-select" aria-label="Vue" value={viewMode} onChange={e => changeView(e.target.value)} disabled={!nodes.length}>
-          <option value="flow">Vue : flux</option>
-          <option value="tools">Vue : outils</option>
-          <option value="actors">Vue : acteurs</option>
-          <option value="teams">Vue : équipes</option>
+        <select className="toolbar-select" aria-label="Focus" title="Mettre en évidence les étapes qui utilisent un outil, un acteur ou une équipe" value={focusValue} onChange={e => changeFocus(e.target.value)} disabled={!nodes.length}>
+          <option value="">Focus : aucun</option>
+          {options.tools.length > 0 && <optgroup label="Outils">{options.tools.map(o => <option key={`tool:${o.id}`} value={`tool:${o.id}`}>{o.label}</option>)}</optgroup>}
+          {options.actors.length > 0 && <optgroup label="Acteurs">{options.actors.map(o => <option key={`actor:${o.id}`} value={`actor:${o.id}`}>{o.label}</option>)}</optgroup>}
+          {options.teams.length > 0 && <optgroup label="Équipes">{options.teams.map(o => <option key={`team:${o.id}`} value={`team:${o.id}`}>{o.label}</option>)}</optgroup>}
         </select>
         <button onClick={frame}><Scan size={14} /> Vue globale</button>
         {selectedNodeId && <button onClick={() => fitView({ nodes:[{id:selectedNodeId}], padding:0.5, maxZoom:1, duration:200 })}>Centrer l’étape</button>}
@@ -95,7 +102,8 @@ function Workspace() {
     </div>
     </Header>
     {lastDeletion && <div className="workspace-notice is-undo" role="status">{deletionLabel}<button className="notice-action" onClick={undoDeletion}>Annuler</button><button aria-label="Fermer le message" onClick={dismissDeletion}><X size={13} /></button></div>}
-    {notice && !lastDeletion && <div className="workspace-notice" role="status">{notice}<button aria-label="Fermer le message" onClick={() => setNotice('')}><X size={13} /></button></div>}
+    {focus && !lastDeletion && <div className="workspace-notice is-focus" role="status">{FOCUS_KIND_LABEL[focus.kind]} « {focus.label} » · {focusCount} étape{focusCount > 1 ? 's' : ''} concernée{focusCount > 1 ? 's' : ''} · le reste est estompé<button className="notice-action" onClick={() => setFocus(null)}>Retirer le focus</button></div>}
+    {notice && !lastDeletion && !focus && <div className="workspace-notice" role="status">{notice}<button aria-label="Fermer le message" onClick={() => setNotice('')}><X size={13} /></button></div>}
     <main className="workspace-main">
       {sidebar && <Sidebar collapsed={false} onToggle={() => setSidebar(false)} onExpand={() => setSidebar(true)} />}
       <section className="canvas-column" aria-label="Carte de processus">
