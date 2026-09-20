@@ -14,14 +14,16 @@ Ouvrir l'adresse affichée par Vite. `npm run build` compile l'application, `npm
 
 ## État initial
 
-Installation, compilation et affichage initial vérifiés le 20 septembre 2026. Le lint relève 18 erreurs héritées et npm signale 18 vulnérabilités dans les dépendances. Les fonctions métier et l'import/export restent à valider.
+Installation, compilation et affichage initial vérifiés le 20 septembre 2026. À la reprise, le lint relevait 18 erreurs héritées et npm signalait 18 vulnérabilités ; après remédiation le même jour, le lint est propre et il reste une seule vulnérabilité (jspdf 3, correctif en version majeure 4 non appliqué).
 
 Voir [le diagnostic et le plan de reprise](docs/REPRISE.md).
-
-Sur ce Mac, Git fonctionne avec `DEVELOPER_DIR=/Library/Developer/CommandLineTools git ...` si le Git par défaut est bloqué par la licence Xcode. Aucun changement système nécessaire.
 
 ## Première version graphique
 
 `npm run lint`, `npm test` et `npm run build` passent. Utiliser **Exemple** pour charger le processus bancaire, **Aligner** pour ordonner les étapes de gauche à droite, et les boutons de panneaux pour ajuster l’espace. La sélection ouvre l’inspecteur. Les formules métier restent inchangées. Sauvegarder via File > Save ; la sauvegarde automatique reste à implémenter.
 
-Version locale uniquement : aucun déploiement Vercel effectué. Les vulnérabilités des dépendances et l’avertissement de taille du bundle restent à traiter.
+Version locale uniquement : aucun déploiement Vercel effectué.
+
+## Remédiation du 20 septembre 2026
+
+Moteur de calcul fiabilisé (entrées non modifiées, arêtes orphelines et boucles signalées, champs vides à 0), recalcul à la suppression d’une étape, validation des fichiers `.vsm` à l’ouverture (format `2.0`, anciens fichiers acceptés), dépendances mises à jour et bibliothèques PDF chargées à la demande (chunk principal réduit de 1 041 kB à 451 kB). 22 tests via `npm test`. Détail dans `docs/REPRISE.md`.

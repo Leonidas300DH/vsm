@@ -90,3 +90,22 @@ Validation : lint et compilation réussis, tests du placement horizontal, branch
 - Les ressources sont rendues sous les étapes avec des ports en losange et des liens pointillés. Elles ne sont jamais incluses comme flux de volume.
 - Les nouvelles étapes ont `executionMode: 'step'` : standard (notre équipe), actor (autre équipe), it (système), ai (agent). Toutes peuvent traiter un volume avec un cycle time. Les anciens acteurs/IT sans cette propriété conservent les calculs de support historiques. Le rôle reste configurable dans l'inspecteur.
 - Le KYC fournit les trois bibliothèques et des étapes exécutées de chaque catégorie. Il s'agit de données illustratives.
+
+## Remédiation du 20 septembre 2026
+
+Audit puis correctifs prioritaires, un commit par point. Formules métier inchangées.
+
+- Moteur pur : `calculateMetrics` ne modifie plus les nœuds fournis (`src/utils/calculations.js`).
+- Arête vers une étape absente : marquée `isError` avec le libellé « Missing step », jamais parcourue, le reste du graphe est calculé.
+- Boucle : les étapes hors tri topologique reçoivent l'erreur « Part of a loop: volume cannot be computed. », volume 0 ; leurs arêtes internes sont en erreur ; `metrics.cycleNodeIds` liste ces étapes.
+- Valeurs non numériques : le moteur passe toute entrée par `num()` (NaN → 0) et l'inspecteur enregistre 0 pour un champ vidé (`toNumber` dans `PropertiesPanel.jsx`). La validation des sorties reste active.
+- Suppression d'une étape : React Flow appelle `onEdgesChange` puis `onNodesChange` ; le store recalcule désormais sur un `remove` et efface la sélection si elle visait l'étape supprimée. `resetGraph` remet aussi la sélection à zéro.
+- Import : `src/utils/projectSchema.js` (`validateProject`) vérifie et normalise le fichier avant `setGraph`. Nœud malformé → refus explicite ; arête orpheline ou en doublon → retirée avec avertissement. Les fichiers sans `meta` ou en `1.0` restent acceptés ; l'écriture passe en `meta.version = '2.0'`.
+- Dépendances : `npm audit fix` sans rupture, 17 vulnérabilités corrigées. Reste jspdf 3.0.4 (1 critique) : le correctif exige jspdf 4 ; l'application n'utilise que `new jsPDF`, `addImage` et `save`, la migration est à évaluer.
+- Export PDF : jsPDF et html2canvas en `import()` dynamique ; chunk principal 1 041 kB → 451 kB, avertissement Vite disparu.
+
+Tests : `tests/calculations.test.mjs` (immutabilité, arête orpheline, boucle, NaN) et `tests/projectSchema.test.mjs` (5 cas). Total 22 tests.
+
+Vérifié dans le navigateur : suppression d'une étape (métriques recalculées, sélection effacée), champ vidé (0, pas de NaN), import d'un fichier invalide (alerte, pas d'écran d'erreur) et d'un fichier avec avertissement, chargement à la demande des chunks PDF. Note pour l'automatisation : dans un onglet Chrome masqué, `requestAnimationFrame` est gelé et les arêtes ne s'affichent qu'après un premier rendu.
+
+Hors périmètre, à planifier : placement des étiquettes d'arêtes en O(E²), export PDF sans limite de taille, langue de l'interface, découpage de `PropertiesPanel.jsx`, `alert`/`confirm`/`console.log`, pièces jointes absentes du `.vsm`, quota localStorage des fichiers récents, migration jspdf 4.
