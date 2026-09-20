@@ -14,7 +14,8 @@ const useStore = create((set, get) => ({
   metrics: {
     totalProcessTime: 0,
     totalLeadTime: 0,
-    efficiency: 0
+    efficiency: 0,
+    cycleNodeIds: []
   },
 
   projectTitle: 'Untitled VSM',
@@ -140,6 +141,18 @@ const useStore = create((set, get) => ({
   // Graph Actions
   onNodesChange: (changes) => {
     const newNodes = applyNodeChanges(changes, get().nodes);
+    // React Flow removes edges first, then nodes: metrics must be recomputed here too.
+    if (changes.some(c => c.type === 'remove')) {
+      const { nodes, edges, metrics } = calculateMetrics(newNodes, get().edges);
+      const removed = new Set(changes.filter(c => c.type === 'remove').map(c => c.id));
+      const { selectedNodeId, selectedStepId } = get();
+      set({
+        nodes, edges, metrics,
+        selectedNodeId: removed.has(selectedNodeId) ? null : selectedNodeId,
+        selectedStepId: removed.has(selectedStepId) ? null : selectedStepId,
+      });
+      return;
+    }
     set({ nodes: newNodes });
   },
 
@@ -241,11 +254,16 @@ const useStore = create((set, get) => ({
     set({
       nodes: [],
       edges: [],
+      edgeLabelSizes: {},
       metrics: {
         totalProcessTime: 0,
         totalLeadTime: 0,
-        efficiency: 0
+        efficiency: 0,
+        cycleNodeIds: []
       },
+      selectedNodeId: null,
+      selectedStepId: null,
+      selectedItemId: null,
       projectTitle: 'Untitled VSM',
       fileHandle: null
     });
