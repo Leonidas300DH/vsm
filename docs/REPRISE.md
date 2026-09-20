@@ -122,6 +122,6 @@ Hors périmètre, à planifier : placement des étiquettes d'arêtes en O(E²), 
 
 ### Ressources à côté, bouton « + » et suppression (20 septembre 2026)
 
-- En horizontal, `.step-with-resources[data-layout=side]` place les trois colonnes de ressources à droite de la carte, carte centrée verticalement : les ports sont à mi-hauteur du nœud (`portOffset(node, false) = height / 2`). En vertical, ressources sous la carte et formule d'origine (`portOffset(node, true)`).
-- Le bouton « + » est sous la carte en horizontal, à droite en vertical ; `addNextNode` place la nouvelle étape dans le sens de lecture courant.
+- En horizontal, les ressources restent sous la carte (`data-layout=below`, formule d'origine pour `portOffset(node, false)`). En vertical, `.step-with-resources[data-layout=side]` place les trois colonnes de ressources à droite de la carte, qui vient en premier : les ports sont sur l'axe médian de la carte (`portOffset(node, true) = 150`, largeur fixe de la carte).
+- Le bouton « + » est à côté du port de sortie, décalé : à droite en horizontal, sous la carte en vertical ; `addNextNode` place la nouvelle étape dans le sens de lecture courant.
 - Suppression : corbeille dans l'en-tête des cartes (étapes, entrées, sorties) avec `window.confirm`, puis bandeau « Annuler ». `src/utils/graphEdits.js` (`removeNodes`, `restoreRemoved`, testé dans `tests/graphEdits.test.mjs`) fait le travail ; le store garde `lastDeletion` (nœuds et connexions retirés), alimenté aussi par la suppression clavier de React Flow (les arêtes retirées d'abord sont mises en attente dans `pendingRemovedEdges`). Une restauration ignore les connexions dont l'autre extrémité a disparu entre-temps. Total 32 tests.

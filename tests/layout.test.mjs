@@ -39,7 +39,7 @@ test('multiple terminals follow their own branches, independent of array order',
   const input = [n('s1','start',0),n('s2','start',400),n('p1',null,0,260),n('p2',null,400,260),n('e2','end',0,70),n('e1','end',400,150)];
   const edges = [{source:'s1',target:'p1'},{source:'s2',target:'p2'},{source:'p1',target:'e1'},{source:'p2',target:'e2'}];
   const { nodes } = horizontalLayout(input, edges);
-  const center = id => { const n = nodes.find(n => n.id === id); return n.position.y + n.height / 2; };
+  const center = id => { const n = nodes.find(n => n.id === id); return n.position.y + (n.height - (n.type === 'process' ? 44 : 0)) / 2; };
   assert.equal(center('s1'),center('p1'));
   assert.equal(center('e1'),center('p1'));
   assert.equal(center('s2'),center('p2'));

@@ -76,7 +76,7 @@ const ProcessNode = ({ id, data, selected }) => {
     };
 
     return (
-        <div className="step-with-resources" data-layout={vertical ? 'below' : 'side'}><div className="process-card" data-kind={subtype}
+        <div className="step-with-resources" data-layout={vertical ? 'side' : 'below'}><div className="process-card" data-kind={subtype}
             onDragOver={e => { if (e.dataTransfer.types.includes("application/vsm-resource")) { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "link"; } }}
             onDrop={e => { const raw = e.dataTransfer.getData("application/vsm-resource"); if (raw) { e.preventDefault(); e.stopPropagation(); try { const resource = JSON.parse(raw); useStore.getState().attachResource(id, resource.kind, resource.id); } catch { /* Ignore foreign drag data. */ } } }}
             style={{
@@ -307,10 +307,10 @@ const ProcessNode = ({ id, data, selected }) => {
                 title="Add Next Step"
                 style={{
                     position: 'absolute',
-                    // Away from the flow ports: under the card in horizontal, beside it in vertical.
+                    // Next to the source port, offset so it never covers it: right side in horizontal, bottom in vertical.
                     ...(vertical
-                        ? { right: '-24px', top: '50%', transform: 'translateY(-50%)' }
-                        : { left: '50%', bottom: '-24px', transform: 'translateX(-50%)' }),
+                        ? { left: 'calc(50% + 14px)', bottom: '-24px', transform: 'translateX(-50%)' }
+                        : { right: '-24px', top: 'calc(50% + 14px)', transform: 'translateY(-50%)' }),
                     background: '#14212a',
                     border: '1px solid #30434f',
                     borderRadius: '50%',

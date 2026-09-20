@@ -24,8 +24,8 @@ test('KYC primary route stays on a horizontal spine and supplement steps share a
  const measured=example.nodes.map(n=>({...n,width:300,height:n.type==='process'?444:100}));
  const calculated=calculateMetrics(measured,example.edges);
  const {nodes}=horizontalLayout(calculated.nodes,calculated.edges);
- // Horizontal: resources sit beside the card, so every port is at mid-height.
- const port=id=>{const n=nodes.find(n=>n.id===id);return n.position.y+n.height/2;};
+ // Horizontal: resources hang below the card, so the port is in the card's upper part.
+ const port=id=>{const n=nodes.find(n=>n.id===id);const count=Math.max(0,...['toolsUsed','actorsUsed','knowledgeUsed'].map(k=>(n.data[k]||[]).length));return n.position.y+(n.type==='process'?(n.height-44-count*100)/2:n.height/2);};
  for(const id of ['start','complete','screen','risk','standard','decision','activate','end']) assert.equal(port(id),0,id);
  assert.equal(port('request'),port('recheck'));
  assert.ok(port('request')>600);
