@@ -31,7 +31,7 @@ body {
   line-height: var(--line-height);
   font-weight: var(--font-weight);
   color: var(--color-text);
-  background-color: var(--color-bg);
+  background-color: var(--canvas-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   height: 100vh;
@@ -200,13 +200,13 @@ input, select, textarea { background: var(--c-0b141b); }
 .workspace-main { flex: 1; display: flex; min-height: 0; overflow: hidden; }
 .workspace-main > aside { flex-shrink: 0; overflow-y: auto; }
 .canvas-column { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; }
-.canvas-stage { flex: 1; min-height: 120px; position: relative; }
-.canvas-caption { position: absolute; bottom: 12px; left: 58px; pointer-events: none; font-size: 9px; letter-spacing: .12em; color: var(--c-a3bac8); }
-.canvas-caption span { margin-left: 18px; color: var(--c-738d9d); letter-spacing: 0; }
+.canvas-stage { flex: 1; min-height: 120px; position: relative; background: var(--canvas-bg); color: var(--canvas-text); }
+.canvas-caption { position: absolute; bottom: 12px; left: 58px; pointer-events: none; font-size: 9px; letter-spacing: .12em; color: var(--canvas-caption); }
+.canvas-caption span { margin-left: 18px; color: var(--canvas-caption-muted); letter-spacing: 0; }
 .empty-canvas { position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%); text-align: center; }
 .empty-symbol { display: block; font-size: 44px; color: var(--c-8daebb); margin-bottom: 16px; }
 .empty-canvas h2 { font-size: 23px; font-weight: 500; letter-spacing: -.03em; }
-.empty-canvas p { font-size: 12px; line-height: 1.8; color: var(--c-8ea6b5); margin: 12px 0 22px; }
+.empty-canvas p { font-size: 12px; line-height: 1.8; color: var(--canvas-text-muted); margin: 12px 0 22px; }
 .empty-canvas button { display: inline-flex; align-items: center; gap: 12px; padding: 10px 15px; background: var(--c-b0cfdd); color: var(--c-11212a); border-radius: 4px; font-size: 12px; font-weight: 600; }
 .workspace-notice { display: flex; justify-content: space-between; align-items: center; padding: 7px 18px; font-size: 11px; background: var(--c-192b35); color: var(--c-bdd0dc); }
 .statusbar { display: flex; justify-content: space-between; gap: 12px; padding: 6px 18px; font-size: 9px; letter-spacing: .08em; color: var(--c-8099a9); border-top: 1px solid var(--c-293b47); background: var(--c-0d171e); }
