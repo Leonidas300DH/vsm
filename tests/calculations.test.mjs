@@ -72,3 +72,20 @@ test('metrics.cycleNodeIds est vide sur un graphe acyclique', () => {
   const g = graph();
   assert.deepEqual(calculateMetrics(g.nodes, g.edges).metrics.cycleNodeIds, []);
 });
+
+test('les valeurs non numériques valent 0 et n’éteignent pas la validation', () => {
+  const g = graph();
+  g.nodes[0].data.volumeItems[0].value = 'abc';
+  g.nodes[1].data.cycleTimes.x = '';
+  let result = calculateMetrics(g.nodes, g.edges);
+  assert.equal(result.nodes.find(n => n.id === 'p').data.volume_in, 0);
+  assert.equal(result.nodes.find(n => n.id === 'p').data.process_time_total, 0);
+
+  // Volume valide mais pourcentage invalide : la sortie est 0 et l'écart est signalé
+  const h = graph();
+  h.edges[1].data.percentage = 'oops';
+  result = calculateMetrics(h.nodes, h.edges);
+  const b = result.edges.find(e => e.id === 'b');
+  assert.equal(Number.isNaN(Number(b.data.volume)), false);
+  assert.equal(b.data.isError, true);
+});

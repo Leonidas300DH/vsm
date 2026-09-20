@@ -4,6 +4,12 @@ import { Paperclip, X, Download, FileText, Plus, Trash2, AlertTriangle, Wrench, 
 import { saveFile, deleteFile } from '../utils/db';
 import { computeLineage } from '../utils/lineageUtils';
 
+// Numeric fields: an emptied or invalid input is stored as 0, never NaN.
+const toNumber = (value) => {
+    const n = parseFloat(value);
+    return Number.isFinite(n) ? Math.max(0, n) : 0;
+};
+
 const PropertiesPanel = ({ onClose }) => {
     const nodes = useStore(s => s.nodes);
     const edges = useStore(s => s.edges);
@@ -269,7 +275,7 @@ const PropertiesPanel = ({ onClose }) => {
                                 value={selectedEdge.data?.percentage !== undefined ? selectedEdge.data.percentage : ''}
                                 placeholder="Auto"
                                 onFocus={(e) => e.target.select()}
-                                onChange={(e) => handleEdgeChange('percentage', Math.max(0, parseFloat(e.target.value)))}
+                                onChange={(e) => handleEdgeChange('percentage', toNumber(e.target.value))}
                                 style={inputStyle}
                             />
                         </div>
@@ -300,7 +306,7 @@ const PropertiesPanel = ({ onClose }) => {
                                                     const currentRouting = selectedEdge.data?.itemRouting || {};
                                                     handleEdgeChange('itemRouting', {
                                                         ...currentRouting,
-                                                        [item.id]: Math.max(0, parseFloat(e.target.value))
+                                                        [item.id]: toNumber(e.target.value)
                                                     });
                                                 }}
                                                 style={{ ...inputStyle, width: '60px', textAlign: 'right', padding: '0.25rem' }}
@@ -323,7 +329,7 @@ const PropertiesPanel = ({ onClose }) => {
                                             const itemProps = currentItemData[item.id] || {};
                                             handleEdgeChange('itemData', {
                                                 ...currentItemData,
-                                                [item.id]: { ...itemProps, wait: Math.max(0, parseFloat(e.target.value)) }
+                                                [item.id]: { ...itemProps, wait: toNumber(e.target.value) }
                                             });
                                         }}
                                         style={{ ...inputStyle, padding: '0.25rem', flex: 1 }}
@@ -559,7 +565,7 @@ const PropertiesPanel = ({ onClose }) => {
                                                 <input
                                                     type="number"
                                                     value={item.value}
-                                                    onChange={(e) => handleUpdateVolumeItem(item.id, 'value', Math.max(0, parseFloat(e.target.value)))}
+                                                    onChange={(e) => handleUpdateVolumeItem(item.id, 'value', toNumber(e.target.value))}
                                                     style={{ ...inputStyle, padding: '0.25rem', fontSize: '0.8rem' }}
                                                 />
                                             </div>
@@ -589,7 +595,7 @@ const PropertiesPanel = ({ onClose }) => {
                                                 const currentCT = selectedNode.data.cycleTimes || {};
                                                 handleNodeChange('cycleTimes', {
                                                     ...currentCT,
-                                                    [item.id]: Math.max(0, parseFloat(e.target.value))
+                                                    [item.id]: toNumber(e.target.value)
                                                 });
                                             }}
                                             style={{ ...inputStyle, width: '70px', padding: '0.25rem' }}
@@ -637,7 +643,7 @@ const PropertiesPanel = ({ onClose }) => {
                                     type="number"
                                     style={inputStyle}
                                     value={selectedNode.data.wait_time || 0}
-                                    onChange={(e) => handleNodeChange('wait_time', e.target.value)}
+                                    onChange={(e) => handleNodeChange('wait_time', toNumber(e.target.value))}
                                 />
                                 <div style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>
                                     Time spent waiting at this step.
@@ -650,7 +656,7 @@ const PropertiesPanel = ({ onClose }) => {
                             <input
                                 type="number"
                                 value={selectedNode.data.batchSize || 1}
-                                onChange={(e) => handleNodeChange('batchSize', Math.max(0, parseFloat(e.target.value)))}
+                                onChange={(e) => handleNodeChange('batchSize', toNumber(e.target.value))}
                                 style={inputStyle}
                             />
                         </div>

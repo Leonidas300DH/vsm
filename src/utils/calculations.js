@@ -1,6 +1,12 @@
 // Older projects retain their information-only actor/IT semantics.
 const isSupport = node => node.data.executionMode !== 'step' && ['actor', 'it'].includes(node.data.subtype);
 
+// Every numeric input goes through here: '', null, 'abc' and NaN all become the fallback.
+const num = (value, fallback = 0) => {
+    const n = parseFloat(value);
+    return Number.isFinite(n) ? n : fallback;
+};
+
 /**
  * Performs a forward pass calculation on the VSM graph.
  * 
@@ -94,7 +100,7 @@ export const calculateMetrics = (nodes, edges) => {
             // Start Node: Use defined volume items
             inputStream = (node.data.volumeItems || []).map(item => ({
                 ...item,
-                value: parseFloat(item.value || 0)
+                value: num(item.value || 0)
             }));
         } else {
             // Other Nodes: Sum incoming streams
@@ -128,25 +134,25 @@ export const calculateMetrics = (nodes, edges) => {
             } else {
                 // Standard Process
                 const cycleTimes = node.data.cycleTimes || {};
-                const availableTime = parseFloat(node.data.availableTime || 480);
+                const availableTime = num(node.data.availableTime || 480);
 
                 // Total Process Time = Sum(Item Volume * Item Cycle Time)
                 const totalProcessTime = inputStream.reduce((sum, item) => {
-                    const ct = parseFloat(cycleTimes[item.id] || 0);
+                    const ct = num(cycleTimes[item.id] || 0);
                     return sum + (item.value * ct);
                 }, 0);
 
                 node.data.process_time_total = totalProcessTime;
 
                 const fte = availableTime > 0 ? (totalProcessTime / availableTime) : 0;
-                node.data.fte_required = parseFloat(fte.toFixed(2));
+                node.data.fte_required = num(fte.toFixed(2));
                 node.data.utilization = availableTime > 0 ? ((totalProcessTime / availableTime) * 100).toFixed(1) : 0;
             }
 
             // --- Validation: Incomplete Data ---
             const errors = [];
             if (!isSupport(node)) {
-                const hasIncompleteItems = inputStream.some(item => item.value > 0 && parseFloat(node.data.cycleTimes?.[item.id] || 0) === 0);
+                const hasIncompleteItems = inputStream.some(item => item.value > 0 && num(node.data.cycleTimes?.[item.id] || 0) === 0);
                 if (hasIncompleteItems) {
                     errors.push("Missing cycle time for active items.");
                 }
@@ -231,7 +237,7 @@ export const calculateMetrics = (nodes, edges) => {
                 standardEdges.forEach(e => {
                     const edge = edgeMap.get(e.id);
                     if (edge.data.percentage !== undefined && edge.data.percentage !== null && edge.data.percentage !== '') {
-                        usedPercentage += parseFloat(edge.data.percentage);
+                        usedPercentage += num(edge.data.percentage);
                     } else {
                         unsetEdgesCount++;
                     }
@@ -249,7 +255,7 @@ export const calculateMetrics = (nodes, edges) => {
                         // Item-specific routing
                         const itemRouting = edge.data.itemRouting || {};
                         edgeStream = node.data.volumeStreamOut.map(item => {
-                            const pct = parseFloat(itemRouting[item.id] || 0);
+                            const pct = num(itemRouting[item.id] || 0);
                             itemUsage.set(item.id, itemUsage.get(item.id) + pct);
                             return {
                                 ...item,
@@ -261,7 +267,7 @@ export const calculateMetrics = (nodes, edges) => {
                         let pct = 0;
 
                         if (edge.data.percentage !== undefined && edge.data.percentage !== null && edge.data.percentage !== '') {
-                            pct = parseFloat(edge.data.percentage) / 100;
+                            pct = num(edge.data.percentage) / 100;
                         } else {
                             pct = defaultPct;
                         }
@@ -286,7 +292,7 @@ export const calculateMetrics = (nodes, edges) => {
                         // Filter items with > 0%
                         const activeItems = items.map(item => ({
                             ...item,
-                            pct: parseFloat(itemRouting[item.id] || 0)
+                            pct: num(itemRouting[item.id] || 0)
                         })).filter(i => i.pct > 0);
 
                         const firstPct = activeItems.length > 0 ? activeItems[0].pct : 0;
@@ -372,7 +378,7 @@ export const calculateMetrics = (nodes, edges) => {
                     } else {
                         // Original Validation Logic
                         if (!hasItemRouting) {
-                            const totalVolOut = outgoingEdges.reduce((sum, e) => sum + parseFloat(edgeMap.get(e.id).data.volume), 0);
+                            const totalVolOut = outgoingEdges.reduce((sum, e) => sum + num(edgeMap.get(e.id).data.volume), 0);
                             const totalVolIn = node.data.volume_in;
 
                             if (Math.abs(totalVolOut - totalVolIn) > 0.1 && totalVolIn > 0) {
@@ -409,9 +415,9 @@ export const calculateMetrics = (nodes, edges) => {
 
     const totalLeadTime = Array.from(nodeMap.values())
         .reduce((sum, n) => {
-            if (n.type === 'inventory') return sum + (parseFloat(n.data.waitTime) || 0);
+            if (n.type === 'inventory') return sum + (num(n.data.waitTime) || 0);
             if (n.type === 'process' && (isSupport(n) || n.data.executionMode === 'step')) {
-                return sum + (parseFloat(n.data.wait_time) || 0);
+                return sum + (num(n.data.wait_time) || 0);
             }
             return sum;
         }, 0);
@@ -420,7 +426,7 @@ export const calculateMetrics = (nodes, edges) => {
     const totalEdgeWaitTime = Array.from(edgeMap.values())
         .reduce((sum, edge) => {
             const itemData = edge.data.itemData || {};
-            const edgeWait = Object.values(itemData).reduce((itemSum, props) => itemSum + (parseFloat(props.wait) || 0), 0);
+            const edgeWait = Object.values(itemData).reduce((itemSum, props) => itemSum + (num(props.wait) || 0), 0);
             return sum + edgeWait;
         }, 0);
 
