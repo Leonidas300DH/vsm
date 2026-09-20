@@ -1,12 +1,21 @@
-import React, { memo } from 'react';
-import { Handle, Position } from 'reactflow';
-import { ArrowRightToLine, ArrowRightFromLine, Paperclip } from 'lucide-react';
+import React, { memo, useEffect } from 'react';
+import { Handle, Position, useUpdateNodeInternals } from 'reactflow';
+import { ArrowRightToLine, ArrowRightFromLine, ArrowDownToLine, ArrowDownFromLine, Paperclip } from 'lucide-react';
+import useStore from '../store/useStore';
 
-const StartEndNode = ({ data, selected }) => {
+const StartEndNode = ({ id, data, selected }) => {
     const isStart = data.type === 'start';
     const hasAttachments = data.attachments && data.attachments.length > 0;
     const nodeBorder = '#f36f79';
     const nodeBg = '#381c26';
+    const vertical = useStore(s => s.orientation === 'vertical');
+    const updateNodeInternals = useUpdateNodeInternals();
+    // Handles move between left/right and top/bottom: React Flow must re-measure them.
+    useEffect(() => { updateNodeInternals(id); }, [vertical, id, updateNodeInternals]);
+    const port = vertical
+        ? { background: '#7e99a8', width: '12px', height: '12px', left: '50%', transform: 'translateX(-50%)' }
+        : { background: '#7e99a8', width: '12px', height: '12px' };
+    const Icon = isStart ? (vertical ? ArrowDownToLine : ArrowRightToLine) : (vertical ? ArrowDownFromLine : ArrowRightFromLine);
 
     return (
         <div className="terminal-card" title={isStart ? "Entrée (Input)" : "Sortie (Output)"} style={{
@@ -24,10 +33,10 @@ const StartEndNode = ({ data, selected }) => {
             justifyContent: 'center',
             position: 'relative'
         }}>
-            {!isStart && <Handle type="target" position={Position.Left} style={{ background: '#7e99a8', width: '12px', height: '12px', left: '-6px' }} />}
+            {!isStart && <Handle type="target" position={vertical ? Position.Top : Position.Left} style={vertical ? { ...port, top: '-6px' } : { ...port, left: '-6px' }} />}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                {isStart ? <ArrowRightToLine size={20} aria-label="Entrée (Input)" color={nodeBorder} /> : <ArrowRightFromLine size={20} aria-label="Sortie (Output)" color={nodeBorder} />}
+                <Icon size={20} aria-label={isStart ? "Entrée (Input)" : "Sortie (Output)"} color={nodeBorder} />
                 <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{data.label}</span>
             </div>
 
@@ -62,7 +71,7 @@ const StartEndNode = ({ data, selected }) => {
                 </div>
             )}
 
-            {isStart && <Handle type="source" position={Position.Right} style={{ background: '#7e99a8', width: '12px', height: '12px', right: '-6px' }} />}
+            {isStart && <Handle type="source" position={vertical ? Position.Bottom : Position.Right} style={vertical ? { ...port, bottom: '-6px', top: 'auto' } : { ...port, right: '-6px' }} />}
         </div>
     );
 };

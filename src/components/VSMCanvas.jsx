@@ -10,6 +10,7 @@ import useStore from '../store/useStore';
 import { v4 as uuidv4 } from 'uuid';
 import ProcessNode from '../nodes/ProcessNode';
 import StartEndNode from '../nodes/StartEndNode';
+import LaneNode from '../nodes/LaneNode';
 
 import FlowEdge from '../edges/FlowEdge';
 
@@ -28,13 +29,16 @@ const VSMCanvas = ({ onInspect }) => {
         selectedNodeId,
         setSelectedNodeId,
         setSelectedStepId,
-        selectedItemId // New
+        selectedItemId, // New
+        laneBands,
+        orientation
     } = useStore();
     const [hoveredNodeId, setHoveredNodeId] = useState(null);
 
     const nodeTypes = useMemo(() => ({
         process: ProcessNode,
         startEnd: StartEndNode,
+        lane: LaneNode,
     }), []);
 
     const edgeTypes = useMemo(() => ({
@@ -75,6 +79,7 @@ const VSMCanvas = ({ onInspect }) => {
 
     // Hover & Selection Logic
     const onNodeMouseEnter = useCallback((_, node) => {
+        if (node.type === 'lane') return;
         setHoveredNodeId(node.id);
     }, []);
 
@@ -83,6 +88,7 @@ const VSMCanvas = ({ onInspect }) => {
     }, []);
 
     const onNodeClick = useCallback((_, node) => {
+        if (node.type === 'lane') return;
         setSelectedNodeId(node.id);
         onInspect();
         if (node.type === 'process') {
@@ -123,7 +129,16 @@ const VSMCanvas = ({ onInspect }) => {
 
     // Compute nodes and edges with classes
     const displayNodes = useMemo(() => {
-        return nodes.map(node => {
+        // Swimlane bands live only here: never in the store, never in the saved file.
+        const bands = laneBands.map(b => ({
+            id: `lane:${b.key}`,
+            type: 'lane',
+            position: { x: b.x, y: b.y },
+            data: { label: b.label, width: b.width, height: b.height, orientation },
+            draggable: false, selectable: false, connectable: false, focusable: false,
+            zIndex: -1,
+        }));
+        const decorated = nodes.map(node => {
             let className = node.className || '';
 
             // Lineage Logic (Overrides everything else if active)
@@ -151,7 +166,8 @@ const VSMCanvas = ({ onInspect }) => {
 
             return { ...node, className };
         });
-    }, [nodes, hoveredNodeId, selectedNodeId, upstreamNodes, downstreamNodes, selectedItemId, lineageData]);
+        return [...bands, ...decorated];
+    }, [nodes, laneBands, orientation, hoveredNodeId, selectedNodeId, upstreamNodes, downstreamNodes, selectedItemId, lineageData]);
 
     const displayEdges = useMemo(() => {
         return edges.map(edge => {

@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
-import { Handle, Position } from 'reactflow';
+import React, { memo, useEffect } from 'react';
+import { Handle, Position, useUpdateNodeInternals } from 'reactflow';
 import { Paperclip, AlertTriangle, Plus, User, Workflow, Bot, Box } from 'lucide-react';
 import { getFile } from '../utils/db';
 import NodeResources from '../components/NodeResources';
@@ -7,6 +7,10 @@ import useStore from '../store/useStore';
 
 const ProcessNode = ({ id, data, selected }) => {
     const { addNextNode } = useStore();
+    const vertical = useStore(s => s.orientation === 'vertical');
+    const updateNodeInternals = useUpdateNodeInternals();
+    // Handles move between left/right and top/bottom: React Flow must re-measure them.
+    useEffect(() => { updateNodeInternals(id); }, [vertical, id, updateNodeInternals]);
     const hasAttachments = data.attachments && data.attachments.length > 0;
     const subtype = data.subtype || 'standard';
 
@@ -88,15 +92,10 @@ const ProcessNode = ({ id, data, selected }) => {
         >
             <Handle
                 type="target"
-                position={Position.Left}
-                style={{
-                    background: '#7e99a8',
-                    width: '12px',
-                    height: '12px',
-                    left: '-6px',
-                    top: '50%',
-                    transform: 'translateY(-50%)'
-                }}
+                position={vertical ? Position.Top : Position.Left}
+                style={vertical
+                    ? { background: '#7e99a8', width: '12px', height: '12px', top: '-6px', left: '50%', transform: 'translateX(-50%)' }
+                    : { background: '#7e99a8', width: '12px', height: '12px', left: '-6px', top: '50%', transform: 'translateY(-50%)' }}
             />
 
             {/* Header */}
@@ -332,13 +331,10 @@ const ProcessNode = ({ id, data, selected }) => {
 
             <Handle
                 type="source"
-                position={Position.Right}
-                style={{
-                    background: '#7e99a8',
-                    width: '12px',
-                    height: '12px',
-                    right: '-6px'
-                }}
+                position={vertical ? Position.Bottom : Position.Right}
+                style={vertical
+                    ? { background: '#7e99a8', width: '12px', height: '12px', bottom: '-6px', left: '50%', transform: 'translateX(-50%)', top: 'auto' }
+                    : { background: '#7e99a8', width: '12px', height: '12px', right: '-6px' }}
             />
         </div><NodeResources id={id} data={data}/></div>
     );

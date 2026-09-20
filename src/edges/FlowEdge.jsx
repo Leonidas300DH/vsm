@@ -19,6 +19,7 @@ const FlowEdge = ({
     const nodes = useStore(s => s.nodes);
     const edges = useStore(s => s.edges);
     const sizes = useStore(s => s.edgeLabelSizes);
+    const orientation = useStore(s => s.orientation);
     const labelRef = useRef(null);
     useLayoutEffect(() => {
         const element = labelRef.current;
@@ -30,7 +31,7 @@ const FlowEdge = ({
         observer.observe(element);
         return () => observer.disconnect();
     }, [id,anchorX,anchorY]);
-    const boxes = useMemo(() => placeEdgeLabels(nodes,edges,sizes), [nodes,edges,sizes]);
+    const boxes = useMemo(() => placeEdgeLabels(nodes,edges,sizes,orientation), [nodes,edges,sizes,orientation]);
     const box = useMemo(() => boxes[id] || {x:(sourceX+targetX)/2-130,y:(sourceY+targetY)/2-90,width:260,height:180}, [boxes,id,sourceX,targetX,sourceY,targetY]);
 
     const edgeStyle = {

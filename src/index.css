@@ -366,3 +366,10 @@ input, select, textarea { background: #0b141b; }
 .resource-modal { width:680px; }
 .library-items .item-choice { margin:6px; padding:12px 20px; }
 .library-dialog { position:fixed; inset:0; margin:auto; }
+
+/* Swimlane bands (view by tool / actor / team) */
+.react-flow__node-lane { pointer-events: none; }
+.lane-band { position: relative; box-sizing: border-box; border: 1px dashed #2c4250; border-radius: 6px; background: rgba(28, 44, 55, .32); }
+.lane-band-label { position: absolute; top: 10px; left: 14px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #8fb0c2; white-space: nowrap; }
+.toolbar-select { padding: 6px 8px; border: 1px solid #354e5d; border-radius: 4px; background: #0d171e; color: #b4c6d0; font-size: 11px; }
+.toolbar-select:disabled { opacity: .5; }

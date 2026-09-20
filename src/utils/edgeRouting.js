@@ -1,5 +1,6 @@
 const intersects = (a, b, padding = 0) => a.x < b.x + b.width + padding && a.x + a.width > b.x - padding && a.y < b.y + b.height + padding && a.y + a.height > b.y - padding;
-export function placeEdgeLabels(nodes, edges, sizes = {}) {
+export function placeEdgeLabels(nodes, edges, sizes = {}, orientation = 'horizontal') {
+  const vertical = orientation === 'vertical';
   const byId = new Map(nodes.map(n => [n.id, n]));
   const obstacles = nodes.map(n => ({ ...n.position, width:n.width || 300, height:n.height || 450 }));
   const result = {};
@@ -10,15 +11,21 @@ export function placeEdgeLabels(nodes, edges, sizes = {}) {
     const left = source.position.x + (source.width || 300);
     const right = target.position.x;
     // Keep long-edge labels in the last corridor, away from intermediate columns.
-    const x = sizes[edge.id]?.anchorX !== undefined ? sizes[edge.id].anchorX - width / 2 : (left + right - width) / 2;
-    const initialY = (sizes[edge.id]?.anchorY ?? ((source.position.y + target.position.y) / 2 + 100)) - height / 2;
+    const anchorX = sizes[edge.id]?.anchorX, anchorY = sizes[edge.id]?.anchorY;
+    const x0 = anchorX !== undefined ? anchorX - width / 2
+      : vertical ? (source.position.x + target.position.x + (source.width || 300)) / 2 - width / 2 : (left + right - width) / 2;
+    const y0 = anchorY !== undefined ? anchorY - height / 2
+      : vertical ? (source.position.y + (source.height || 450) + target.position.y - height) / 2 : (source.position.y + target.position.y) / 2 + 100 - height / 2;
     let box;
     for (let i=0;i<400;i++) {
       const offset = Math.ceil(i/2) * 32 * (i%2 ? -1 : 1);
-      const candidate = {x,y:initialY+offset,width,height};
+      // Slide across the lane axis: vertically in a horizontal map, horizontally in a vertical one.
+      const candidate = vertical ? {x:x0+offset,y:y0,width,height} : {x:x0,y:y0+offset,width,height};
       if (!obstacles.some(o=>intersects(candidate,o,28))) { box=candidate; break; }
     }
-    if (!box) box = { x, y:Math.min(0,...obstacles.map(o=>o.y))-height-48,width,height };
+    if (!box) box = vertical
+      ? { x:Math.max(...obstacles.map(o=>o.x+o.width))+48, y:y0, width, height }
+      : { x:x0, y:Math.min(0,...obstacles.map(o=>o.y))-height-48, width, height };
     result[edge.id] = box;
     obstacles.push(box);
   }
