@@ -2,8 +2,6 @@ import React, { useState, useRef } from 'react';
 import { Play, Zap, LayoutTemplate, FileText, Save, FolderOpen, Printer, LogOut, ChevronDown, FilePlus, Clock, File, X, Trash2 } from 'lucide-react';
 import useStore from '../store/useStore';
 import { useReactFlow } from 'reactflow';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { hasFileSystemAccess, openFile, saveFile, saveFileAs } from '../utils/fileSystem';
 import { validateProject, FILE_VERSION } from '../utils/projectSchema';
 
@@ -149,6 +147,11 @@ const Header = ({ children }) => {
         // Wait for menu to close
         setTimeout(async () => {
             try {
+                // Loaded on demand: these two libraries weigh about a third of the bundle.
+                const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+                    import('html2canvas'),
+                    import('jspdf'),
+                ]);
                 const element = document.querySelector('.react-flow');
                 if (!element) return;
 
