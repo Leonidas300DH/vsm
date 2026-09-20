@@ -28,7 +28,12 @@ function Workspace() {
   const [properties, setProperties] = usePanelPreference('properties', false);
   const [analysis, setAnalysis] = usePanelPreference('analysis', false);
   const [notice, setNotice] = useState('');
-  const { nodes, setGraph, setFileHandle, selectedNodeId, orientation, viewMode, setOrientation, setViewMode } = useStore();
+  const { nodes, setGraph, setFileHandle, selectedNodeId, orientation, viewMode, setOrientation, setViewMode, lastDeletion, undoDeletion, dismissDeletion } = useStore();
+  const deletionLabel = lastDeletion
+    ? (lastDeletion.nodes.length
+        ? `${lastDeletion.nodes.length > 1 ? `${lastDeletion.nodes.length} étapes supprimées` : `Étape « ${lastDeletion.nodes[0].data?.label || lastDeletion.nodes[0].id} » supprimée`}${lastDeletion.edges.length ? ` avec ${lastDeletion.edges.length} connexion${lastDeletion.edges.length > 1 ? 's' : ''}` : ''}.`
+        : `${lastDeletion.edges.length} connexion${lastDeletion.edges.length > 1 ? 's' : ''} supprimée${lastDeletion.edges.length > 1 ? 's' : ''}.`)
+    : '';
   const { fitView, getNodes } = useReactFlow();
   const frame = () => requestAnimationFrame(() => requestAnimationFrame(() => fitView({ padding: 0.15, duration: 0, minZoom: 0.1, maxZoom: 1 })));
 
@@ -89,7 +94,8 @@ function Workspace() {
       </div>
     </div>
     </Header>
-    {notice && <div className="workspace-notice" role="status">{notice}<button aria-label="Fermer le message" onClick={() => setNotice('')}><X size={13} /></button></div>}
+    {lastDeletion && <div className="workspace-notice is-undo" role="status">{deletionLabel}<button className="notice-action" onClick={undoDeletion}>Annuler</button><button aria-label="Fermer le message" onClick={dismissDeletion}><X size={13} /></button></div>}
+    {notice && !lastDeletion && <div className="workspace-notice" role="status">{notice}<button aria-label="Fermer le message" onClick={() => setNotice('')}><X size={13} /></button></div>}
     <main className="workspace-main">
       {sidebar && <Sidebar collapsed={false} onToggle={() => setSidebar(false)} onExpand={() => setSidebar(true)} />}
       <section className="canvas-column" aria-label="Carte de processus">

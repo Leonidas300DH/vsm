@@ -1,6 +1,6 @@
 import React, { memo, useEffect } from 'react';
 import { Handle, Position, useUpdateNodeInternals } from 'reactflow';
-import { ArrowRightToLine, ArrowRightFromLine, ArrowDownToLine, ArrowDownFromLine, Paperclip } from 'lucide-react';
+import { ArrowRightToLine, ArrowRightFromLine, ArrowDownToLine, ArrowDownFromLine, Paperclip, Trash2 } from 'lucide-react';
 import useStore from '../store/useStore';
 
 const StartEndNode = ({ id, data, selected }) => {
@@ -16,6 +16,11 @@ const StartEndNode = ({ id, data, selected }) => {
         ? { background: '#7e99a8', width: '12px', height: '12px', left: '50%', transform: 'translateX(-50%)' }
         : { background: '#7e99a8', width: '12px', height: '12px' };
     const Icon = isStart ? (vertical ? ArrowDownToLine : ArrowRightToLine) : (vertical ? ArrowDownFromLine : ArrowRightFromLine);
+    const deleteNode = useStore(s => s.deleteNode);
+    const confirmDelete = (e) => {
+        e.stopPropagation();
+        if (window.confirm(`Supprimer « ${data.label || (isStart ? 'Entrée' : 'Sortie')} » et ses connexions ? Vous pourrez annuler juste après.`)) deleteNode(id);
+    };
 
     return (
         <div className="terminal-card" title={isStart ? "Entrée (Input)" : "Sortie (Output)"} style={{
@@ -38,6 +43,9 @@ const StartEndNode = ({ id, data, selected }) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Icon size={20} aria-label={isStart ? "Entrée (Input)" : "Sortie (Output)"} color={nodeBorder} />
                 <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{data.label}</span>
+                <button type="button" className="node-delete nodrag" title="Supprimer" aria-label={`Supprimer ${data.label || ''}`} onClick={confirmDelete}>
+                    <Trash2 size={12} />
+                </button>
             </div>
 
             {data.description && (

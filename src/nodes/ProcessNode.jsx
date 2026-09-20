@@ -1,12 +1,16 @@
 import React, { memo, useEffect } from 'react';
 import { Handle, Position, useUpdateNodeInternals } from 'reactflow';
-import { Paperclip, AlertTriangle, Plus, User, Workflow, Bot, Box } from 'lucide-react';
+import { Paperclip, AlertTriangle, Plus, User, Workflow, Bot, Box, Trash2 } from 'lucide-react';
 import { getFile } from '../utils/db';
 import NodeResources from '../components/NodeResources';
 import useStore from '../store/useStore';
 
 const ProcessNode = ({ id, data, selected }) => {
-    const { addNextNode } = useStore();
+    const { addNextNode, deleteNode } = useStore();
+    const confirmDelete = (e) => {
+        e.stopPropagation();
+        if (window.confirm(`Supprimer l’étape « ${data.label || 'Étape'} » et ses connexions ? Vous pourrez annuler juste après.`)) deleteNode(id);
+    };
     const vertical = useStore(s => s.orientation === 'vertical');
     const updateNodeInternals = useUpdateNodeInternals();
     // Handles move between left/right and top/bottom: React Flow must re-measure them.
@@ -72,7 +76,7 @@ const ProcessNode = ({ id, data, selected }) => {
     };
 
     return (
-        <div className="step-with-resources"><div className="process-card" data-kind={subtype}
+        <div className="step-with-resources" data-layout={vertical ? 'below' : 'side'}><div className="process-card" data-kind={subtype}
             onDragOver={e => { if (e.dataTransfer.types.includes("application/vsm-resource")) { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "link"; } }}
             onDrop={e => { const raw = e.dataTransfer.getData("application/vsm-resource"); if (raw) { e.preventDefault(); e.stopPropagation(); try { const resource = JSON.parse(raw); useStore.getState().attachResource(id, resource.kind, resource.id); } catch { /* Ignore foreign drag data. */ } } }}
             style={{
@@ -115,7 +119,9 @@ const ProcessNode = ({ id, data, selected }) => {
                 <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {data.label}
                 </div>
-
+                <button type="button" className="node-delete nodrag" title="Supprimer l’étape" aria-label={`Supprimer l’étape ${data.label || ''}`} onClick={confirmDelete}>
+                    <Trash2 size={12} />
+                </button>
             </div>
 
             {/* Body */}
@@ -301,9 +307,10 @@ const ProcessNode = ({ id, data, selected }) => {
                 title="Add Next Step"
                 style={{
                     position: 'absolute',
-                    right: '-24px',
-                    top: 'calc(50% + 14px)',
-                    transform: 'translateY(-50%)',
+                    // Away from the flow ports: under the card in horizontal, beside it in vertical.
+                    ...(vertical
+                        ? { right: '-24px', top: '50%', transform: 'translateY(-50%)' }
+                        : { left: '50%', bottom: '-24px', transform: 'translateX(-50%)' }),
                     background: '#14212a',
                     border: '1px solid #30434f',
                     borderRadius: '50%',

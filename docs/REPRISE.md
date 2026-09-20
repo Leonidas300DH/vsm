@@ -119,3 +119,9 @@ Hors périmètre, à planifier : placement des étiquettes d'arêtes en O(E²), 
 - Orientation et vue sont des préférences locales (`vsm.orientation`, `vsm.view`). Un fichier ouvert garde ses positions jusqu'au prochain « Aligner ».
 - Tests : `tests/layout.test.mjs` (vertical, couloirs, bandes) et `tests/lanes.test.mjs` (trois vues, acteur externe sans équipe). Total 29 tests.
 - Automatisation navigateur : un onglet Chrome masqué gèle `requestAnimationFrame` et étrangle `setTimeout` ; prendre une capture avant de mesurer, ne pas attendre dans le script.
+
+### Ressources à côté, bouton « + » et suppression (20 septembre 2026)
+
+- En horizontal, `.step-with-resources[data-layout=side]` place les trois colonnes de ressources à droite de la carte, carte centrée verticalement : les ports sont à mi-hauteur du nœud (`portOffset(node, false) = height / 2`). En vertical, ressources sous la carte et formule d'origine (`portOffset(node, true)`).
+- Le bouton « + » est sous la carte en horizontal, à droite en vertical ; `addNextNode` place la nouvelle étape dans le sens de lecture courant.
+- Suppression : corbeille dans l'en-tête des cartes (étapes, entrées, sorties) avec `window.confirm`, puis bandeau « Annuler ». `src/utils/graphEdits.js` (`removeNodes`, `restoreRemoved`, testé dans `tests/graphEdits.test.mjs`) fait le travail ; le store garde `lastDeletion` (nœuds et connexions retirés), alimenté aussi par la suppression clavier de React Flow (les arêtes retirées d'abord sont mises en attente dans `pendingRemovedEdges`). Une restauration ignore les connexions dont l'autre extrémité a disparu entre-temps. Total 32 tests.

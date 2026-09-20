@@ -3,9 +3,11 @@
 const RESOURCE_FIELDS = ['toolsUsed', 'actorsUsed', 'knowledgeUsed'];
 const width = node => node.width || (node.type === 'startEnd' ? 240 : 300);
 const height = node => node.height || (node.type === 'startEnd' ? 100 : 260);
-// Ports belong to the step card, not to the satellites extending below it.
-export const portOffset = node => {
-  if (node.type !== 'process') return height(node) / 2;
+// Lane-axis distance from the node's top to its ports.
+// Horizontal: resources sit beside the card, which is vertically centred, so ports are at mid-height.
+// Vertical: resources hang below the card, so the card (and its ports) is the upper part only.
+export const portOffset = (node, vertical = false) => {
+  if (node.type !== 'process' || !vertical) return height(node) / 2;
   const count = Math.max(0, ...RESOURCE_FIELDS.map(k => (node.data[k] || []).length));
   return Math.max(60, (height(node) - 44 - count * 100) / 2);
 };
@@ -107,7 +109,7 @@ export function layoutGraph(nodes, edges, { orientation = 'horizontal', lanes = 
   for (const [level, column] of [...columns].sort(([a], [b]) => a - b)) {
     for (const node of column) {
       const c = laneCenter(node.id);
-      positions.set(node.id, vertical ? { x: c - width(node) / 2, y: flow } : { x: flow, y: c - portOffset(node) });
+      positions.set(node.id, vertical ? { x: c - width(node) / 2, y: flow } : { x: flow, y: c - portOffset(node, false) });
     }
     const adjacent = edges.filter(e => rank.get(e.source) === level && rank.get(e.target) === level + 1);
     const rise = Math.max(0, ...adjacent.map(e => Math.abs(laneCenter(e.target) - laneCenter(e.source))));

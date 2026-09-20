@@ -311,8 +311,11 @@ input, select, textarea { background: #0b141b; }
 .resource-modal-backdrop { position:fixed; inset:0; z-index:1000; background:#0008; display:flex; align-items:center; justify-content:center; }
 .resource-modal { background:#14212a; border:1px solid #4c6575; border-radius:12px; width:420px; max-width:90vw; max-height:85vh; overflow:auto; padding:20px; box-shadow:0 20px 70px #0008; }
 .step-with-resources { width:300px; }
-.step-with-resources .process-card { width:300px !important; box-sizing:border-box; }
+.step-with-resources .process-card { width:300px !important; box-sizing:border-box; flex-shrink:0; }
 .node-resources { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; padding:0 3px 12px; }
+/* Horizontal reading: resources sit beside the card, which stays vertically centred on its ports. */
+.step-with-resources[data-layout=side] { width:auto; display:flex; align-items:center; gap:14px; }
+.step-with-resources[data-layout=side] .node-resources { width:300px; padding:0 3px; }
 .resource-branch { min-width:0; text-align:center; }
 .resource-port { position:relative; display:flex; align-items:center; justify-content:center; gap:3px; width:100%; padding:14px 0 6px; border:0; background:transparent; color:#b6c4d0; font-size:10px; cursor:pointer; }
 .resource-diamond { position:absolute; top:-4px; width:8px; height:8px; background:#9aaec0; transform:rotate(45deg); }
@@ -373,3 +376,10 @@ input, select, textarea { background: #0b141b; }
 .lane-band-label { position: absolute; top: 10px; left: 14px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #8fb0c2; white-space: nowrap; }
 .toolbar-select { padding: 6px 8px; border: 1px solid #354e5d; border-radius: 4px; background: #0d171e; color: #b4c6d0; font-size: 11px; }
 .toolbar-select:disabled { opacity: .5; }
+
+/* Delete button on cards, and the undo bar */
+.node-delete { display:flex; align-items:center; justify-content:center; width:22px; height:22px; padding:0; border:0; border-radius:4px; background:transparent; color:inherit; opacity:.55; cursor:pointer; }
+.node-delete:hover { opacity:1; color:#f36f79; background:#0d171e; }
+.workspace-notice.is-undo { background:#3a2a22; color:#f4d9c9; }
+.notice-action { margin-left:auto; margin-right:12px; padding:4px 10px; border:1px solid #d9a58a; border-radius:4px; background:transparent; color:#f4d9c9; font-size:11px; cursor:pointer; }
+.notice-action:hover { background:#d9a58a22; }
