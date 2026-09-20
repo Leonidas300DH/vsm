@@ -109,3 +109,13 @@ Tests : `tests/calculations.test.mjs` (immutabilité, arête orpheline, boucle, 
 Vérifié dans le navigateur : suppression d'une étape (métriques recalculées, sélection effacée), champ vidé (0, pas de NaN), import d'un fichier invalide (alerte, pas d'écran d'erreur) et d'un fichier avec avertissement, chargement à la demande des chunks PDF. Note pour l'automatisation : dans un onglet Chrome masqué, `requestAnimationFrame` est gelé et les arêtes ne s'affichent qu'après un premier rendu.
 
 Hors périmètre, à planifier : placement des étiquettes d'arêtes en O(E²), export PDF sans limite de taille, langue de l'interface, découpage de `PropertiesPanel.jsx`, `alert`/`confirm`/`console.log`, pièces jointes absentes du `.vsm`, quota localStorage des fichiers récents.
+
+## Orientation et vues (20 septembre 2026)
+
+- Palette et analyse masquées au démarrage (préférences `vsm.panel.v2.*`, l'ancienne clé est ignorée). Les boutons de la barre les affichent ; le chevron interne les masque.
+- `layoutGraph(nodes, edges, { orientation, lanes, laneLabels })` → `{ nodes, bands }` dans `src/utils/layout.js`. Axes abstraits flux / couloir projetés en x/y ; en vertical les ports sont en haut et en bas de la carte, les ressources restent dessous. `horizontalLayout` est conservé comme alias.
+- `assignLanes(nodes, edges, mode, { tools, actors })` dans `src/utils/lanes.js` : vue outils (un couloir par outil), vue acteurs (acteurs internes, puis « Équipes externes », puis « Sans acteur »), vue équipes (une équipe par acteur externe via son champ Équipe, puis « Notre équipe », puis « Sans acteur »). Une étape multi-ressource va dans le premier couloir selon l'ordre de la bibliothèque et est signalée dans le bandeau. Entrées et sorties suivent leur étape voisine.
+- Les bandes sont des nœuds React Flow de type `lane`, non interactifs, avec `width`/`height` explicites (sinon React Flow les garde invisibles). Elles n'existent que dans le canevas : jamais dans le store, jamais dans le fichier.
+- Orientation et vue sont des préférences locales (`vsm.orientation`, `vsm.view`). Un fichier ouvert garde ses positions jusqu'au prochain « Aligner ».
+- Tests : `tests/layout.test.mjs` (vertical, couloirs, bandes) et `tests/lanes.test.mjs` (trois vues, acteur externe sans équipe). Total 29 tests.
+- Automatisation navigateur : un onglet Chrome masqué gèle `requestAnimationFrame` et étrangle `setTimeout` ; prendre une capture avant de mesurer, ne pas attendre dans le script.

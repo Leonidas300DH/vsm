@@ -20,7 +20,7 @@ Voir [le diagnostic et le plan de reprise](docs/REPRISE.md).
 
 ## Première version graphique
 
-`npm run lint`, `npm test` et `npm run build` passent. Utiliser **Exemple** pour charger le processus bancaire, **Aligner** pour ordonner les étapes de gauche à droite, et les boutons de panneaux pour ajuster l’espace. La sélection ouvre l’inspecteur. Les formules métier restent inchangées. Sauvegarder via File > Save ; la sauvegarde automatique reste à implémenter.
+`npm run lint`, `npm test` et `npm run build` passent. Utiliser **Exemple** pour charger le processus bancaire, **Aligner** pour réappliquer la disposition, **Horizontal / Vertical** pour changer le sens de lecture, et **Vue** pour passer du flux aux couloirs par outil, par acteur interne ou par équipe externe. La palette et l’analyse sont masquées au démarrage ; les boutons de la barre les affichent. La sélection ouvre l’inspecteur. Les formules métier restent inchangées. Sauvegarder via File > Save ; la sauvegarde automatique reste à implémenter.
 
 Déployé sur Vercel (projet `vsm`) : production sur https://vsm-mauve.vercel.app, préversions automatiques par commit sur `main`. Déploiement depuis le commit GitHub, pas depuis l'arbre de travail local.
 
