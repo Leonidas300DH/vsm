@@ -10,18 +10,20 @@ import useStore from './store/useStore';
 import { createExample } from './data/example';
 import { horizontalLayout } from './utils/layout';
 
+// v2: palette and analysis start hidden; the key changed so stored v1 values no longer apply.
 function usePanelPreference(key, initial) {
+  const storageKey = `vsm.panel.v2.${key}`;
   const [value, setValue] = useState(() => {
-    try { const saved = JSON.parse(localStorage.getItem(`vsm.panel.${key}`)); return typeof saved === 'boolean' ? saved : initial; } catch { return initial; }
+    try { const saved = JSON.parse(localStorage.getItem(storageKey)); return typeof saved === 'boolean' ? saved : initial; } catch { return initial; }
   });
-  useEffect(() => { try { localStorage.setItem(`vsm.panel.${key}`, JSON.stringify(value)); } catch { /* Layout remains usable without storage. */ } }, [key, value]);
+  useEffect(() => { try { localStorage.setItem(storageKey, JSON.stringify(value)); } catch { /* Layout remains usable without storage. */ } }, [storageKey, value]);
   return [value, setValue];
 }
 
 function Workspace() {
-  const [sidebar, setSidebar] = usePanelPreference('sidebar', true);
+  const [sidebar, setSidebar] = usePanelPreference('sidebar', false);
   const [properties, setProperties] = usePanelPreference('properties', false);
-  const [analysis, setAnalysis] = usePanelPreference('analysis', true);
+  const [analysis, setAnalysis] = usePanelPreference('analysis', false);
   const [notice, setNotice] = useState('');
   const { nodes, edges, setGraph, setFileHandle, selectedNodeId } = useStore();
   const { fitView, getNodes } = useReactFlow();
@@ -63,13 +65,13 @@ function Workspace() {
     </Header>
     {notice && <div className="workspace-notice" role="status">{notice}<button aria-label="Fermer le message" onClick={() => setNotice('')}><X size={13} /></button></div>}
     <main className="workspace-main">
-      <Sidebar collapsed={!sidebar} onToggle={() => setSidebar(!sidebar)} onExpand={() => setSidebar(true)} />
+      {sidebar && <Sidebar collapsed={false} onToggle={() => setSidebar(false)} onExpand={() => setSidebar(true)} />}
       <section className="canvas-column" aria-label="Carte de processus">
         <div className="canvas-stage"><VSMCanvas onInspect={() => setProperties(true)} />
           {!nodes.length && <div className="empty-canvas"><span className="empty-symbol">◇</span><h2>Dessinez votre flux.</h2><p>Glissez une étape depuis la palette<br />ou explorez un parcours KYC complet.</p><button onClick={loadExample}>Explorer l’exemple <ArrowRight size={15} /></button></div>}
           <div className="canvas-caption">GAUCHE → DROITE <span>Glisser pour explorer · Molette pour zoomer</span></div>
         </div>
-        <Timeline collapsed={!analysis} onToggle={() => setAnalysis(!analysis)} />
+        {analysis && <Timeline collapsed={false} onToggle={() => setAnalysis(false)} />}
       </section>
       <div className="inspector-shell" hidden={!properties}><PropertiesPanel onClose={() => setProperties(false)} /></div>
       {!properties && <button className="inspector-tab" aria-label="Ouvrir l’inspecteur" onClick={() => setProperties(true)}><PanelRight size={16} /><span>Inspecteur</span></button>}
