@@ -48,7 +48,7 @@ const PropertiesPanel = ({ onClose }) => {
             <aside style={panelStyle}>
                 <div style={headerStyle}>
                     <div>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#7A3E9D', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--c-7a3e9d)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             Lineage View
                         </h3>
                         <div style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
@@ -64,20 +64,20 @@ const PropertiesPanel = ({ onClose }) => {
                     {/* Entry Nodes */}
                     {lineageData.entryNodes.length > 0 && (
                         <div style={{ marginBottom: '2rem' }}>
-                            <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#adb5bd', marginBottom: '0.75rem' }}>Entry Nodes</h4>
+                            <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--c-adb5bd)', marginBottom: '0.75rem' }}>Entry Nodes</h4>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                 {lineageData.entryNodes.map(node => (
                                     <div key={node.nodeId} style={{
                                         padding: '0.75rem',
-                                        background: '#0d171e',
-                                        border: '1px solid #30434f',
+                                        background: 'var(--c-0d171e)',
+                                        border: '1px solid var(--c-30434f)',
                                         borderRadius: '6px',
                                         fontSize: '0.9rem',
                                         fontWeight: 500
                                     }}>
                                         {node.label}
                                         {node.volume > 0 && (
-                                            <div style={{ fontSize: '0.8rem', color: '#9aadb9', marginTop: '0.25rem' }}>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--c-9aadb9)', marginTop: '0.25rem' }}>
                                                 Volume: {node.volume}
                                             </div>
                                         )}
@@ -89,7 +89,7 @@ const PropertiesPanel = ({ onClose }) => {
 
                     {/* Step-by-Step Flow */}
                     <div style={{ marginBottom: '2rem' }}>
-                        <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#adb5bd', marginBottom: '0.75rem' }}>Step-by-Step Flow</h4>
+                        <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--c-adb5bd)', marginBottom: '0.75rem' }}>Step-by-Step Flow</h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             {lineageData.steps.map((step, index) => (
                                 <div key={step.nodeId} style={{ position: 'relative' }}>
@@ -103,7 +103,7 @@ const PropertiesPanel = ({ onClose }) => {
                                         {/* Header */}
                                         <div style={{
                                             background: step.color,
-                                            color: '#14212a',
+                                            color: 'var(--c-14212a)',
                                             padding: '0.75rem 1rem',
                                             fontWeight: 600,
                                             fontSize: '0.95rem'
@@ -115,44 +115,44 @@ const PropertiesPanel = ({ onClose }) => {
                                         <div style={{ padding: '1rem' }}>
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                                                 <div>
-                                                    <div style={{ fontSize: '0.75rem', color: '#9aadb9', marginBottom: '0.25rem' }}>Cycle Time</div>
+                                                    <div style={{ fontSize: '0.75rem', color: 'var(--c-9aadb9)', marginBottom: '0.25rem' }}>Cycle Time</div>
                                                     <div style={{ fontWeight: 500 }}>{step.cycleTime} min</div>
                                                 </div>
                                                 <div>
-                                                    <div style={{ fontSize: '0.75rem', color: '#9aadb9', marginBottom: '0.25rem' }}>Volume</div>
+                                                    <div style={{ fontSize: '0.75rem', color: 'var(--c-9aadb9)', marginBottom: '0.25rem' }}>Volume</div>
                                                     <div style={{ fontWeight: 500 }}>{step.volume}</div>
                                                 </div>
                                             </div>
 
                                             <div style={{ marginBottom: '1rem' }}>
-                                                <div style={{ fontSize: '0.75rem', color: '#9aadb9', marginBottom: '0.25rem' }}>Total Processing Time</div>
+                                                <div style={{ fontSize: '0.75rem', color: 'var(--c-9aadb9)', marginBottom: '0.25rem' }}>Total Processing Time</div>
                                                 <div style={{ fontWeight: 600, fontSize: '1rem' }}>{step.processingTime} min</div>
                                             </div>
 
                                             {/* Incoming Inventory */}
                                             {step.incomingInventory && (
-                                                <div style={{ marginBottom: '1rem', padding: '0.5rem', background: '#fff3cd', border: '1px solid #ffeeba', borderRadius: '4px', fontSize: '0.8rem', color: '#856404' }}>
+                                                <div style={{ marginBottom: '1rem', padding: '0.5rem', background: 'var(--c-fff3cd)', border: '1px solid var(--c-ffeeba)', borderRadius: '4px', fontSize: '0.8rem', color: 'var(--c-856404)' }}>
                                                     <strong>Incoming Inventory:</strong> {step.incomingInventory}
                                                 </div>
                                             )}
 
                                             {/* Tools */}
                                             {step.tools.length > 0 && (
-                                                <div style={{ background: '#192933', padding: '0.5rem', borderRadius: '4px', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
-                                                    <span style={{ color: '#9aadb9', marginRight: '0.25rem' }}>Tools:</span>
+                                                <div style={{ background: 'var(--c-192933)', padding: '0.5rem', borderRadius: '4px', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                                                    <span style={{ color: 'var(--c-9aadb9)', marginRight: '0.25rem' }}>Tools:</span>
                                                     {step.tools.join(', ')}
                                                 </div>
                                             )}
 
                                             {/* Attachments */}
                                             {step.attachments.length > 0 && (
-                                                <div style={{ background: '#0d171e', padding: '0.5rem', borderRadius: '4px', fontSize: '0.8rem', border: '1px solid #30434f' }}>
-                                                    <div style={{ color: '#9aadb9', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                                <div style={{ background: 'var(--c-0d171e)', padding: '0.5rem', borderRadius: '4px', fontSize: '0.8rem', border: '1px solid var(--c-30434f)' }}>
+                                                    <div style={{ color: 'var(--c-9aadb9)', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                                                         <Paperclip size={10} /> Documents:
                                                     </div>
                                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                                                         {step.attachments.map((file, idx) => (
-                                                            <span key={idx} style={{ background: '#14212a', padding: '2px 6px', borderRadius: '3px', border: '1px solid #30434f' }}>
+                                                            <span key={idx} style={{ background: 'var(--c-14212a)', padding: '2px 6px', borderRadius: '3px', border: '1px solid var(--c-30434f)' }}>
                                                                 {file.name}
                                                             </span>
                                                         ))}
@@ -168,21 +168,21 @@ const PropertiesPanel = ({ onClose }) => {
                                             marginTop: '0.5rem',
                                             marginLeft: '1rem',
                                             paddingLeft: '1rem',
-                                            borderLeft: '2px solid #293c47'
+                                            borderLeft: '2px solid var(--c-293c47)'
                                         }}>
-                                            <div style={{ fontSize: '0.8rem', color: '#9aadb9', fontStyle: 'italic', marginBottom: '0.25rem' }}>Outgoing Flow</div>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--c-9aadb9)', fontStyle: 'italic', marginBottom: '0.25rem' }}>Outgoing Flow</div>
                                             {step.outgoingEdges.map(edge => (
                                                 <div key={edge.edgeId} style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>
                                                     <div style={{ fontWeight: 500 }}>To: {edge.targetLabel}</div>
-                                                    <div style={{ color: '#adb5bd', fontSize: '0.8rem' }}>
+                                                    <div style={{ color: 'var(--c-adb5bd)', fontSize: '0.8rem' }}>
                                                         Routing: {edge.routing !== null ? `${edge.routing}%` : '100%'}
                                                         {edge.volume !== null && ` (${edge.volume.toFixed(1)})`}
                                                     </div>
                                                     {/* Wait Time & Pain Points */}
                                                     {(edge.wait > 0 || edge.painPoint) && (
-                                                        <div style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#9fadb9', paddingLeft: '0.5rem', borderLeft: '2px solid #30434f' }}>
+                                                        <div style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: 'var(--c-9fadb9)', paddingLeft: '0.5rem', borderLeft: '2px solid var(--c-30434f)' }}>
                                                             {edge.wait > 0 && <div>Wait: {edge.wait} min</div>}
-                                                            {edge.painPoint && <div style={{ color: '#df9296' }}>Pain: {edge.painPoint}</div>}
+                                                            {edge.painPoint && <div style={{ color: 'var(--c-df9296)' }}>Pain: {edge.painPoint}</div>}
                                                         </div>
                                                     )}
                                                 </div>
@@ -197,13 +197,13 @@ const PropertiesPanel = ({ onClose }) => {
                     {/* Exit Nodes */}
                     {lineageData.exitNodes.length > 0 && (
                         <div style={{ marginBottom: '2rem' }}>
-                            <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#adb5bd', marginBottom: '0.75rem' }}>Exit Nodes</h4>
+                            <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--c-adb5bd)', marginBottom: '0.75rem' }}>Exit Nodes</h4>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                 {lineageData.exitNodes.map(node => (
                                     <div key={node.nodeId} style={{
                                         padding: '0.75rem',
-                                        background: '#0d171e',
-                                        border: '1px solid #30434f',
+                                        background: 'var(--c-0d171e)',
+                                        border: '1px solid var(--c-30434f)',
                                         borderRadius: '6px',
                                         fontSize: '0.9rem',
                                         fontWeight: 500
@@ -285,15 +285,15 @@ const PropertiesPanel = ({ onClose }) => {
                     <div style={{ marginTop: '1.5rem' }}>
                         <label style={labelStyle}>Item Configuration</label>
                         {volumeStream.map(item => (
-                            <div key={item.id} style={{ marginBottom: '1rem', padding: '0.75rem', border: '1px solid var(--color-border)', borderRadius: '8px', background: '#14212a' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', borderBottom: '1px solid #293c47', paddingBottom: '0.5rem' }}>
+                            <div key={item.id} style={{ marginBottom: '1rem', padding: '0.75rem', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--c-14212a)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', borderBottom: '1px solid var(--c-293c47)', paddingBottom: '0.5rem' }}>
                                     <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: item.color }}></div>
                                     <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{item.name}</span>
                                 </div>
 
                                 {/* Routing Percentage (if Item Routing) */}
                                 {selectedEdge.data?.routingType === 'item' && (
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', background: '#0d171e', padding: '0.5rem', borderRadius: '4px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', background: 'var(--c-0d171e)', padding: '0.5rem', borderRadius: '4px' }}>
                                         <label style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-text-primary)' }}>Routing</label>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                                             <input
@@ -378,7 +378,7 @@ const PropertiesPanel = ({ onClose }) => {
                     </div>
 
                     {selectedEdge.data?.isError && (
-                        <div style={{ marginTop: '1rem', padding: '0.5rem', background: '#30262c', border: '1px solid #df9296', borderRadius: '4px', color: '#df9296', fontSize: '0.8rem' }}>
+                        <div style={{ marginTop: '1rem', padding: '0.5rem', background: 'var(--c-30262c)', border: '1px solid var(--c-df9296)', borderRadius: '4px', color: 'var(--c-df9296)', fontSize: '0.8rem' }}>
                             <strong>Routing Error:</strong> Total percentage does not equal 100%. Please adjust.
                         </div>
                     )}
@@ -396,7 +396,7 @@ const PropertiesPanel = ({ onClose }) => {
             id: crypto.randomUUID(),
             name: 'New Item',
             value: 0,
-            color: ['#91bbc8', '#b6a1d1', '#cfb77a', '#83bba7'][currentItems.length % 4]
+            color: ['var(--c-91bbc8)', 'var(--c-b6a1d1)', 'var(--c-cfb77a)', 'var(--c-83bba7)'][currentItems.length % 4]
         };
         handleNodeChange('volumeItems', [...currentItems, newItem]);
     };
@@ -482,10 +482,10 @@ const PropertiesPanel = ({ onClose }) => {
                     <div style={{
                         marginBottom: '1rem',
                         padding: '0.75rem',
-                        background: '#fff5f5',
-                        border: '1px solid #feb2b2',
+                        background: 'var(--c-fff5f5)',
+                        border: '1px solid var(--c-feb2b2)',
                         borderRadius: '4px',
-                        color: '#c53030',
+                        color: 'var(--c-c53030)',
                         fontSize: '0.8rem'
                     }}>
                         <div style={{ fontWeight: 600, marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -542,7 +542,7 @@ const PropertiesPanel = ({ onClose }) => {
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                     {(selectedNode.data.volumeItems || []).map(item => (
-                                        <div key={item.id} style={{ padding: '0.5rem', border: '1px solid var(--color-border)', borderRadius: '4px', background: '#14212a' }}>
+                                        <div key={item.id} style={{ padding: '0.5rem', border: '1px solid var(--color-border)', borderRadius: '4px', background: 'var(--c-14212a)' }}>
                                             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                                                 <input
                                                     type="color"
@@ -556,7 +556,7 @@ const PropertiesPanel = ({ onClose }) => {
                                                     onChange={(e) => handleUpdateVolumeItem(item.id, 'name', e.target.value)}
                                                     style={{ ...inputStyle, padding: '0.25rem', fontSize: '0.8rem' }}
                                                 />
-                                                <button onClick={() => handleRemoveVolumeItem(item.id)} style={{ background: 'none', border: 'none', color: '#df9296', cursor: 'pointer' }}>
+                                                <button onClick={() => handleRemoveVolumeItem(item.id)} style={{ background: 'none', border: 'none', color: 'var(--c-df9296)', cursor: 'pointer' }}>
                                                     <Trash2 size={14} />
                                                 </button>
                                             </div>
@@ -617,7 +617,7 @@ const PropertiesPanel = ({ onClose }) => {
                                     <label style={labelStyle}>Process Time (min)</label>
                                     <input
                                         type="number"
-                                        style={{ ...inputStyle, background: '#293c47', color: '#9fadb9', cursor: 'not-allowed' }}
+                                        style={{ ...inputStyle, background: 'var(--c-293c47)', color: 'var(--c-9fadb9)', cursor: 'not-allowed' }}
                                         value={selectedNode.data.process_time_total || 0}
                                         readOnly
                                     />
@@ -626,7 +626,7 @@ const PropertiesPanel = ({ onClose }) => {
                                     <label style={labelStyle}>FTE Required</label>
                                     <input
                                         type="number"
-                                        style={{ ...inputStyle, background: '#293c47', color: '#9fadb9', cursor: 'not-allowed' }}
+                                        style={{ ...inputStyle, background: 'var(--c-293c47)', color: 'var(--c-9fadb9)', cursor: 'not-allowed' }}
                                         value={selectedNode.data.fte_required || 0}
                                         readOnly
                                     />
@@ -724,7 +724,7 @@ const PropertiesPanel = ({ onClose }) => {
                                     }}
                                     style={{
                                         background: 'var(--color-primary)',
-                                        color: '#14212a',
+                                        color: 'var(--c-14212a)',
                                         border: 'none',
                                         borderRadius: '4px',
                                         width: '32px',
@@ -751,10 +751,10 @@ const PropertiesPanel = ({ onClose }) => {
                                             alignItems: 'center',
                                             gap: '0.25rem',
                                             padding: '0.25rem 0.5rem',
-                                            background: '#293c47',
+                                            background: 'var(--c-293c47)',
                                             borderRadius: '16px',
                                             fontSize: '0.75rem',
-                                            color: '#9fadb9'
+                                            color: 'var(--c-9fadb9)'
                                         }}>
                                             <Wrench size={10} />
                                             <span>{tool.name}</span>
@@ -768,7 +768,7 @@ const PropertiesPanel = ({ onClose }) => {
                                                     border: 'none',
                                                     padding: 0,
                                                     cursor: 'pointer',
-                                                    color: '#df9296',
+                                                    color: 'var(--c-df9296)',
                                                     display: 'flex',
                                                     marginLeft: '0.25rem'
                                                 }}
@@ -807,7 +807,7 @@ const PropertiesPanel = ({ onClose }) => {
                                 fontSize: '0.875rem',
                                 color: 'var(--color-text-secondary)',
                                 justifyContent: 'center',
-                                background: '#0d171e'
+                                background: 'var(--c-0d171e)'
                             }}
                         >
                             <Paperclip size={16} />
@@ -822,12 +822,12 @@ const PropertiesPanel = ({ onClose }) => {
                                 alignItems: 'center',
                                 gap: '0.5rem',
                                 padding: '0.5rem',
-                                background: '#14212a',
+                                background: 'var(--c-14212a)',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: '4px',
                                 fontSize: '0.8rem'
                             }}>
-                                <FileText size={14} color="#9aadb9" />
+                                <FileText size={14} color="var(--c-9aadb9)" />
                                 <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                     {file.name}
                                 </div>
@@ -847,7 +847,7 @@ const PropertiesPanel = ({ onClose }) => {
                                         background: 'transparent',
                                         cursor: 'pointer',
                                         padding: 0,
-                                        color: '#df9296',
+                                        color: 'var(--c-df9296)',
                                         display: 'flex'
                                     }}
                                 >

@@ -38,13 +38,13 @@ const Timeline = ({ collapsed, onToggle }) => {
                 value: totalWait,
                 label: 'Wait',
                 details: inventoryText.join(', '),
-                color: '#cfb77a'
+                color: 'var(--c-cfb77a)'
             });
         }
 
         // 2. Add Process Step or Actor/IT Wait Step
         const isActorOrIT = node.data.executionMode !== 'step' && (node.data.subtype === 'actor' || node.data.subtype === 'it');
-        if (!isActorOrIT && node.data.executionMode === 'step' && Number(node.data.wait_time) > 0) timelineSteps.push({ type:'wait', id:`node-wait-${node.id}`, value:Number(node.data.wait_time), label:node.data.label, details:'Attente', color:'#f5a454' });
+        if (!isActorOrIT && node.data.executionMode === 'step' && Number(node.data.wait_time) > 0) timelineSteps.push({ type:'wait', id:`node-wait-${node.id}`, value:Number(node.data.wait_time), label:node.data.label, details:'Attente', color:'var(--c-f5a454)' });
 
         if (isActorOrIT) {
             // Treat Actor/IT as a Wait Step
@@ -56,7 +56,7 @@ const Timeline = ({ collapsed, onToggle }) => {
                     value: waitTime,
                     label: node.data.label, // Use node label (e.g. "User Action")
                     details: 'Wait Time',
-                    color: node.data.subtype === 'it' ? '#53cf91' : '#f5a454' // Orange (IT) or Dark Grey (Actor)
+                    color: node.data.subtype === 'it' ? 'var(--c-53cf91)' : 'var(--c-f5a454)' // Orange (IT) or Dark Grey (Actor)
                 });
             }
         } else {
@@ -67,7 +67,7 @@ const Timeline = ({ collapsed, onToggle }) => {
                 id: node.id,
                 value: node.data.process_time_total || 0,
                 label: node.data.label,
-                color: ({ ai:'#4bafff', it:'#53cf91', actor:'#f5a454' })[node.data.subtype] || '#a5aeb8',
+                color: ({ ai:'var(--c-4bafff)', it:'var(--c-53cf91)', actor:'var(--c-f5a454)' })[node.data.subtype] || 'var(--c-a5aeb8)',
                 tools: usedTools
             });
         }
@@ -100,7 +100,7 @@ const Timeline = ({ collapsed, onToggle }) => {
                     description: props.painPoint,
                     location: `${sourceNode?.data?.label || 'Unknown'} → ${targetNode?.data?.label || 'Unknown'} `,
                     item: item?.name || 'Unknown Item',
-                    color: item?.color || '#dce6ec'
+                    color: item?.color || 'var(--c-dce6ec)'
                 });
             }
         });
@@ -123,13 +123,13 @@ const Timeline = ({ collapsed, onToggle }) => {
                 <div><span>Processing time <strong>{metrics.totalProcessTime} min</strong></span><span>Attente <strong>{metrics.totalLeadTime - metrics.totalProcessTime} min</strong></span><span>Lead time <strong>{metrics.totalLeadTime} min</strong></span></div>
             </div>
             {/* Tabs Header */}
-            <div className="analysis-tabs" style={{ display: 'flex', borderBottom: '1px solid var(--color-border)', background: '#0d171e' }}>
+            <div className="analysis-tabs" style={{ display: 'flex', borderBottom: '1px solid var(--color-border)', background: 'var(--c-0d171e)' }}>
                 <button
                     onClick={() => setActiveTab('flow')}
                     style={{
                         padding: '0.5rem 1rem',
                         border: 'none',
-                        background: activeTab === 'flow' ? '#14212a' : 'transparent',
+                        background: activeTab === 'flow' ? 'var(--c-14212a)' : 'transparent',
                         borderBottom: activeTab === 'flow' ? '2px solid var(--color-primary)' : 'none',
                         color: activeTab === 'flow' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                         fontWeight: 600,
@@ -147,7 +147,7 @@ const Timeline = ({ collapsed, onToggle }) => {
                     style={{
                         padding: '0.5rem 1rem',
                         border: 'none',
-                        background: activeTab === 'tools' ? '#14212a' : 'transparent',
+                        background: activeTab === 'tools' ? 'var(--c-14212a)' : 'transparent',
                         borderBottom: activeTab === 'tools' ? '2px solid var(--color-primary)' : 'none',
                         color: activeTab === 'tools' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                         fontWeight: 600,
@@ -165,7 +165,7 @@ const Timeline = ({ collapsed, onToggle }) => {
                     style={{
                         padding: '0.5rem 1rem',
                         border: 'none',
-                        background: activeTab === 'painPoints' ? '#14212a' : 'transparent',
+                        background: activeTab === 'painPoints' ? 'var(--c-14212a)' : 'transparent',
                         borderBottom: activeTab === 'painPoints' ? '2px solid var(--color-primary)' : 'none',
                         color: activeTab === 'painPoints' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                         fontWeight: 600,
@@ -188,7 +188,7 @@ const Timeline = ({ collapsed, onToggle }) => {
             </div>
 
             {/* Content */}
-            <div style={{ flex: 1, padding: '1rem', overflow: 'auto', background: '#14212a' }}>
+            <div style={{ flex: 1, padding: '1rem', overflow: 'auto', background: 'var(--c-14212a)' }}>
                 {activeTab === 'flow' && (
                     <div style={{ height: '100%', position: 'relative', minWidth: 'fit-content' }}>
                         {timelineSteps.length === 0 ? (
@@ -219,13 +219,13 @@ const Timeline = ({ collapsed, onToggle }) => {
                                             {step.id === selectedStepId && (
                                                 <>
                                                     <rect x={x} y={yBase - height} width={width} height={height} fill="rgba(0, 140, 255, 0.1)" />
-                                                    <line x1={x} y1={yBase} x2={x + width} y2={yBase} stroke="#008CFF" strokeWidth="3" />
+                                                    <line x1={x} y1={yBase} x2={x + width} y2={yBase} stroke="var(--c-008cff)" strokeWidth="3" />
                                                 </>
                                             )}
 
                                             {/* Connection Line */}
                                             {index < timelineSteps.length - 1 && (
-                                                <line x1={x + width} y1={yBase} x2={x + 120} y2={yBase} stroke="#30434f" strokeWidth="2" />
+                                                <line x1={x + width} y1={yBase} x2={x + 120} y2={yBase} stroke="var(--c-30434f)" strokeWidth="2" />
                                             )}
 
                                             {/* Step Line */}
@@ -237,18 +237,18 @@ const Timeline = ({ collapsed, onToggle }) => {
                                             />
 
                                             {/* Label (Bottom) */}
-                                            <text x={x + width / 2} y={yBase + 20} textAnchor="middle" fontSize="10" fill={step.id === selectedStepId ? "#008CFF" : "#9fadb9"} fontWeight="600" style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80px' }}>
+                                            <text x={x + width / 2} y={yBase + 20} textAnchor="middle" fontSize="10" fill={step.id === selectedStepId ? "var(--c-008cff)" : "var(--c-9fadb9)"} fontWeight="600" style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80px' }}>
                                                 {step.label.length > 12 ? step.label.substring(0, 10) + '...' : step.label}
                                             </text>
 
                                             {/* Tools Used (Below Label) */}
                                             {isProcess && step.tools && step.tools.length > 0 && (
                                                 <g>
-                                                    <text x={x + width / 2} y={yBase + 35} textAnchor="middle" fontSize="8" fill="#9aadb9">
+                                                    <text x={x + width / 2} y={yBase + 35} textAnchor="middle" fontSize="8" fill="var(--c-9aadb9)">
                                                         Tools:
                                                     </text>
                                                     {step.tools.map((t, i) => (
-                                                        <text key={i} x={x + width / 2} y={yBase + 45 + (i * 10)} textAnchor="middle" fontSize="8" fill="#8bb8cb">
+                                                        <text key={i} x={x + width / 2} y={yBase + 45 + (i * 10)} textAnchor="middle" fontSize="8" fill="var(--c-8bb8cb)">
                                                             {t.name}
                                                         </text>
                                                     ))}
@@ -270,31 +270,31 @@ const Timeline = ({ collapsed, onToggle }) => {
                 {activeTab === 'tools' && (
                     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                         {toolSummary.length === 0 ? (
-                            <div style={{ textAlign: 'center', color: '#adb5bd', fontStyle: 'italic', marginTop: '2rem' }}>
+                            <div style={{ textAlign: 'center', color: 'var(--c-adb5bd)', fontStyle: 'italic', marginTop: '2rem' }}>
                                 No tools are currently assigned to any process steps.
                             </div>
                         ) : (
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
                                 <thead>
-                                    <tr style={{ borderBottom: '2px solid #30434f' }}>
-                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#9fadb9' }}>Tool Name</th>
-                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#9fadb9' }}>Used In Steps</th>
-                                        <th style={{ textAlign: 'right', padding: '0.5rem', color: '#9fadb9' }}>Total Process Time</th>
+                                    <tr style={{ borderBottom: '2px solid var(--c-30434f)' }}>
+                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--c-9fadb9)' }}>Tool Name</th>
+                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--c-9fadb9)' }}>Used In Steps</th>
+                                        <th style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--c-9fadb9)' }}>Total Process Time</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {toolSummary.map(tool => (
-                                        <tr key={tool.id} style={{ borderBottom: '1px solid #293c47' }}>
+                                        <tr key={tool.id} style={{ borderBottom: '1px solid var(--c-293c47)' }}>
                                             <td style={{ padding: '0.5rem', fontWeight: 600 }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                    <Wrench size={14} color="#9aadb9" />
+                                                    <Wrench size={14} color="var(--c-9aadb9)" />
                                                     {tool.name}
                                                 </div>
                                             </td>
                                             <td style={{ padding: '0.5rem' }}>
                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
                                                     {tool.steps.map((step, i) => (
-                                                        <span key={i} style={{ background: '#293c47', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem' }}>
+                                                        <span key={i} style={{ background: 'var(--c-293c47)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem' }}>
                                                             {step}
                                                         </span>
                                                     ))}
@@ -314,22 +314,22 @@ const Timeline = ({ collapsed, onToggle }) => {
                 {activeTab === 'painPoints' && (
                     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                         {painPoints.length === 0 ? (
-                            <div style={{ textAlign: 'center', color: '#adb5bd', fontStyle: 'italic', marginTop: '2rem' }}>
+                            <div style={{ textAlign: 'center', color: 'var(--c-adb5bd)', fontStyle: 'italic', marginTop: '2rem' }}>
                                 No pain points identified in the value stream.
                             </div>
                         ) : (
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
                                 <thead>
-                                    <tr style={{ borderBottom: '2px solid #30434f' }}>
-                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#9fadb9' }}>Pain Point</th>
-                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#9fadb9' }}>Location (Flow)</th>
-                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: '#9fadb9' }}>Item</th>
+                                    <tr style={{ borderBottom: '2px solid var(--c-30434f)' }}>
+                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--c-9fadb9)' }}>Pain Point</th>
+                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--c-9fadb9)' }}>Location (Flow)</th>
+                                        <th style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--c-9fadb9)' }}>Item</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {painPoints.map(pp => (
-                                        <tr key={pp.id} style={{ borderBottom: '1px solid #293c47' }}>
-                                            <td style={{ padding: '0.5rem', fontWeight: 600, color: '#df9296' }}>
+                                        <tr key={pp.id} style={{ borderBottom: '1px solid var(--c-293c47)' }}>
+                                            <td style={{ padding: '0.5rem', fontWeight: 600, color: 'var(--c-df9296)' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                                     <AlertTriangle size={14} />
                                                     {pp.description}

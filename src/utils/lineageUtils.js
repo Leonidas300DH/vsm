@@ -53,7 +53,7 @@ export const computeLineage = (nodes, edges, selectedItemId, tools = []) => {
     const allItems = extractAllItems(nodes);
     const itemData = allItems.find(i => i.id === selectedItemId);
     const selectedItemName = itemData?.name || selectedItemId;
-    const selectedItemColor = itemData?.color || '#7A3E9D'; // Default to purple if no color
+    const selectedItemColor = itemData?.color || 'var(--c-7a3e9d)'; // Default to purple if no color
 
     // 1. Identify Start Nodes (Sources) that initiate this item
     // These are nodes with volumeStreams OR volumeItems containing the item AND volume > 0
@@ -157,31 +157,31 @@ export const computeLineage = (nodes, edges, selectedItemId, tools = []) => {
         const cycleTime = n.data.cycleTimes?.[selectedItemId] || 0;
 
         // Determine Colors
-        let color = '#a5aeb8'; // Standard process
-        let borderColor = '#a5aeb8';
-        let bgColor = '#ffffff';
+        let color = 'var(--c-a5aeb8)'; // Standard process
+        let borderColor = 'var(--c-a5aeb8)';
+        let bgColor = 'var(--c-ffffff)';
 
         if (n.type === 'process') {
             if (n.data.subtype === 'actor') {
-                color = '#f5a454';
-                borderColor = '#f5a454';
+                color = 'var(--c-f5a454)';
+                borderColor = 'var(--c-f5a454)';
             } else if (n.data.subtype === 'ai') {
-                color = '#4bafff';
-                borderColor = '#4bafff';
+                color = 'var(--c-4bafff)';
+                borderColor = 'var(--c-4bafff)';
             } else if (n.data.subtype === 'it') {
-                color = '#53cf91';
-                borderColor = '#53cf91';
+                color = 'var(--c-53cf91)';
+                borderColor = 'var(--c-53cf91)';
             }
         } else if (n.type === 'startEnd') {
             // Check data.type instead of subtype for StartEndNode
             if (n.data.type === 'start') {
-                color = '#198754';
-                borderColor = '#198754';
-                bgColor = '#d1e7dd';
+                color = 'var(--c-198754)';
+                borderColor = 'var(--c-198754)';
+                bgColor = 'var(--c-d1e7dd)';
             } else {
-                color = '#dc3545';
-                borderColor = '#dc3545';
-                bgColor = '#f8d7da';
+                color = 'var(--c-dc3545)';
+                borderColor = 'var(--c-dc3545)';
+                bgColor = 'var(--c-f8d7da)';
             }
         }
 

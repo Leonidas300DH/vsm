@@ -269,7 +269,7 @@ const Header = ({ children }) => {
                                 top: '100%',
                                 left: 0,
                                 marginTop: '0.25rem',
-                                background: '#14212a',
+                                background: 'var(--c-14212a)',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: '4px',
                                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
@@ -329,7 +329,7 @@ const Header = ({ children }) => {
                                 borderRadius: '4px'
                             }}
                             title="Click to edit title"
-                            onMouseEnter={(e) => e.currentTarget.style.border = '1px dashed #ccc'}
+                            onMouseEnter={(e) => e.currentTarget.style.border = '1px dashed var(--c-cccccc)'}
                             onMouseLeave={(e) => e.currentTarget.style.border = '1px solid transparent'}
                         >
                             {projectTitle}
@@ -366,11 +366,11 @@ const MenuItem = ({ icon, label, onClick, danger, small, hasSubmenu }) => (
             textAlign: 'left',
             fontSize: small ? '0.8rem' : '0.875rem',
             cursor: 'pointer',
-            color: danger ? '#df9296' : 'var(--color-text)',
+            color: danger ? 'var(--c-df9296)' : 'var(--color-text)',
             transition: 'background 0.1s',
             paddingLeft: small ? '1.5rem' : '1rem'
         }}
-        onMouseEnter={(e) => e.currentTarget.style.background = '#0d171e'}
+        onMouseEnter={(e) => e.currentTarget.style.background = 'var(--c-0d171e)'}
         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
     >
         {icon}

@@ -16,7 +16,7 @@ const DraggableNode = ({ type, data, label, icon, color, borderColor, onDragStar
             border: `1px solid ${borderColor || color} `,
             borderRadius: '6px',
             background: color,
-            color: '#14212a',
+            color: 'var(--c-14212a)',
             cursor: 'grab',
             display: 'flex',
             alignItems: 'center',
@@ -42,7 +42,7 @@ const DocumentList = ({ nodes }) => (
     <div>
         <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: '1rem' }}>Project Documents</h4>
         {nodes.filter(n => n.data.attachments && n.data.attachments.length > 0).length === 0 ? (
-            <div style={{ fontSize: '0.8rem', color: '#adb5bd', fontStyle: 'italic', textAlign: 'center' }}>No documents found in this project.</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--c-adb5bd)', fontStyle: 'italic', textAlign: 'center' }}>No documents found in this project.</div>
         ) : (
             nodes.filter(n => n.data.attachments && n.data.attachments.length > 0).map(node => (
                 <div key={node.id} style={{ marginBottom: '1rem' }}>
@@ -52,7 +52,7 @@ const DocumentList = ({ nodes }) => (
                     <div style={{ paddingLeft: '0.5rem', borderLeft: '2px solid var(--color-border)' }}>
                         {node.data.attachments.map((file, idx) => (
                             <div key={idx} style={{ fontSize: '0.8rem', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                <FileText size={12} color="#9aadb9" />
+                                <FileText size={12} color="var(--c-9aadb9)" />
                                 <button
                                     onClick={async () => {
                                         try {

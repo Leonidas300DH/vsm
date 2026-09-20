@@ -8,10 +8,20 @@ const readLibrary = (kind) => {
   try { const value = JSON.parse(localStorage.getItem(`vsm_global_${kind}`) || '[]'); return Array.isArray(value) ? value : []; }
   catch { return []; }
 };
+const applyTheme = (theme) => {
+  if (typeof document !== 'undefined') document.documentElement.dataset.theme = theme;
+  return theme;
+};
 const useStore = create((set, get) => ({
   edgeLabelSizes: {},
   // Reading preferences: local only, never written to the .vsm file.
   orientation: (() => { try { return localStorage.getItem('vsm.orientation') === 'vertical' ? 'vertical' : 'horizontal'; } catch { return 'horizontal'; } })(),
+  // Theme: 'dark' (original palette) or 'light'. Applied to <html data-theme>, see src/theme.css.
+  theme: applyTheme((() => { try { return localStorage.getItem('vsm.theme') === 'light' ? 'light' : 'dark'; } catch { return 'dark'; } })()),
+  setTheme: (theme) => {
+    try { localStorage.setItem('vsm.theme', theme); } catch { /* preference stays for the session */ }
+    set({ theme: applyTheme(theme) });
+  },
   // Focus: one resource whose steps stay lit while the rest of the canvas dims. Session only.
   focus: null,
   setOrientation: (orientation) => {

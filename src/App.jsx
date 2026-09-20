@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ReactFlowProvider, useReactFlow } from 'reactflow';
-import { PanelLeft, PanelRight, ChartNoAxesCombined, AlignHorizontalSpaceAround, AlignVerticalSpaceAround, Columns3, Scan, FlaskConical, ArrowRight, X } from 'lucide-react';
+import { PanelLeft, PanelRight, ChartNoAxesCombined, AlignHorizontalSpaceAround, AlignVerticalSpaceAround, Columns3, Scan, FlaskConical, ArrowRight, X, Sun, Moon } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import PropertiesPanel from './components/PropertiesPanel';
 import Timeline from './components/Timeline';
@@ -28,7 +28,7 @@ function Workspace() {
   const [properties, setProperties] = usePanelPreference('properties', false);
   const [analysis, setAnalysis] = usePanelPreference('analysis', false);
   const [notice, setNotice] = useState('');
-  const { nodes, setGraph, setFileHandle, selectedNodeId, orientation, setOrientation, lastDeletion, undoDeletion, dismissDeletion, tools, actors, focus, setFocus } = useStore();
+  const { nodes, setGraph, setFileHandle, selectedNodeId, orientation, setOrientation, lastDeletion, undoDeletion, dismissDeletion, tools, actors, focus, setFocus, theme, setTheme } = useStore();
   const { fitView, getNodes } = useReactFlow();
   const frame = () => requestAnimationFrame(() => requestAnimationFrame(() => fitView({ padding: 0.15, duration: 0, minZoom: 0.1, maxZoom: 1 })));
 
@@ -98,6 +98,8 @@ function Workspace() {
         <button aria-label="Palette" aria-pressed={sidebar} onClick={() => setSidebar(!sidebar)}><PanelLeft size={16} /></button>
         <button aria-label="Analyse" aria-pressed={analysis} onClick={() => setAnalysis(!analysis)}><ChartNoAxesCombined size={16} /></button>
         <button aria-label="Inspecteur" aria-pressed={properties} onClick={() => setProperties(!properties)}><PanelRight size={16} /></button>
+        <span className="toolbar-divider" />
+        <button aria-label={theme === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair'} title={theme === 'light' ? 'Mode sombre' : 'Mode clair'} onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>{theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}</button>
       </div>
     </div>
     </Header>

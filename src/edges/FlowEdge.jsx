@@ -36,7 +36,7 @@ const FlowEdge = ({
 
     const edgeStyle = {
         ...style,
-        stroke: data?.isError ? '#df9296' : (style.stroke || '#67818f'),
+        stroke: data?.isError ? 'var(--c-df9296)' : (style.stroke || 'var(--c-67818f)'),
         strokeWidth: data?.isError ? 2 : (style.strokeWidth || 1.5),
     };
 
@@ -48,7 +48,7 @@ const FlowEdge = ({
                     style={{
                         position: 'absolute',
                         transform: `translate(${box.x}px,${box.y}px)`,
-                        background: '#14212a',
+                        background: 'var(--c-14212a)',
                         padding: '8px 10px',
                         width: 'max-content',
                         maxWidth: '260px',
@@ -58,7 +58,7 @@ const FlowEdge = ({
                         borderRadius: '4px',
                         fontSize: '0.7rem',
                         fontWeight: 500,
-                        border: '1px solid #30434f',
+                        border: '1px solid var(--c-30434f)',
                         pointerEvents: 'all',
                         cursor: 'pointer',
                         zIndex: 1000,
@@ -72,7 +72,7 @@ const FlowEdge = ({
                             {data.labelItems.map((item, i) => (
                                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', fontWeight: 600 }}>
                                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: item.color }} />
-                                    <span style={{ color: '#dce6ec' }}>{item.name}: {item.pct}%</span>
+                                    <span style={{ color: 'var(--c-dce6ec)' }}>{item.name}: {item.pct}%</span>
                                 </div>
                             ))}
                         </div>
@@ -87,14 +87,14 @@ const FlowEdge = ({
                         if (!item || (!props.wait && !props.inventory && !props.painPoint)) return null;
 
                         return (
-                            <div key={itemId} style={{ marginTop: '4px', borderTop: '1px solid #293c47', paddingTop: '2px', textAlign: 'left' }}>
+                            <div key={itemId} style={{ marginTop: '4px', borderTop: '1px solid var(--c-293c47)', paddingTop: '2px', textAlign: 'left' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '0.65rem', fontWeight: 600, color: item.color }}>
                                     <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: item.color }}></div>
                                     {item.name}
                                 </div>
-                                {props.wait > 0 && <div style={{ fontSize: '0.6rem', color: '#9aadb9' }}>Wait: {props.wait}m</div>}
-                                {props.inventory && <div style={{ fontSize: '0.6rem', color: '#9aadb9' }}>Inv: {props.inventory}</div>}
-                                {props.painPoint && <div style={{ fontSize: '0.6rem', color: '#df9296' }}>⚠ {props.painPoint}</div>}
+                                {props.wait > 0 && <div style={{ fontSize: '0.6rem', color: 'var(--c-9aadb9)' }}>Wait: {props.wait}m</div>}
+                                {props.inventory && <div style={{ fontSize: '0.6rem', color: 'var(--c-9aadb9)' }}>Inv: {props.inventory}</div>}
+                                {props.painPoint && <div style={{ fontSize: '0.6rem', color: 'var(--c-df9296)' }}>⚠ {props.painPoint}</div>}
                             </div>
                         );
                     })}

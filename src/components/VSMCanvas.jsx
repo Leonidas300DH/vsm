@@ -31,8 +31,10 @@ const VSMCanvas = ({ onInspect }) => {
         setSelectedStepId,
         selectedItemId, // New
         focus,
-        actors
+        actors,
+        theme
     } = useStore();
+    const light = theme === 'light';
     const [hoveredNodeId, setHoveredNodeId] = useState(null);
 
     const nodeTypes = useMemo(() => ({
@@ -202,7 +204,7 @@ const VSMCanvas = ({ onInspect }) => {
             style={{
                 width: '100%',
                 height: '100%',
-                '--lineage-color': focus ? '#8bb8cb' : (lineageData?.itemColor || '#7A3E9D')
+                '--lineage-color': focus ? 'var(--c-8bb8cb)' : (lineageData?.itemColor || 'var(--c-7a3e9d)')
             }}
         >
             <ReactFlow
@@ -226,9 +228,9 @@ const VSMCanvas = ({ onInspect }) => {
                 defaultEdgeOptions={{ type: 'flow', markerEnd: { type: 'arrowclosed' } }}
                 fitView
             >
-                <Background color="#2b404d" gap={24} size={1} />
+                <Background color={light ? '#c4d1da' : '#2b404d'} gap={24} size={1} />
                 <Controls />
-                <MiniMap pannable zoomable nodeColor="#496877" maskColor="rgba(9, 16, 22, 0.65)" />
+                <MiniMap pannable zoomable nodeColor={light ? '#8fa9b8' : '#496877'} maskColor={light ? 'rgba(236, 241, 245, 0.7)' : 'rgba(9, 16, 22, 0.65)'} />
             </ReactFlow>
         </div>
     );

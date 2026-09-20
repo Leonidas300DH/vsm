@@ -27,27 +27,27 @@ const ProcessNode = ({ id, data, selected }) => {
         variantStyle = { borderRadius: '16px' }; // Rounded for Actor
     } else if (subtype === 'it') {
         HeaderIcon = Workflow;
-        variantStyle = { border: '2px solid #8bb8cb' }; // Thicker border for IT
+        variantStyle = { border: '2px solid var(--c-8bb8cb)' }; // Thicker border for IT
     }
 
     if (subtype === 'ai') HeaderIcon = Bot;
 
     // Global Color Scheme
-    let nodeColor = '#14212a'; // Body is always white
-    let borderColor = '#30434f';
-    let headerBg = '#8bb8cb'; // Default Blue for Standard Steps
-    let headerText = '#14212a';
+    let nodeColor = 'var(--c-14212a)'; // Body is always white
+    let borderColor = 'var(--c-30434f)';
+    let headerBg = 'var(--c-8bb8cb)'; // Default Blue for Standard Steps
+    let headerText = 'var(--c-14212a)';
 
     if (subtype === 'actor') {
-        headerBg = '#9fadb9'; // Dark Grey for Actors
-        borderColor = '#9fadb9';
+        headerBg = 'var(--c-9fadb9)'; // Dark Grey for Actors
+        borderColor = 'var(--c-9fadb9)';
     } else if (subtype === 'it') {
-        headerBg = '#b6a1d1'; // Orange for IT
-        borderColor = '#b6a1d1';
+        headerBg = 'var(--c-b6a1d1)'; // Orange for IT
+        borderColor = 'var(--c-b6a1d1)';
     } else {
         // Standard
-        headerBg = '#8bb8cb'; // Blue
-        borderColor = '#8bb8cb';
+        headerBg = 'var(--c-8bb8cb)'; // Blue
+        borderColor = 'var(--c-8bb8cb)';
     }
 
     // Volume Rounding
@@ -63,7 +63,7 @@ const ProcessNode = ({ id, data, selected }) => {
     };
 
     const cellStyle = {
-        border: '1px solid #30434f',
+        border: '1px solid var(--c-30434f)',
         padding: '2px 4px',
         textAlign: 'right'
     };
@@ -72,7 +72,7 @@ const ProcessNode = ({ id, data, selected }) => {
         ...cellStyle,
         textAlign: 'left',
         fontWeight: 500,
-        color: '#9fadb9'
+        color: 'var(--c-9fadb9)'
     };
 
     return (
@@ -84,8 +84,8 @@ const ProcessNode = ({ id, data, selected }) => {
                 maxWidth: '400px',
                 width: 'fit-content',
                 background: nodeColor,
-                color: '#dce6ec',
-                border: `1px solid ${selected ? '#8bb8cb' : borderColor}`,
+                color: 'var(--c-dce6ec)',
+                border: `1px solid ${selected ? 'var(--c-8bb8cb)' : borderColor}`,
                 borderRadius: subtype === 'actor' ? '16px' : '8px',
                 fontSize: '0.8rem',
                 boxShadow: selected ? '0 0 0 2px rgba(13, 110, 253, 0.25)' : '0 2px 4px rgba(0,0,0,0.05)',
@@ -98,8 +98,8 @@ const ProcessNode = ({ id, data, selected }) => {
                 type="target"
                 position={vertical ? Position.Top : Position.Left}
                 style={vertical
-                    ? { background: '#7e99a8', width: '12px', height: '12px', top: '-6px', left: '50%', transform: 'translateX(-50%)' }
-                    : { background: '#7e99a8', width: '12px', height: '12px', left: '-6px', top: '50%', transform: 'translateY(-50%)' }}
+                    ? { background: 'var(--c-7e99a8)', width: '12px', height: '12px', top: '-6px', left: '50%', transform: 'translateX(-50%)' }
+                    : { background: 'var(--c-7e99a8)', width: '12px', height: '12px', left: '-6px', top: '50%', transform: 'translateY(-50%)' }}
             />
 
             {/* Header */}
@@ -134,10 +134,10 @@ const ProcessNode = ({ id, data, selected }) => {
                 {data.description && (
                     <div style={{
                         fontSize: '0.75rem',
-                        color: '#9aadb9',
+                        color: 'var(--c-9aadb9)',
                         marginBottom: '0.5rem',
                         fontStyle: 'italic',
-                        borderBottom: '1px solid #293c47',
+                        borderBottom: '1px solid var(--c-293c47)',
                         paddingBottom: '0.25rem'
                     }}>
                         {data.description}
@@ -147,10 +147,10 @@ const ProcessNode = ({ id, data, selected }) => {
                 <table style={tableStyle}>
                     <thead>
                         <tr>
-                            <th style={{ ...cellStyle, textAlign: 'left', color: '#9aadb9', fontWeight: 500 }}>Item</th>
-                            <th style={{ ...cellStyle, color: '#9aadb9', fontWeight: 500 }}>C/T</th>
-                            <th style={{ ...cellStyle, color: '#9aadb9', fontWeight: 500 }}>Vol</th>
-                            <th style={{ ...cellStyle, color: '#9aadb9', fontWeight: 500 }}>Time</th>
+                            <th style={{ ...cellStyle, textAlign: 'left', color: 'var(--c-9aadb9)', fontWeight: 500 }}>Item</th>
+                            <th style={{ ...cellStyle, color: 'var(--c-9aadb9)', fontWeight: 500 }}>C/T</th>
+                            <th style={{ ...cellStyle, color: 'var(--c-9aadb9)', fontWeight: 500 }}>Vol</th>
+                            <th style={{ ...cellStyle, color: 'var(--c-9aadb9)', fontWeight: 500 }}>Time</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -166,7 +166,7 @@ const ProcessNode = ({ id, data, selected }) => {
                                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60px' }} title={item.name}>{item.name}</span>
                                             </div>
                                         </td>
-                                        <td style={{ ...cellStyle, color: ct === 0 ? '#df9296' : 'inherit', fontWeight: ct === 0 ? 'bold' : 'inherit' }}>{ct}</td>
+                                        <td style={{ ...cellStyle, color: ct === 0 ? 'var(--c-df9296)' : 'inherit', fontWeight: ct === 0 ? 'bold' : 'inherit' }}>{ct}</td>
                                         <td style={cellStyle}>{parseFloat(item.value).toFixed(2)}</td>
                                         <td style={cellStyle}>{parseFloat(procTime).toFixed(2)}</td>
                                     </tr>
@@ -174,11 +174,11 @@ const ProcessNode = ({ id, data, selected }) => {
                             })
                         ) : (
                             <tr>
-                                <td colSpan="4" style={{ ...cellStyle, textAlign: 'center', color: '#adb5bd', fontStyle: 'italic' }}>No Volume</td>
+                                <td colSpan="4" style={{ ...cellStyle, textAlign: 'center', color: 'var(--c-adb5bd)', fontStyle: 'italic' }}>No Volume</td>
                             </tr>
                         )}
 
-                        <tr style={{ borderTop: '2px solid #30434f' }}>
+                        <tr style={{ borderTop: '2px solid var(--c-30434f)' }}>
                             <td colSpan="3" style={{ ...labelCellStyle, fontWeight: 600 }}>Total Proc Time</td>
                             <td style={{ ...cellStyle, fontWeight: 600 }}>{Number(data.process_time_total || 0).toLocaleString('fr-FR', { maximumFractionDigits: 2 })}</td>
                         </tr>
@@ -204,11 +204,11 @@ const ProcessNode = ({ id, data, selected }) => {
                 <div style={{
                     padding: '0.5rem',
                     borderTop: `1px solid ${borderColor}`,
-                    background: '#0d171e',
+                    background: 'var(--c-0d171e)',
                     borderBottomLeftRadius: subtype === 'actor' ? '15px' : '7px',
                     borderBottomRightRadius: subtype === 'actor' ? '15px' : '7px',
                 }}>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#9aadb9', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--c-9aadb9)', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                         <Paperclip size={10} /> Documents:
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
@@ -237,12 +237,12 @@ const ProcessNode = ({ id, data, selected }) => {
                                     }
                                 }}
                                 style={{
-                                    background: '#fff9db',
-                                    border: '1px solid #ffe066',
+                                    background: 'var(--c-fff9db)',
+                                    border: '1px solid var(--c-ffe066)',
                                     borderRadius: '4px',
                                     padding: '2px 6px',
                                     fontSize: '0.7rem',
-                                    color: '#9fadb9',
+                                    color: 'var(--c-9fadb9)',
                                     cursor: 'pointer',
                                     maxWidth: '100%',
                                     overflow: 'hidden',
@@ -264,17 +264,17 @@ const ProcessNode = ({ id, data, selected }) => {
                     position: 'absolute',
                     top: '-8px',
                     right: '-8px',
-                    background: '#14212a',
+                    background: 'var(--c-14212a)',
                     borderRadius: '50%',
                     padding: '4px',
-                    border: '1px solid #30434f',
+                    border: '1px solid var(--c-30434f)',
                     boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 10
                 }}>
-                    <Paperclip size={14} color="#9aadb9" />
+                    <Paperclip size={14} color="var(--c-9aadb9)" />
                 </div>
             )}
 
@@ -284,17 +284,17 @@ const ProcessNode = ({ id, data, selected }) => {
                     position: 'absolute',
                     top: '-15px',
                     left: '-15px',
-                    background: '#14212a',
+                    background: 'var(--c-14212a)',
                     borderRadius: '50%',
                     padding: '4px',
-                    border: '1px solid #df9296',
+                    border: '1px solid var(--c-df9296)',
                     boxShadow: '0 1px 2px rgba(220, 53, 69, 0.2)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 10
                 }} title={data.errors.join('\n')}>
-                    <AlertTriangle size={14} color="#df9296" />
+                    <AlertTriangle size={14} color="var(--c-df9296)" />
                 </div>
             )}
 
@@ -311,8 +311,8 @@ const ProcessNode = ({ id, data, selected }) => {
                     ...(vertical
                         ? { left: 'calc(50% + 14px)', bottom: '-24px', transform: 'translateX(-50%)' }
                         : { right: '-24px', top: 'calc(50% + 14px)', transform: 'translateY(-50%)' }),
-                    background: '#14212a',
-                    border: '1px solid #30434f',
+                    background: 'var(--c-14212a)',
+                    border: '1px solid var(--c-30434f)',
                     borderRadius: '50%',
                     width: '20px',
                     height: '20px',
@@ -322,15 +322,15 @@ const ProcessNode = ({ id, data, selected }) => {
                     cursor: 'pointer',
                     boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                     zIndex: 10,
-                    color: '#9aadb9'
+                    color: 'var(--c-9aadb9)'
                 }}
                 onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#0d171e';
-                    e.currentTarget.style.color = '#8bb8cb';
+                    e.currentTarget.style.background = 'var(--c-0d171e)';
+                    e.currentTarget.style.color = 'var(--c-8bb8cb)';
                 }}
                 onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#14212a';
-                    e.currentTarget.style.color = '#9aadb9';
+                    e.currentTarget.style.background = 'var(--c-14212a)';
+                    e.currentTarget.style.color = 'var(--c-9aadb9)';
                 }}
             >
                 <Plus size={12} />
@@ -340,8 +340,8 @@ const ProcessNode = ({ id, data, selected }) => {
                 type="source"
                 position={vertical ? Position.Bottom : Position.Right}
                 style={vertical
-                    ? { background: '#7e99a8', width: '12px', height: '12px', bottom: '-6px', left: '50%', transform: 'translateX(-50%)', top: 'auto' }
-                    : { background: '#7e99a8', width: '12px', height: '12px', right: '-6px' }}
+                    ? { background: 'var(--c-7e99a8)', width: '12px', height: '12px', bottom: '-6px', left: '50%', transform: 'translateX(-50%)', top: 'auto' }
+                    : { background: 'var(--c-7e99a8)', width: '12px', height: '12px', right: '-6px' }}
             />
         </div><NodeResources id={id} data={data}/></div>
     );

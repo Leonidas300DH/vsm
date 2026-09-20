@@ -6,15 +6,15 @@ import useStore from '../store/useStore';
 const StartEndNode = ({ id, data, selected }) => {
     const isStart = data.type === 'start';
     const hasAttachments = data.attachments && data.attachments.length > 0;
-    const nodeBorder = '#f36f79';
-    const nodeBg = '#381c26';
+    const nodeBorder = 'var(--c-f36f79)';
+    const nodeBg = 'var(--c-381c26)';
     const vertical = useStore(s => s.orientation === 'vertical');
     const updateNodeInternals = useUpdateNodeInternals();
     // Handles move between left/right and top/bottom: React Flow must re-measure them.
     useEffect(() => { updateNodeInternals(id); }, [vertical, id, updateNodeInternals]);
     const port = vertical
-        ? { background: '#7e99a8', width: '12px', height: '12px', left: '50%', transform: 'translateX(-50%)' }
-        : { background: '#7e99a8', width: '12px', height: '12px' };
+        ? { background: 'var(--c-7e99a8)', width: '12px', height: '12px', left: '50%', transform: 'translateX(-50%)' }
+        : { background: 'var(--c-7e99a8)', width: '12px', height: '12px' };
     const Icon = isStart ? (vertical ? ArrowDownToLine : ArrowRightToLine) : (vertical ? ArrowDownFromLine : ArrowRightFromLine);
     const deleteNode = useStore(s => s.deleteNode);
     const confirmDelete = (e) => {
@@ -49,7 +49,7 @@ const StartEndNode = ({ id, data, selected }) => {
             </div>
 
             {data.description && (
-                <div style={{ fontSize: '0.7rem', color: '#9aadb9', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--c-9aadb9)', textAlign: 'center', whiteSpace: 'nowrap' }}>
                     {data.description}
                 </div>
             )}
@@ -62,7 +62,7 @@ const StartEndNode = ({ id, data, selected }) => {
                             alignItems: 'center',
                             gap: '0.25rem',
                             fontSize: '0.7rem',
-                            color: '#9fadb9',
+                            color: 'var(--c-9fadb9)',
                             marginBottom: '0.1rem'
                         }}>
                             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></div>
@@ -74,8 +74,8 @@ const StartEndNode = ({ id, data, selected }) => {
             )}
 
             {hasAttachments && (
-                <div style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#14212a', borderRadius: '50%', padding: '2px', border: '1px solid #30434f' }}>
-                    <Paperclip size={12} color="#9aadb9" />
+                <div style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'var(--c-14212a)', borderRadius: '50%', padding: '2px', border: '1px solid var(--c-30434f)' }}>
+                    <Paperclip size={12} color="var(--c-9aadb9)" />
                 </div>
             )}
 
