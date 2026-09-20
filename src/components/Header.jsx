@@ -5,6 +5,7 @@ import { useReactFlow } from 'reactflow';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { hasFileSystemAccess, openFile, saveFile, saveFileAs } from '../utils/fileSystem';
+import { validateProject, FILE_VERSION } from '../utils/projectSchema';
 
 const Header = ({ children }) => {
     const {
@@ -37,7 +38,7 @@ const Header = ({ children }) => {
 
     const getProjectData = () => ({
         meta: {
-            version: '1.0',
+            version: FILE_VERSION,
             application: 'vsm-builder',
             timestamp: new Date().toISOString()
         },
@@ -125,26 +126,19 @@ const Header = ({ children }) => {
     };
 
     const loadProject = (data, filename, handle = null) => {
-        try {
-            const loadedNodes = data.nodes;
-            const loadedEdges = data.edges;
-            const loadedTools = data.tools || []; // Load tools
-            const loadedTitle = data.title || data.projectTitle || filename.replace(/\.(json|vsm)$/, '');
-
-            if (loadedNodes && loadedEdges) {
-                setGraph(loadedNodes, loadedEdges, loadedTitle);
-
-                // Restore tools
-                mergeLibraries({ tools: loadedTools, actors: data.actors, knowledge: data.knowledge });
-
-                setFileHandle(handle);
-                addToRecentFiles({ title: loadedTitle, content: data });
-            } else {
-                alert('Invalid file format: Missing nodes or edges data.');
-            }
-        } catch (error) {
-            console.error("Error loading project:", error);
-            alert(`Failed to load project: ${error.message}`);
+        const result = validateProject(data);
+        if (!result.ok) {
+            alert(`Invalid VSM file:\n${result.errors.join('\n')}`);
+            return;
+        }
+        const { project } = result;
+        const title = project.title || filename.replace(/\.(json|vsm)$/, '');
+        setGraph(project.nodes, project.edges, title);
+        mergeLibraries({ tools: project.tools, actors: project.actors, knowledge: project.knowledge });
+        setFileHandle(handle);
+        addToRecentFiles({ title, content: data });
+        if (result.errors.length) {
+            alert(`File loaded with warnings:\n${result.errors.join('\n')}`);
         }
     };
 
