@@ -101,11 +101,11 @@ Audit puis correctifs prioritaires, un commit par point. Formules métier inchan
 - Valeurs non numériques : le moteur passe toute entrée par `num()` (NaN → 0) et l'inspecteur enregistre 0 pour un champ vidé (`toNumber` dans `PropertiesPanel.jsx`). La validation des sorties reste active.
 - Suppression d'une étape : React Flow appelle `onEdgesChange` puis `onNodesChange` ; le store recalcule désormais sur un `remove` et efface la sélection si elle visait l'étape supprimée. `resetGraph` remet aussi la sélection à zéro.
 - Import : `src/utils/projectSchema.js` (`validateProject`) vérifie et normalise le fichier avant `setGraph`. Nœud malformé → refus explicite ; arête orpheline ou en doublon → retirée avec avertissement. Les fichiers sans `meta` ou en `1.0` restent acceptés ; l'écriture passe en `meta.version = '2.0'`.
-- Dépendances : `npm audit fix` sans rupture, 17 vulnérabilités corrigées. Reste jspdf 3.0.4 (1 critique) : le correctif exige jspdf 4 ; l'application n'utilise que `new jsPDF`, `addImage` et `save`, la migration est à évaluer.
+- Dépendances : `npm audit fix` sans rupture, 17 vulnérabilités corrigées, puis migration de jspdf 3.0.4 vers 4.2.1 (dernière vulnérabilité, critique). L'application n'utilise que `new jsPDF`, `addImage` et `save`, inchangés en v4 ; l'import passe sur l'export nommé `jsPDF`. `npm audit` : 0 vulnérabilité.
 - Export PDF : jsPDF et html2canvas en `import()` dynamique ; chunk principal 1 041 kB → 451 kB, avertissement Vite disparu.
 
 Tests : `tests/calculations.test.mjs` (immutabilité, arête orpheline, boucle, NaN) et `tests/projectSchema.test.mjs` (5 cas). Total 22 tests.
 
 Vérifié dans le navigateur : suppression d'une étape (métriques recalculées, sélection effacée), champ vidé (0, pas de NaN), import d'un fichier invalide (alerte, pas d'écran d'erreur) et d'un fichier avec avertissement, chargement à la demande des chunks PDF. Note pour l'automatisation : dans un onglet Chrome masqué, `requestAnimationFrame` est gelé et les arêtes ne s'affichent qu'après un premier rendu.
 
-Hors périmètre, à planifier : placement des étiquettes d'arêtes en O(E²), export PDF sans limite de taille, langue de l'interface, découpage de `PropertiesPanel.jsx`, `alert`/`confirm`/`console.log`, pièces jointes absentes du `.vsm`, quota localStorage des fichiers récents, migration jspdf 4.
+Hors périmètre, à planifier : placement des étiquettes d'arêtes en O(E²), export PDF sans limite de taille, langue de l'interface, découpage de `PropertiesPanel.jsx`, `alert`/`confirm`/`console.log`, pièces jointes absentes du `.vsm`, quota localStorage des fichiers récents.

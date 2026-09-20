@@ -148,7 +148,7 @@ const Header = ({ children }) => {
         setTimeout(async () => {
             try {
                 // Loaded on demand: these two libraries weigh about a third of the bundle.
-                const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+                const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
                     import('html2canvas'),
                     import('jspdf'),
                 ]);

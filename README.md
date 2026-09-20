@@ -14,7 +14,7 @@ Ouvrir l'adresse affichée par Vite. `npm run build` compile l'application, `npm
 
 ## État initial
 
-Installation, compilation et affichage initial vérifiés le 20 septembre 2026. À la reprise, le lint relevait 18 erreurs héritées et npm signalait 18 vulnérabilités ; après remédiation le même jour, le lint est propre et il reste une seule vulnérabilité (jspdf 3, correctif en version majeure 4 non appliqué).
+Installation, compilation et affichage initial vérifiés le 20 septembre 2026. À la reprise, le lint relevait 18 erreurs héritées et npm signalait 18 vulnérabilités ; après remédiation le même jour, le lint est propre et `npm audit` ne signale plus aucune vulnérabilité (jspdf migré en version 4).
 
 Voir [le diagnostic et le plan de reprise](docs/REPRISE.md).
 
