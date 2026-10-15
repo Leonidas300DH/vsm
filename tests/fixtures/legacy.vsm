@@ -1,0 +1,70 @@
+{
+  "title": "Flux simple",
+  "nodes": [
+    {
+      "id": "in",
+      "type": "startEnd",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "start",
+        "volumeItems": [
+          {
+            "id": "a",
+            "name": "Dossiers",
+            "value": 10
+          }
+        ]
+      }
+    },
+    {
+      "id": "p",
+      "type": "process",
+      "position": {
+        "x": 700,
+        "y": 0
+      },
+      "data": {
+        "label": "Vérifier",
+        "cycleTimes": {
+          "a": 4
+        },
+        "availableTime": 480
+      }
+    },
+    {
+      "id": "out",
+      "type": "startEnd",
+      "position": {
+        "x": 1400,
+        "y": 0
+      },
+      "data": {
+        "type": "end"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "in",
+      "target": "p",
+      "data": {
+        "percentage": 100
+      }
+    },
+    {
+      "id": "e2",
+      "source": "p",
+      "target": "out",
+      "data": {
+        "percentage": 100
+      }
+    }
+  ],
+  "meta": {
+    "version": "1.0"
+  }
+}

@@ -1,29 +1,50 @@
-# VSM v2
+# VSM Studio 3
 
-Reprise locale de [Leonidas300DH/vsm](https://github.com/Leonidas300DH/vsm).
-Première refonte graphique sur la branche `reprise/v2` : thème sombre, canevas horizontal et exemple bancaire. La version héritée reste accessible dans l’historique Git.
+Éditeur de value streams, local et sans compte. La carte horizontale relie étapes humaines, équipes externes, systèmes et agents, avec leurs outils, acteurs, connaissances et documents.
 
-## Démarrage
+**Application : [vsm-mauve.vercel.app](https://vsm-mauve.vercel.app/)**
+
+## Démarrer
 
 ```sh
 npm ci
 npm run dev -- --host 127.0.0.1
 ```
 
-Ouvrir l'adresse affichée par Vite. `npm run build` compile l'application, `npm run lint` contrôle le code.
+Pour une installation avec serveur IA facultatif :
 
-## État initial
+```sh
+npm run build
+npm run local
+```
 
-Installation, compilation et affichage initial vérifiés le 20 septembre 2026. À la reprise, le lint relevait 18 erreurs héritées et npm signalait 18 vulnérabilités ; après remédiation le même jour, le lint est propre et `npm audit` ne signale plus aucune vulnérabilité (jspdf migré en version 4).
+Ouvrir http://127.0.0.1:8787. Les appels fournisseurs sont désactivés par défaut. Le fonctionnement par fichiers et la revue Codex ne nécessitent aucune clé.
 
-Voir [le diagnostic et le plan de reprise](docs/REPRISE.md).
+## Fonctions
 
-## Première version graphique
+- Sauvegarde IndexedDB, récupération, historique nommé, annuler/rétablir et protection contre les conflits entre onglets.
+- Format portable VSM 3, migration des anciens fichiers et conservation des champs métier, bibliothèques, logos et documents disponibles.
+- Moteur historique conservé ; analyse distincte des charges, temps par dossier, attentes, capacités et lead times.
+- Placement mesuré avec aperçu, positions verrouillées et trois niveaux de détail.
+- Scénarios actuel/cible, comparaison, simulation exploratoire et diagnostics.
+- Sous-processus copiables, commentaires, présentation ordonnée et rapports PDF paginés.
+- Dossiers d’analyse Codex, propositions validées et adaptateurs locaux OpenAI, Claude et Gemini.
 
-`npm run lint`, `npm test` et `npm run build` passent. Utiliser **Exemple** pour charger le processus bancaire, **Aligner** pour réappliquer la disposition, **Horizontal / Vertical** pour changer le sens de lecture, et **Focus** pour mettre en évidence toutes les étapes qui utilisent un outil, un acteur interne ou une équipe externe (le reste de la carte est estompé, la disposition ne change pas). La palette et l’analyse sont repliées au démarrage ; leur chevron ou les boutons de la barre les déplient. Le bouton soleil / lune bascule entre le thème sombre (par défaut) et le thème clair ; le choix est mémorisé. En horizontal, outils, acteurs et connaissances sont affichés sous chaque carte et le bouton « + » (étape suivante) est à droite ; en vertical, les ressources passent à droite de la carte et le « + » dessous. La corbeille sur une carte supprime l’étape après confirmation ; un bandeau « Annuler » permet de la restaurer avec ses connexions, y compris après une suppression au clavier. La sélection ouvre l’inspecteur. Les formules métier restent inchangées. Sauvegarder via File > Save ; la sauvegarde automatique reste à implémenter.
+## Documentation et vérification
 
-Déployé sur Vercel (projet `vsm`) : production sur https://vsm-mauve.vercel.app, préversions automatiques par commit sur `main`. Déploiement depuis le commit GitHub, pas depuis l'arbre de travail local.
+- [Guide utilisateur](docs/UTILISATION-V3.md)
+- [Installation locale et clés](docs/INSTALLATION-LOCALE.md)
+- [Format, calculs et contrat de propositions](docs/FORMAT-CALCULS.md)
+- [Journal de livraison et limites de recette](docs/verification/IMPLEMENTATION.md)
+- [Diagnostic de reprise initial](docs/REPRISE.md)
 
-## Remédiation du 20 septembre 2026
+```sh
+npm run lint
+npm test
+npm run build
+npm audit
+```
 
-Moteur de calcul fiabilisé (entrées non modifiées, arêtes orphelines et boucles signalées, champs vides à 0), recalcul à la suppression d’une étape, validation des fichiers `.vsm` à l’ouverture (format `2.0`, anciens fichiers acceptés), dépendances mises à jour et bibliothèques PDF chargées à la demande (chunk principal réduit de 1 041 kB à 451 kB). 22 tests via `npm test`. Détail dans `docs/REPRISE.md`.
+La CI reprend lint, tests et compilation. Les exemples de référence se trouvent dans `tests/fixtures`. Une compilation réussie ne remplace pas les recettes navigateur et PDF décrites dans le journal.
+
+Le dépôt et l’historique d’origine sont conservés. Aucun changement de licence n’est introduit par cette évolution.

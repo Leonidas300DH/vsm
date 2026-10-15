@@ -120,7 +120,7 @@ const Timeline = ({ collapsed, onToggle }) => {
         }}>
             <div className="analysis-summary">
                 <button onClick={onToggle} aria-expanded={!collapsed} aria-label={collapsed ? 'Déplier l’analyse' : 'Replier l’analyse'}>{collapsed ? <ChevronUp size={15} /> : <ChevronDown size={15} />} Analyse</button>
-                <div><span>Processing time <strong>{metrics.totalProcessTime} min</strong></span><span>Attente <strong>{metrics.totalLeadTime - metrics.totalProcessTime} min</strong></span><span>Lead time <strong>{metrics.totalLeadTime} min</strong></span></div>
+                <div><span>Charge historique <strong>{metrics.totalProcessTime} min</strong></span><span>Attente <strong>{metrics.totalLeadTime - metrics.totalProcessTime} min</strong></span><span>Total historique <strong>{metrics.totalLeadTime} min</strong></span></div>
             </div>
             {/* Tabs Header */}
             <div className="analysis-tabs" style={{ display: 'flex', borderBottom: '1px solid var(--color-border)', background: 'var(--c-0d171e)' }}>
@@ -180,8 +180,8 @@ const Timeline = ({ collapsed, onToggle }) => {
                 </button>
 
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '1rem', fontSize: '0.75rem', color: 'var(--color-text-secondary)', gap: '1rem' }}>
-                    <span>Total Lead Time: <strong style={{ color: 'var(--color-text)' }}>{metrics.totalLeadTime}m</strong></span>
-                    <span>Process Time: <strong style={{ color: 'var(--color-text)' }}>{metrics.totalProcessTime}m</strong></span>
+                    <span>Total historique : <strong style={{ color: 'var(--color-text)' }}>{metrics.totalLeadTime}m</strong></span>
+                    <span>Charge historique : <strong style={{ color: 'var(--color-text)' }}>{metrics.totalProcessTime}m</strong></span>
                     <span>Wait: <strong style={{ color: 'var(--color-warning)' }}>{metrics.totalLeadTime - metrics.totalProcessTime}m</strong></span>
                     <span>Efficiency: <strong style={{ color: 'var(--color-primary)' }}>{metrics.efficiency}%</strong></span>
                 </div>

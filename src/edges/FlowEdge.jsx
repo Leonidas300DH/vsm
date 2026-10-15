@@ -1,6 +1,5 @@
-import React, { useLayoutEffect, useRef, useMemo } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import useStore from '../store/useStore';
-import { placeEdgeLabels } from '../utils/edgeRouting';
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from 'reactflow';
 
 const FlowEdge = ({
@@ -16,10 +15,6 @@ const FlowEdge = ({
     data,
 }) => {
     const [edgePath, anchorX, anchorY] = getBezierPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition });
-    const nodes = useStore(s => s.nodes);
-    const edges = useStore(s => s.edges);
-    const sizes = useStore(s => s.edgeLabelSizes);
-    const orientation = useStore(s => s.orientation);
     const labelRef = useRef(null);
     useLayoutEffect(() => {
         const element = labelRef.current;
@@ -31,8 +26,6 @@ const FlowEdge = ({
         observer.observe(element);
         return () => observer.disconnect();
     }, [id,anchorX,anchorY]);
-    const boxes = useMemo(() => placeEdgeLabels(nodes,edges,sizes,orientation), [nodes,edges,sizes,orientation]);
-    const box = useMemo(() => boxes[id] || {x:(sourceX+targetX)/2-130,y:(sourceY+targetY)/2-90,width:260,height:180}, [boxes,id,sourceX,targetX,sourceY,targetY]);
 
     const edgeStyle = {
         ...style,
@@ -47,7 +40,7 @@ const FlowEdge = ({
                 <div ref={labelRef} data-edge-label={id}
                     style={{
                         position: 'absolute',
-                        transform: `translate(${box.x}px,${box.y}px)`,
+                        transform: `translate(-50%, -50%) translate(${anchorX}px,${anchorY}px)`,
                         background: 'var(--c-14212a)',
                         padding: '8px 10px',
                         width: 'max-content',
@@ -87,7 +80,7 @@ const FlowEdge = ({
                         if (!item || (!props.wait && !props.inventory && !props.painPoint)) return null;
 
                         return (
-                            <div key={itemId} style={{ marginTop: '4px', borderTop: '1px solid var(--c-293c47)', paddingTop: '2px', textAlign: 'left' }}>
+                            <div className="flow-label-details" key={itemId} style={{ marginTop: '4px', borderTop: '1px solid var(--c-293c47)', paddingTop: '2px', textAlign: 'left' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '0.65rem', fontWeight: 600, color: item.color }}>
                                     <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: item.color }}></div>
                                     {item.name}

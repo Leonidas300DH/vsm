@@ -1,0 +1,239 @@
+{
+  "title": "Changement d’adresse · Exemple",
+  "nodes": [
+    {
+      "id": "start",
+      "type": "startEnd",
+      "position": {
+        "x": 0,
+        "y": 150
+      },
+      "data": {
+        "type": "start",
+        "label": "Demande client",
+        "description": "100 dossiers / jour",
+        "volumeItems": [
+          {
+            "id": "address",
+            "name": "Adresse",
+            "value": 100,
+            "color": "#91bbc8"
+          }
+        ]
+      }
+    },
+    {
+      "id": "receive",
+      "type": "process",
+      "position": {
+        "x": 300,
+        "y": 130
+      },
+      "data": {
+        "label": "Qualifier la demande",
+        "description": "Vérifier les informations reçues",
+        "subtype": "standard",
+        "cycleTimes": {
+          "address": 2
+        },
+        "availableTime": 480
+      }
+    },
+    {
+      "id": "check",
+      "type": "process",
+      "position": {
+        "x": 630,
+        "y": 130
+      },
+      "data": {
+        "label": "Contrôler les justificatifs",
+        "description": "Conformité et validité des pièces",
+        "subtype": "standard",
+        "cycleTimes": {
+          "address": 3
+        },
+        "availableTime": 480
+      }
+    },
+    {
+      "id": "standard",
+      "type": "process",
+      "position": {
+        "x": 980,
+        "y": 0
+      },
+      "data": {
+        "label": "Valider le dossier",
+        "description": "Parcours standard · 80 %",
+        "subtype": "standard",
+        "cycleTimes": {
+          "address": 1
+        },
+        "availableTime": 480
+      }
+    },
+    {
+      "id": "exception",
+      "type": "process",
+      "position": {
+        "x": 980,
+        "y": 320
+      },
+      "data": {
+        "label": "Traiter l’exception",
+        "description": "Revue humaine · 20 %",
+        "subtype": "standard",
+        "cycleTimes": {
+          "address": 12
+        },
+        "availableTime": 480
+      }
+    },
+    {
+      "id": "update",
+      "type": "process",
+      "position": {
+        "x": 1350,
+        "y": 130
+      },
+      "data": {
+        "label": "Mettre à jour le compte",
+        "description": "Enregistrement dans le core banking",
+        "subtype": "standard",
+        "cycleTimes": {
+          "address": 2
+        },
+        "availableTime": 480
+      }
+    },
+    {
+      "id": "end",
+      "type": "startEnd",
+      "position": {
+        "x": 1710,
+        "y": 150
+      },
+      "data": {
+        "type": "end",
+        "label": "Client informé",
+        "description": "Confirmation envoyée"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "start-receive",
+      "source": "start",
+      "target": "receive",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "percentage": 100,
+        "routingType": "global",
+        "itemData": {}
+      }
+    },
+    {
+      "id": "receive-check",
+      "source": "receive",
+      "target": "check",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "percentage": 100,
+        "routingType": "global",
+        "itemData": {
+          "address": {
+            "wait": 15
+          }
+        }
+      }
+    },
+    {
+      "id": "check-standard",
+      "source": "check",
+      "target": "standard",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "percentage": 80,
+        "routingType": "global",
+        "itemData": {}
+      }
+    },
+    {
+      "id": "check-exception",
+      "source": "check",
+      "target": "exception",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "percentage": 20,
+        "routingType": "global",
+        "itemData": {
+          "address": {
+            "wait": 60
+          }
+        }
+      }
+    },
+    {
+      "id": "standard-update",
+      "source": "standard",
+      "target": "update",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "percentage": 100,
+        "routingType": "global",
+        "itemData": {}
+      }
+    },
+    {
+      "id": "exception-update",
+      "source": "exception",
+      "target": "update",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "percentage": 100,
+        "routingType": "global",
+        "itemData": {}
+      }
+    },
+    {
+      "id": "update-end",
+      "source": "update",
+      "target": "end",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "percentage": 100,
+        "routingType": "global",
+        "itemData": {}
+      }
+    }
+  ]
+}

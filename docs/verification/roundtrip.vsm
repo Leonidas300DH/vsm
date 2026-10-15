@@ -1,0 +1,1583 @@
+{
+  "title": "Flux simple",
+  "nodes": [
+    {
+      "id": "in",
+      "type": "startEnd",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "start",
+        "volumeItems": [
+          {
+            "id": "a",
+            "name": "Dossiers",
+            "value": 10
+          }
+        ],
+        "wait_time": 0,
+        "volumeStreamIn": [
+          {
+            "id": "a",
+            "name": "Dossiers",
+            "value": 10
+          }
+        ],
+        "volumeStreamOut": [
+          {
+            "id": "a",
+            "name": "Dossiers",
+            "value": 10
+          }
+        ],
+        "volume_in": 10
+      },
+      "width": 190,
+      "height": 82,
+      "selected": false
+    },
+    {
+      "id": "p",
+      "type": "process",
+      "position": {
+        "x": 700,
+        "y": 0
+      },
+      "data": {
+        "label": "Vérifier",
+        "cycleTimes": {
+          "a": 2
+        },
+        "availableTime": 20,
+        "wait_time": 0,
+        "staffing": 1,
+        "volumeStreamIn": [
+          {
+            "id": "a",
+            "name": "Dossiers",
+            "value": 10
+          }
+        ],
+        "volumeStreamOut": [
+          {
+            "id": "a",
+            "name": "Dossiers",
+            "value": 10
+          }
+        ],
+        "volume_in": 10,
+        "process_time_total": 20,
+        "fte_required": 1,
+        "utilization": "100.0",
+        "errors": []
+      },
+      "width": 300,
+      "height": 275,
+      "selected": true
+    },
+    {
+      "id": "out",
+      "type": "startEnd",
+      "position": {
+        "x": 1400,
+        "y": 0
+      },
+      "data": {
+        "type": "end",
+        "wait_time": 0,
+        "volumeStreamIn": [
+          {
+            "id": "a",
+            "name": "Dossiers",
+            "value": 10
+          }
+        ],
+        "volumeStreamOut": [
+          {
+            "id": "a",
+            "name": "Dossiers",
+            "value": 10
+          }
+        ],
+        "volume_in": 10
+      },
+      "width": 190,
+      "height": 52,
+      "selected": false
+    },
+    {
+      "id": "5fbdbcfb-fee2-419a-b9df-eafd330dd707",
+      "type": "process",
+      "position": {
+        "x": 2400,
+        "y": 0
+      },
+      "data": {
+        "label": "Vérifier",
+        "cycleTimes": {
+          "a": 2
+        },
+        "availableTime": 20,
+        "wait_time": 0,
+        "staffing": 1,
+        "volumeStreamIn": [],
+        "volumeStreamOut": [],
+        "volume_in": 0,
+        "process_time_total": 0,
+        "fte_required": 0,
+        "utilization": "0.0",
+        "errors": [
+          "No incoming flow (disconnected).",
+          "No outgoing flow (dead end)."
+        ],
+        "positionLocked": false,
+        "templateOrigin": {
+          "id": "cbcebd9a-1378-448e-8fb4-45b31a77000b",
+          "scenarioId": "18b1da83-55ac-4dd7-afc0-d2eefc307740",
+          "revision": 0,
+          "createdAt": "2026-10-15T21:38:23.009Z"
+        },
+        "toolsUsed": [],
+        "actorsUsed": [],
+        "knowledgeUsed": [],
+        "measurements": {}
+      },
+      "width": 300,
+      "height": 275,
+      "selected": false,
+      "originId": "p"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "in",
+      "target": "p",
+      "data": {
+        "percentage": 100,
+        "wait_time": 0,
+        "isError": false,
+        "volumeStream": [
+          {
+            "id": "a",
+            "name": "Dossiers",
+            "value": 10
+          }
+        ],
+        "volume": "10.0",
+        "label": "100%"
+      },
+      "type": "flow",
+      "selected": false
+    },
+    {
+      "id": "e2",
+      "source": "p",
+      "target": "out",
+      "data": {
+        "percentage": 100,
+        "wait_time": 0,
+        "isError": false,
+        "volumeStream": [
+          {
+            "id": "a",
+            "name": "Dossiers",
+            "value": 10
+          }
+        ],
+        "volume": "10.0",
+        "label": "100%"
+      },
+      "type": "flow",
+      "selected": false
+    }
+  ],
+  "tools": [],
+  "actors": [],
+  "knowledge": [],
+  "id": "fixture-v3-project",
+  "meta": {
+    "version": "3.0",
+    "engine": "legacy-2"
+  },
+  "scenarios": [
+    {
+      "id": "fixture-v3-current",
+      "name": "Actuel",
+      "revision": 0,
+      "engine": "legacy-2",
+      "nodes": [
+        {
+          "id": "in",
+          "type": "startEnd",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "data": {
+            "type": "start",
+            "volumeItems": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "wait_time": 0,
+            "volumeStreamIn": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volumeStreamOut": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volume_in": 10
+          },
+          "width": 190,
+          "height": 82,
+          "selected": false
+        },
+        {
+          "id": "p",
+          "type": "process",
+          "position": {
+            "x": 700,
+            "y": 0
+          },
+          "data": {
+            "label": "Vérifier",
+            "cycleTimes": {
+              "a": 4
+            },
+            "availableTime": 20,
+            "wait_time": 0,
+            "staffing": 1,
+            "volumeStreamIn": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volumeStreamOut": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volume_in": 10,
+            "process_time_total": 40,
+            "fte_required": 2,
+            "utilization": "200.0",
+            "errors": []
+          },
+          "width": 300,
+          "height": 275,
+          "selected": true
+        },
+        {
+          "id": "out",
+          "type": "startEnd",
+          "position": {
+            "x": 1400,
+            "y": 0
+          },
+          "data": {
+            "type": "end",
+            "wait_time": 0,
+            "volumeStreamIn": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volumeStreamOut": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volume_in": 10
+          },
+          "width": 190,
+          "height": 52,
+          "selected": false
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1",
+          "source": "in",
+          "target": "p",
+          "data": {
+            "percentage": 100,
+            "wait_time": 0,
+            "isError": false,
+            "volumeStream": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volume": "10.0",
+            "label": "100%"
+          },
+          "type": "flow",
+          "selected": false
+        },
+        {
+          "id": "e2",
+          "source": "p",
+          "target": "out",
+          "data": {
+            "percentage": 100,
+            "wait_time": 0,
+            "isError": false,
+            "volumeStream": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volume": "10.0",
+            "label": "100%"
+          },
+          "type": "flow",
+          "selected": false
+        }
+      ],
+      "tools": [],
+      "actors": [],
+      "knowledge": [],
+      "comments": [],
+      "presentation": [],
+      "title": ""
+    },
+    {
+      "id": "18b1da83-55ac-4dd7-afc0-d2eefc307740",
+      "name": "Cible proposée",
+      "revision": 3,
+      "engine": "legacy-2",
+      "nodes": [
+        {
+          "id": "in",
+          "type": "startEnd",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "data": {
+            "type": "start",
+            "volumeItems": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "wait_time": 0,
+            "volumeStreamIn": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volumeStreamOut": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volume_in": 10
+          },
+          "width": 190,
+          "height": 82,
+          "selected": false
+        },
+        {
+          "id": "p",
+          "type": "process",
+          "position": {
+            "x": 700,
+            "y": 0
+          },
+          "data": {
+            "label": "Vérifier",
+            "cycleTimes": {
+              "a": 2
+            },
+            "availableTime": 20,
+            "wait_time": 0,
+            "staffing": 1,
+            "volumeStreamIn": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volumeStreamOut": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volume_in": 10,
+            "process_time_total": 20,
+            "fte_required": 1,
+            "utilization": "100.0",
+            "errors": []
+          },
+          "width": 300,
+          "height": 275,
+          "selected": true
+        },
+        {
+          "id": "out",
+          "type": "startEnd",
+          "position": {
+            "x": 1400,
+            "y": 0
+          },
+          "data": {
+            "type": "end",
+            "wait_time": 0,
+            "volumeStreamIn": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volumeStreamOut": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volume_in": 10
+          },
+          "width": 190,
+          "height": 52,
+          "selected": false
+        },
+        {
+          "id": "5fbdbcfb-fee2-419a-b9df-eafd330dd707",
+          "type": "process",
+          "position": {
+            "x": 2400,
+            "y": 0
+          },
+          "data": {
+            "label": "Vérifier",
+            "cycleTimes": {
+              "a": 2
+            },
+            "availableTime": 20,
+            "wait_time": 0,
+            "staffing": 1,
+            "volumeStreamIn": [],
+            "volumeStreamOut": [],
+            "volume_in": 0,
+            "process_time_total": 0,
+            "fte_required": 0,
+            "utilization": "0.0",
+            "errors": [
+              "No incoming flow (disconnected).",
+              "No outgoing flow (dead end)."
+            ],
+            "positionLocked": false,
+            "templateOrigin": {
+              "id": "cbcebd9a-1378-448e-8fb4-45b31a77000b",
+              "scenarioId": "18b1da83-55ac-4dd7-afc0-d2eefc307740",
+              "revision": 0,
+              "createdAt": "2026-10-15T21:38:23.009Z"
+            },
+            "toolsUsed": [],
+            "actorsUsed": [],
+            "knowledgeUsed": [],
+            "measurements": {}
+          },
+          "width": 300,
+          "height": 275,
+          "selected": false,
+          "originId": "p"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1",
+          "source": "in",
+          "target": "p",
+          "data": {
+            "percentage": 100,
+            "wait_time": 0,
+            "isError": false,
+            "volumeStream": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volume": "10.0",
+            "label": "100%"
+          },
+          "type": "flow",
+          "selected": false
+        },
+        {
+          "id": "e2",
+          "source": "p",
+          "target": "out",
+          "data": {
+            "percentage": 100,
+            "wait_time": 0,
+            "isError": false,
+            "volumeStream": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volume": "10.0",
+            "label": "100%"
+          },
+          "type": "flow",
+          "selected": false
+        }
+      ],
+      "tools": [],
+      "actors": [],
+      "knowledge": [],
+      "comments": [],
+      "presentation": [
+        {
+          "id": "b6763bfd-35e5-4428-a913-238f20cb1f22",
+          "nodeId": "p"
+        },
+        {
+          "id": "efb52ca8-36e5-45e3-8028-fbc69ac965db",
+          "nodeId": "out"
+        }
+      ],
+      "title": "",
+      "proposalProvenance": {
+        "id": "7d7a4d9f-304a-424e-8cbd-8763685d4e1a",
+        "source": {
+          "scenarioId": "fixture-v3-current",
+          "revision": 0
+        },
+        "proposals": [
+          {
+            "id": "proposal-1",
+            "objectIds": [
+              "p"
+            ],
+            "rationale": "Justification sourcée",
+            "assumptions": [
+              "Hypothèses à vérifier"
+            ],
+            "alternatives": {
+              "human": "Option humaine",
+              "it": "Option système",
+              "agent": "Option agent"
+            },
+            "costs": {
+              "amount": null,
+              "currency": "EUR",
+              "period": "mois",
+              "basis": "À estimer"
+            },
+            "supervision": "Responsable et contrôle",
+            "exceptions": "Cas non couverts",
+            "changes": [
+              {
+                "kind": "nodes",
+                "id": "p",
+                "field": "cycle",
+                "category": "a",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "archived": false,
+      "sourceScenarioId": "fixture-v3-current",
+      "sourceRevision": 0
+    }
+  ],
+  "activeScenarioId": "18b1da83-55ac-4dd7-afc0-d2eefc307740",
+  "actualScenarioId": "fixture-v3-current",
+  "templates": [
+    {
+      "id": "cbcebd9a-1378-448e-8fb4-45b31a77000b",
+      "name": "Vérification réutilisable",
+      "nodes": [
+        {
+          "id": "p",
+          "type": "process",
+          "position": {
+            "x": 700,
+            "y": 0
+          },
+          "data": {
+            "label": "Vérifier",
+            "cycleTimes": {
+              "a": 2
+            },
+            "availableTime": 20,
+            "wait_time": 0,
+            "staffing": 1,
+            "volumeStreamIn": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volumeStreamOut": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "volume_in": 10,
+            "process_time_total": 20,
+            "fte_required": 1,
+            "utilization": "100.0",
+            "errors": []
+          },
+          "width": 300,
+          "height": 275,
+          "selected": true
+        }
+      ],
+      "edges": [],
+      "boundary": [
+        {
+          "direction": "input",
+          "nodeId": "p",
+          "edge": {
+            "id": "e1",
+            "source": "in",
+            "target": "p",
+            "data": {
+              "percentage": 100,
+              "wait_time": 0,
+              "isError": false,
+              "volumeStream": [
+                {
+                  "id": "a",
+                  "name": "Dossiers",
+                  "value": 10
+                }
+              ],
+              "volume": "10.0",
+              "label": "100%"
+            },
+            "type": "flow",
+            "selected": false
+          }
+        },
+        {
+          "direction": "output",
+          "nodeId": "p",
+          "edge": {
+            "id": "e2",
+            "source": "p",
+            "target": "out",
+            "data": {
+              "percentage": 100,
+              "wait_time": 0,
+              "isError": false,
+              "volumeStream": [
+                {
+                  "id": "a",
+                  "name": "Dossiers",
+                  "value": 10
+                }
+              ],
+              "volume": "10.0",
+              "label": "100%"
+            },
+            "type": "flow",
+            "selected": false
+          }
+        }
+      ],
+      "categories": [
+        {
+          "id": "a",
+          "name": "Dossiers",
+          "value": 10
+        }
+      ],
+      "parameters": [
+        {
+          "kind": "nodes",
+          "id": "p",
+          "field": "cycle",
+          "category": "a",
+          "key": "cycle:a",
+          "label": "Vérifier · C/T Dossiers",
+          "value": 2,
+          "unit": "min"
+        },
+        {
+          "kind": "nodes",
+          "id": "p",
+          "field": "wait_time",
+          "key": "wait",
+          "label": "Vérifier · Attente",
+          "value": 0,
+          "unit": "min"
+        },
+        {
+          "kind": "nodes",
+          "id": "p",
+          "field": "availableTime",
+          "key": "available",
+          "label": "Vérifier · Temps disponible",
+          "value": 20,
+          "unit": "min"
+        },
+        {
+          "kind": "nodes",
+          "id": "p",
+          "field": "staffing",
+          "key": "staffing",
+          "label": "Vérifier · Effectif",
+          "value": 1,
+          "unit": "personnes"
+        }
+      ],
+      "provenance": {
+        "scenarioId": "18b1da83-55ac-4dd7-afc0-d2eefc307740",
+        "revision": 0,
+        "createdAt": "2026-10-15T21:38:23.009Z"
+      },
+      "tools": [],
+      "actors": [],
+      "knowledge": []
+    }
+  ],
+  "embeddedFiles": [],
+  "missingFiles": [],
+  "namedVersions": [
+    {
+      "id": "fc49f2eb-eb05-4a5c-add8-73d9d3894f22",
+      "revision": 5,
+      "project": {
+        "title": "Flux simple",
+        "nodes": [
+          {
+            "id": "in",
+            "type": "startEnd",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "data": {
+              "type": "start",
+              "volumeItems": [
+                {
+                  "id": "a",
+                  "name": "Dossiers",
+                  "value": 10
+                }
+              ],
+              "wait_time": 0,
+              "volumeStreamIn": [
+                {
+                  "id": "a",
+                  "name": "Dossiers",
+                  "value": 10
+                }
+              ],
+              "volumeStreamOut": [
+                {
+                  "id": "a",
+                  "name": "Dossiers",
+                  "value": 10
+                }
+              ],
+              "volume_in": 10
+            },
+            "width": 190,
+            "height": 82,
+            "selected": false
+          },
+          {
+            "id": "p",
+            "type": "process",
+            "position": {
+              "x": 700,
+              "y": 0
+            },
+            "data": {
+              "label": "Vérifier",
+              "cycleTimes": {
+                "a": 2
+              },
+              "availableTime": 20,
+              "wait_time": 0,
+              "staffing": 1,
+              "volumeStreamIn": [
+                {
+                  "id": "a",
+                  "name": "Dossiers",
+                  "value": 10
+                }
+              ],
+              "volumeStreamOut": [
+                {
+                  "id": "a",
+                  "name": "Dossiers",
+                  "value": 10
+                }
+              ],
+              "volume_in": 10,
+              "process_time_total": 20,
+              "fte_required": 1,
+              "utilization": "100.0",
+              "errors": []
+            },
+            "width": 300,
+            "height": 275,
+            "selected": true
+          },
+          {
+            "id": "out",
+            "type": "startEnd",
+            "position": {
+              "x": 1400,
+              "y": 0
+            },
+            "data": {
+              "type": "end",
+              "wait_time": 0,
+              "volumeStreamIn": [
+                {
+                  "id": "a",
+                  "name": "Dossiers",
+                  "value": 10
+                }
+              ],
+              "volumeStreamOut": [
+                {
+                  "id": "a",
+                  "name": "Dossiers",
+                  "value": 10
+                }
+              ],
+              "volume_in": 10
+            },
+            "width": 190,
+            "height": 52,
+            "selected": false
+          },
+          {
+            "id": "5fbdbcfb-fee2-419a-b9df-eafd330dd707",
+            "type": "process",
+            "position": {
+              "x": 2400,
+              "y": 0
+            },
+            "data": {
+              "label": "Vérifier",
+              "cycleTimes": {
+                "a": 2
+              },
+              "availableTime": 20,
+              "wait_time": 0,
+              "staffing": 1,
+              "volumeStreamIn": [],
+              "volumeStreamOut": [],
+              "volume_in": 0,
+              "process_time_total": 0,
+              "fte_required": 0,
+              "utilization": "0.0",
+              "errors": [
+                "No incoming flow (disconnected).",
+                "No outgoing flow (dead end)."
+              ],
+              "positionLocked": false,
+              "templateOrigin": {
+                "id": "cbcebd9a-1378-448e-8fb4-45b31a77000b",
+                "scenarioId": "18b1da83-55ac-4dd7-afc0-d2eefc307740",
+                "revision": 0,
+                "createdAt": "2026-10-15T21:38:23.009Z"
+              },
+              "toolsUsed": [],
+              "actorsUsed": [],
+              "knowledgeUsed": [],
+              "measurements": {}
+            },
+            "width": 300,
+            "height": 275,
+            "selected": false,
+            "originId": "p"
+          }
+        ],
+        "edges": [
+          {
+            "id": "e1",
+            "source": "in",
+            "target": "p",
+            "data": {
+              "percentage": 100,
+              "wait_time": 0,
+              "isError": false,
+              "volumeStream": [
+                {
+                  "id": "a",
+                  "name": "Dossiers",
+                  "value": 10
+                }
+              ],
+              "volume": "10.0",
+              "label": "100%"
+            },
+            "type": "flow",
+            "selected": false
+          },
+          {
+            "id": "e2",
+            "source": "p",
+            "target": "out",
+            "data": {
+              "percentage": 100,
+              "wait_time": 0,
+              "isError": false,
+              "volumeStream": [
+                {
+                  "id": "a",
+                  "name": "Dossiers",
+                  "value": 10
+                }
+              ],
+              "volume": "10.0",
+              "label": "100%"
+            },
+            "type": "flow",
+            "selected": false
+          }
+        ],
+        "tools": [],
+        "actors": [],
+        "knowledge": [],
+        "id": "fixture-v3-project",
+        "meta": {
+          "version": "3.0",
+          "engine": "legacy-2"
+        },
+        "scenarios": [
+          {
+            "id": "fixture-v3-current",
+            "name": "Actuel",
+            "revision": 0,
+            "engine": "legacy-2",
+            "nodes": [
+              {
+                "id": "in",
+                "type": "startEnd",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "data": {
+                  "type": "start",
+                  "volumeItems": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "wait_time": 0,
+                  "volumeStreamIn": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volumeStreamOut": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volume_in": 10
+                },
+                "width": 190,
+                "height": 82,
+                "selected": false
+              },
+              {
+                "id": "p",
+                "type": "process",
+                "position": {
+                  "x": 700,
+                  "y": 0
+                },
+                "data": {
+                  "label": "Vérifier",
+                  "cycleTimes": {
+                    "a": 4
+                  },
+                  "availableTime": 20,
+                  "wait_time": 0,
+                  "staffing": 1,
+                  "volumeStreamIn": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volumeStreamOut": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volume_in": 10,
+                  "process_time_total": 40,
+                  "fte_required": 2,
+                  "utilization": "200.0",
+                  "errors": []
+                },
+                "width": 300,
+                "height": 275,
+                "selected": true
+              },
+              {
+                "id": "out",
+                "type": "startEnd",
+                "position": {
+                  "x": 1400,
+                  "y": 0
+                },
+                "data": {
+                  "type": "end",
+                  "wait_time": 0,
+                  "volumeStreamIn": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volumeStreamOut": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volume_in": 10
+                },
+                "width": 190,
+                "height": 52,
+                "selected": false
+              }
+            ],
+            "edges": [
+              {
+                "id": "e1",
+                "source": "in",
+                "target": "p",
+                "data": {
+                  "percentage": 100,
+                  "wait_time": 0,
+                  "isError": false,
+                  "volumeStream": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volume": "10.0",
+                  "label": "100%"
+                },
+                "type": "flow",
+                "selected": false
+              },
+              {
+                "id": "e2",
+                "source": "p",
+                "target": "out",
+                "data": {
+                  "percentage": 100,
+                  "wait_time": 0,
+                  "isError": false,
+                  "volumeStream": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volume": "10.0",
+                  "label": "100%"
+                },
+                "type": "flow",
+                "selected": false
+              }
+            ],
+            "tools": [],
+            "actors": [],
+            "knowledge": [],
+            "comments": [],
+            "presentation": [],
+            "title": ""
+          },
+          {
+            "id": "18b1da83-55ac-4dd7-afc0-d2eefc307740",
+            "name": "Cible proposée",
+            "revision": 3,
+            "engine": "legacy-2",
+            "nodes": [
+              {
+                "id": "in",
+                "type": "startEnd",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "data": {
+                  "type": "start",
+                  "volumeItems": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "wait_time": 0,
+                  "volumeStreamIn": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volumeStreamOut": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volume_in": 10
+                },
+                "width": 190,
+                "height": 82,
+                "selected": false
+              },
+              {
+                "id": "p",
+                "type": "process",
+                "position": {
+                  "x": 700,
+                  "y": 0
+                },
+                "data": {
+                  "label": "Vérifier",
+                  "cycleTimes": {
+                    "a": 2
+                  },
+                  "availableTime": 20,
+                  "wait_time": 0,
+                  "staffing": 1,
+                  "volumeStreamIn": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volumeStreamOut": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volume_in": 10,
+                  "process_time_total": 20,
+                  "fte_required": 1,
+                  "utilization": "100.0",
+                  "errors": []
+                },
+                "width": 300,
+                "height": 275,
+                "selected": true
+              },
+              {
+                "id": "out",
+                "type": "startEnd",
+                "position": {
+                  "x": 1400,
+                  "y": 0
+                },
+                "data": {
+                  "type": "end",
+                  "wait_time": 0,
+                  "volumeStreamIn": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volumeStreamOut": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volume_in": 10
+                },
+                "width": 190,
+                "height": 52,
+                "selected": false
+              },
+              {
+                "id": "5fbdbcfb-fee2-419a-b9df-eafd330dd707",
+                "type": "process",
+                "position": {
+                  "x": 2400,
+                  "y": 0
+                },
+                "data": {
+                  "label": "Vérifier",
+                  "cycleTimes": {
+                    "a": 2
+                  },
+                  "availableTime": 20,
+                  "wait_time": 0,
+                  "staffing": 1,
+                  "volumeStreamIn": [],
+                  "volumeStreamOut": [],
+                  "volume_in": 0,
+                  "process_time_total": 0,
+                  "fte_required": 0,
+                  "utilization": "0.0",
+                  "errors": [
+                    "No incoming flow (disconnected).",
+                    "No outgoing flow (dead end)."
+                  ],
+                  "positionLocked": false,
+                  "templateOrigin": {
+                    "id": "cbcebd9a-1378-448e-8fb4-45b31a77000b",
+                    "scenarioId": "18b1da83-55ac-4dd7-afc0-d2eefc307740",
+                    "revision": 0,
+                    "createdAt": "2026-10-15T21:38:23.009Z"
+                  },
+                  "toolsUsed": [],
+                  "actorsUsed": [],
+                  "knowledgeUsed": [],
+                  "measurements": {}
+                },
+                "width": 300,
+                "height": 275,
+                "selected": false,
+                "originId": "p"
+              }
+            ],
+            "edges": [
+              {
+                "id": "e1",
+                "source": "in",
+                "target": "p",
+                "data": {
+                  "percentage": 100,
+                  "wait_time": 0,
+                  "isError": false,
+                  "volumeStream": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volume": "10.0",
+                  "label": "100%"
+                },
+                "type": "flow",
+                "selected": false
+              },
+              {
+                "id": "e2",
+                "source": "p",
+                "target": "out",
+                "data": {
+                  "percentage": 100,
+                  "wait_time": 0,
+                  "isError": false,
+                  "volumeStream": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volume": "10.0",
+                  "label": "100%"
+                },
+                "type": "flow",
+                "selected": false
+              }
+            ],
+            "tools": [],
+            "actors": [],
+            "knowledge": [],
+            "comments": [],
+            "presentation": [
+              {
+                "id": "b6763bfd-35e5-4428-a913-238f20cb1f22",
+                "nodeId": "p"
+              },
+              {
+                "id": "efb52ca8-36e5-45e3-8028-fbc69ac965db",
+                "nodeId": "out"
+              }
+            ],
+            "title": "",
+            "proposalProvenance": {
+              "id": "7d7a4d9f-304a-424e-8cbd-8763685d4e1a",
+              "source": {
+                "scenarioId": "fixture-v3-current",
+                "revision": 0
+              },
+              "proposals": [
+                {
+                  "id": "proposal-1",
+                  "objectIds": [
+                    "p"
+                  ],
+                  "rationale": "Justification sourcée",
+                  "assumptions": [
+                    "Hypothèses à vérifier"
+                  ],
+                  "alternatives": {
+                    "human": "Option humaine",
+                    "it": "Option système",
+                    "agent": "Option agent"
+                  },
+                  "costs": {
+                    "amount": null,
+                    "currency": "EUR",
+                    "period": "mois",
+                    "basis": "À estimer"
+                  },
+                  "supervision": "Responsable et contrôle",
+                  "exceptions": "Cas non couverts",
+                  "changes": [
+                    {
+                      "kind": "nodes",
+                      "id": "p",
+                      "field": "cycle",
+                      "category": "a",
+                      "value": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "archived": false,
+            "sourceScenarioId": "fixture-v3-current",
+            "sourceRevision": 0
+          }
+        ],
+        "activeScenarioId": "18b1da83-55ac-4dd7-afc0-d2eefc307740",
+        "actualScenarioId": "fixture-v3-current",
+        "templates": [
+          {
+            "id": "cbcebd9a-1378-448e-8fb4-45b31a77000b",
+            "name": "Vérification réutilisable",
+            "nodes": [
+              {
+                "id": "p",
+                "type": "process",
+                "position": {
+                  "x": 700,
+                  "y": 0
+                },
+                "data": {
+                  "label": "Vérifier",
+                  "cycleTimes": {
+                    "a": 2
+                  },
+                  "availableTime": 20,
+                  "wait_time": 0,
+                  "staffing": 1,
+                  "volumeStreamIn": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volumeStreamOut": [
+                    {
+                      "id": "a",
+                      "name": "Dossiers",
+                      "value": 10
+                    }
+                  ],
+                  "volume_in": 10,
+                  "process_time_total": 20,
+                  "fte_required": 1,
+                  "utilization": "100.0",
+                  "errors": []
+                },
+                "width": 300,
+                "height": 275,
+                "selected": true
+              }
+            ],
+            "edges": [],
+            "boundary": [
+              {
+                "direction": "input",
+                "nodeId": "p",
+                "edge": {
+                  "id": "e1",
+                  "source": "in",
+                  "target": "p",
+                  "data": {
+                    "percentage": 100,
+                    "wait_time": 0,
+                    "isError": false,
+                    "volumeStream": [
+                      {
+                        "id": "a",
+                        "name": "Dossiers",
+                        "value": 10
+                      }
+                    ],
+                    "volume": "10.0",
+                    "label": "100%"
+                  },
+                  "type": "flow",
+                  "selected": false
+                }
+              },
+              {
+                "direction": "output",
+                "nodeId": "p",
+                "edge": {
+                  "id": "e2",
+                  "source": "p",
+                  "target": "out",
+                  "data": {
+                    "percentage": 100,
+                    "wait_time": 0,
+                    "isError": false,
+                    "volumeStream": [
+                      {
+                        "id": "a",
+                        "name": "Dossiers",
+                        "value": 10
+                      }
+                    ],
+                    "volume": "10.0",
+                    "label": "100%"
+                  },
+                  "type": "flow",
+                  "selected": false
+                }
+              }
+            ],
+            "categories": [
+              {
+                "id": "a",
+                "name": "Dossiers",
+                "value": 10
+              }
+            ],
+            "parameters": [
+              {
+                "kind": "nodes",
+                "id": "p",
+                "field": "cycle",
+                "category": "a",
+                "key": "cycle:a",
+                "label": "Vérifier · C/T Dossiers",
+                "value": 2,
+                "unit": "min"
+              },
+              {
+                "kind": "nodes",
+                "id": "p",
+                "field": "wait_time",
+                "key": "wait",
+                "label": "Vérifier · Attente",
+                "value": 0,
+                "unit": "min"
+              },
+              {
+                "kind": "nodes",
+                "id": "p",
+                "field": "availableTime",
+                "key": "available",
+                "label": "Vérifier · Temps disponible",
+                "value": 20,
+                "unit": "min"
+              },
+              {
+                "kind": "nodes",
+                "id": "p",
+                "field": "staffing",
+                "key": "staffing",
+                "label": "Vérifier · Effectif",
+                "value": 1,
+                "unit": "personnes"
+              }
+            ],
+            "provenance": {
+              "scenarioId": "18b1da83-55ac-4dd7-afc0-d2eefc307740",
+              "revision": 0,
+              "createdAt": "2026-10-15T21:38:23.009Z"
+            },
+            "tools": [],
+            "actors": [],
+            "knowledge": []
+          }
+        ]
+      },
+      "updatedAt": "2026-10-15T21:38:47.075Z",
+      "projectId": "fixture-v3-project",
+      "name": "Recette intégrée"
+    }
+  ]
+}

@@ -1,63 +1,19 @@
-const DB_NAME = 'vsm-files';
-const DB_VERSION = 1;
-const STORE_NAME = 'files';
-
-export const initDB = () => {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-        request.onerror = (event) => {
-            console.error("IndexedDB error:", event.target.error);
-            reject(event.target.error);
-        };
-
-        request.onsuccess = (event) => {
-            resolve(event.target.result);
-        };
-
-        request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-            }
-        };
-    });
-};
-
-export const saveFile = async (fileObj) => {
-    const db = await initDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction([STORE_NAME], 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.put(fileObj);
-
-        request.onsuccess = () => resolve(fileObj.id);
-        request.onerror = (event) => reject(event.target.error);
-    });
-};
-
-export const getFile = async (id) => {
-    const db = await initDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction([STORE_NAME], 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.get(id);
-
-        request.onsuccess = (event) => {
-            resolve(event.target.result);
-        };
-        request.onerror = (event) => reject(event.target.error);
-    });
-};
-
-export const deleteFile = async (id) => {
-    const db = await initDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction([STORE_NAME], 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.delete(id);
-
-        request.onsuccess = () => resolve();
-        request.onerror = (event) => reject(event.target.error);
-    });
-};
+const DB_NAME='vsm-files',STORE_NAME='files';
+export const initDB=()=>new Promise((resolve,reject)=>{
+  const request=indexedDB.open(DB_NAME,1);
+  request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains(STORE_NAME))request.result.createObjectStore(STORE_NAME,{keyPath:'id'});};
+  request.onerror=()=>reject(request.error);
+  request.onsuccess=()=>resolve(request.result);
+});
+async function transaction(mode,action){
+  const db=await initDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE_NAME,mode);let result;
+    tx.oncomplete=()=>{db.close();resolve(result);};
+    tx.onabort=tx.onerror=()=>{db.close();reject(tx.error||new Error('Transaction de pièce jointe interrompue'));};
+    try{const request=action(tx.objectStore(STORE_NAME));request.onsuccess=()=>{result=request.result;};}catch(error){tx.abort();reject(error);}
+  });
+}
+export const saveFile=file=>transaction('readwrite',store=>store.put(file));
+export const getFile=id=>transaction('readonly',store=>store.get(id));
+export const deleteFile=id=>transaction('readwrite',store=>store.delete(id));

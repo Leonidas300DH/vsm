@@ -1,0 +1,43 @@
+{
+  "commit": "a8905bdb642a3d9106016513db2fc8c11014bad9",
+  "date": "2026-10-15T21:16:19.376Z",
+  "tests": 38,
+  "metrics": {
+    "kyc": {
+      "totalProcessTime": 5159.82,
+      "totalLeadTime": 6035.82,
+      "efficiency": "85.49",
+      "cycleNodeIds": []
+    },
+    "simple": {
+      "totalProcessTime": 40,
+      "totalLeadTime": 40,
+      "efficiency": "100.00",
+      "cycleNodeIds": []
+    },
+    "branches": {
+      "totalProcessTime": 1020,
+      "totalLeadTime": 1095,
+      "efficiency": "93.15",
+      "cycleNodeIds": []
+    },
+    "multiple": {
+      "totalProcessTime": 80,
+      "totalLeadTime": 80,
+      "efficiency": "100.00",
+      "cycleNodeIds": []
+    },
+    "legacy": {
+      "totalProcessTime": 40,
+      "totalLeadTime": 40,
+      "efficiency": "100.00",
+      "cycleNodeIds": []
+    },
+    "custom-logo": {
+      "totalProcessTime": 40,
+      "totalLeadTime": 40,
+      "efficiency": "100.00",
+      "cycleNodeIds": []
+    }
+  }
+}

@@ -50,7 +50,7 @@ export default function NodeResources({ id, data }) {
             const entry = store[kind].find(r => r.id === resourceId);
             const focused = resourceMatchesFocus(kind, resourceId, focus, { actors: store.actors });
             return <div className={`resource-satellite ${focused ? 'is-focused' : ''}`} key={resourceId}>
-              <button className={`resource-orb ${focused ? 'is-focused' : ''}`} onClick={() => setPicker(kind)} title={entry?.description || entry?.name || resourceId}>{kind === 'tools' ? <ToolIcon name={entry?.icon} size={23}/> : <Icon size={21}/>}</button>
+              <button className={`resource-orb ${focused ? 'is-focused' : ''}`} onClick={() => setPicker(kind)} title={entry?.description || entry?.name || resourceId}>{kind === 'tools' ? <ToolIcon name={entry?.icon} toolName={entry?.name} logo={entry?.logo} size={23}/> : <Icon size={21}/>}</button>
               <span>{entry?.name || `Référence : ${resourceId}`}</span>
               <button className="resource-detach" title={`Détacher ${entry?.name || resourceId}`} onClick={() => store.detachResource(id, kind, resourceId)}><X size={10}/></button>
             </div>;

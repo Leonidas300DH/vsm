@@ -130,9 +130,11 @@ const VSMCanvas = ({ onInspect }) => {
     // Focus on a resource: the steps using it stay lit, everything else dims.
     const focusIds = useMemo(() => focusedNodeIds(nodes, focus, { actors }), [nodes, focus, actors]);
 
+    const comparisonIds=useStore(s=>s.comparisonIds);
     const displayNodes = useMemo(() => {
         return nodes.map(node => {
             let className = node.className || '';
+            if(comparisonIds.includes(node.id)) className += " comparison-changed";
 
             // Focus (overrides everything else)
             if (focus) {
@@ -161,13 +163,14 @@ const VSMCanvas = ({ onInspect }) => {
                 }
             }
 
-            return { ...node, className };
+            return { ...node, className, draggable:!node.data.positionLocked };
         });
-    }, [nodes, focus, focusIds, hoveredNodeId, selectedNodeId, upstreamNodes, downstreamNodes, selectedItemId, lineageData]);
+    }, [comparisonIds, nodes, focus, focusIds, hoveredNodeId, selectedNodeId, upstreamNodes, downstreamNodes, selectedItemId, lineageData]);
 
     const displayEdges = useMemo(() => {
         return edges.map(edge => {
             let className = (edge.className || '') + ' edge-flow';
+            if(comparisonIds.includes(edge.id)) className += ' comparison-changed';
 
             // Focus: only connections between two focused steps stay lit
             if (focus) {
@@ -196,7 +199,7 @@ const VSMCanvas = ({ onInspect }) => {
 
             return { ...edge, className };
         });
-    }, [edges, focus, focusIds, hoveredNodeId, selectedNodeId, upstreamEdges, downstreamEdges, selectedItemId, lineageData]);
+    }, [comparisonIds, edges, focus, focusIds, hoveredNodeId, selectedNodeId, upstreamEdges, downstreamEdges, selectedItemId, lineageData]);
 
     return (
         <div

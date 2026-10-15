@@ -1,13 +1,14 @@
 import React from 'react';
 import useStore from '../store/useStore';
 import { Paperclip, X, Download, FileText, Plus, Trash2, AlertTriangle, Wrench, ChevronRight } from 'lucide-react';
-import { saveFile, deleteFile } from '../utils/db';
+import { saveFile } from '../utils/db';
 import { computeLineage } from '../utils/lineageUtils';
 
-// Numeric fields: an emptied or invalid input is stored as 0, never NaN.
+// An empty measurement is unknown. The historical engine still reproduces its own zero fallback.
 const toNumber = (value) => {
+    if (value === "" || value === null || value === undefined) return null;
     const n = parseFloat(value);
-    return Number.isFinite(n) ? Math.max(0, n) : 0;
+    return Number.isFinite(n) ? Math.max(0, n) : null;
 };
 
 const PropertiesPanel = ({ onClose }) => {
@@ -457,7 +458,7 @@ const PropertiesPanel = ({ onClose }) => {
 
     const removeAttachment = async (attachmentId) => {
         try {
-            await deleteFile(attachmentId);
+            // Retain the blob for named versions and undo; only detach this reference.
             const currentAttachments = selectedNode.data.attachments || [];
             handleNodeChange('attachments', currentAttachments.filter(a => a.id !== attachmentId));
         } catch (error) {

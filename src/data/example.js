@@ -6,14 +6,14 @@ export function createExample() {
   const edge = (source, target, routing = {}, itemData = {}) => ({ id: `${source}-${target}`, source, target, type: 'flow', markerEnd: { type: 'arrowclosed', color: '#67818f' }, data: { routingType: 'global', percentage: 100, ...routing, itemData } });
   const split = (retail, business) => ({ routingType: 'item', itemRouting: { retail, business } });
   const end = (id, label, y, description) => ({ id, type: 'startEnd', position: { x: 4800, y }, data: { type: 'end', label, description } });
-  return {
+  const example = {
     title: 'KYC · Entrée en relation & vigilance renforcée',
     tools: [
       {id:'kyc-web',name:'Internet',icon:'globe',description:'Recherche de sociétés, registres publics et sources ouvertes'},
-      {id:'kyc-mail',name:'Outlook',icon:'mail',description:'Échanges client et demandes de justificatifs'},
-      {id:'kyc-docs',name:'SharePoint',icon:'folder',description:'Dossier documentaire et archivage des preuves'},
-      {id:'kyc-auto',name:'Power Automate',icon:'workflow',description:'Notifications et orchestration des tâches'},
-      { id:'kyc-case', name:'Excel', icon:'spreadsheet', description:'Rapprochements, grille de contrôle et suivi des dossiers' },
+      {id:'kyc-mail',name:'Outlook',icon:'brand-outlook',description:'Échanges client et demandes de justificatifs'},
+      {id:'kyc-docs',name:'SharePoint',icon:'brand-sharepoint',description:'Dossier documentaire et archivage des preuves'},
+      {id:'kyc-auto',name:'Power Automate',icon:'brand-power-automate',description:'Notifications et orchestration des tâches'},
+      { id:'kyc-case', name:'Excel', icon:'brand-excel', description:'Rapprochements, grille de contrôle et suivi des dossiers' },
       { id:'kyc-ocr', name:'OCR documentaire', icon:'scan', description:'Extraction et rapprochement des pièces' },
       { id:'kyc-screening', name:'World-Check · screening', icon:'shield', description:'Recherche PEP et sanctions' },
       { id:'kyc-core', name:'Core Banking', icon:'database', description:'Référentiel client' },
@@ -61,4 +61,15 @@ export function createExample() {
       edge('decision','activate',split(98,95)),edge('decision','notify',split(2,5)),edge('activate','core'),edge('core','archive'),edge('archive','end'),edge('notify','rejected'),
     ],
   };
+  // Explicit fictional assumptions, only for newly loaded examples. Existing projects are unchanged.
+  for (const actor of example.actors) { actor.headcount = actor.scope === 'internal' ? 5 : 2; actor.availableTime = 480; }
+  for (const node of example.nodes) {
+    if (node.type !== 'process') continue;
+    node.data.wait_time ??= 0;
+    if (['it','ai'].includes(node.data.subtype)) node.data.technicalCapacity = 480;
+    node.data.actorAllocations = Object.fromEntries((node.data.actorsUsed || []).map(id => [id, 1 / example.nodes.filter(n => n.data.actorsUsed?.includes(id)).length]));
+    node.data.measurements = Object.fromEntries([...Object.keys(node.data.cycleTimes).map(id=>`cycle:${id}`),'wait','capacity'].map(key=>[key,{unit:'min',status:'estimated',scope:'Par dossier, période : jour ouvré',source:'Exemple fictif KYC',date:'2026-10-15',owner:'Démonstration'}]));
+  }
+  for (const edge of example.edges) edge.data.wait_time = 0;
+  return example;
 }

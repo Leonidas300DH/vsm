@@ -6,9 +6,11 @@ import PropertiesPanel from './components/PropertiesPanel';
 import Timeline from './components/Timeline';
 import VSMCanvas from './components/VSMCanvas';
 import Header from './components/Header';
+import useModalKeyboard from './components/useModalKeyboard.js';
+import WorkspaceTools from './components/WorkspaceTools';
 import useStore from './store/useStore';
 import { createExample } from './data/example';
-import { layoutGraph } from './utils/layout';
+import { proposeLayout } from './services/placement';
 import { focusOptions, focusedNodeIds } from './utils/focus';
 
 // v2: palette and analysis start collapsed (thin rail with a handle); the key changed so stored v1 values no longer apply.
@@ -28,8 +30,10 @@ function Workspace() {
   const [properties, setProperties] = usePanelPreference('properties', false);
   const [analysis, setAnalysis] = usePanelPreference('analysis', false);
   const [notice, setNotice] = useState('');
-  const { nodes, setGraph, setFileHandle, selectedNodeId, orientation, setOrientation, lastDeletion, undoDeletion, dismissDeletion, tools, actors, focus, setFocus, theme, setTheme } = useStore();
-  const { fitView, getNodes } = useReactFlow();
+  const [layoutPreview,setLayoutPreview]=useState(null);
+  useModalKeyboard(Boolean(layoutPreview),()=>setLayoutPreview(null));
+  const { nodes, setFileHandle, selectedNodeId, orientation, setOrientation, lastDeletion, undoDeletion, dismissDeletion, tools, actors, focus, setFocus, theme, setTheme } = useStore();
+  const { fitView, getNodes, getZoom } = useReactFlow();
   const frame = () => requestAnimationFrame(() => requestAnimationFrame(() => fitView({ padding: 0.15, duration: 0, minZoom: 0.1, maxZoom: 1 })));
 
   const deletionLabel = lastDeletion
@@ -51,33 +55,42 @@ function Workspace() {
   };
 
   // One entry point for every re-layout: measured nodes + current orientation.
-  const applyLayout = (nextOrientation) => {
-    const graphNodes = getNodes();
+  const applyLayout = (nextOrientation, preview=false) => {
+    const zoom=getZoom();
+    const graphNodes = getNodes().map(n=>{
+      const element=document.querySelector(`.react-flow__node[data-id="${CSS.escape(n.id)}"]`);
+      const source=element?.querySelector('.react-flow__handle.source'),target=element?.querySelector('.react-flow__handle.target');
+      if(!element||!source||!target)return n;
+      const box=element.getBoundingClientRect();
+      const offset=port=>{const rect=port.getBoundingClientRect();return {x:(rect.x+rect.width/2-box.x)/zoom,y:(rect.y+rect.height/2-box.y)/zoom};};
+      return {...n,width:box.width/zoom,height:box.height/zoom,layoutMetrics:{sourceOffset:offset(source),targetOffset:offset(target)}};
+    });
     if (!graphNodes.length) return;
-    const result = layoutGraph(graphNodes, useStore.getState().edges, { orientation: nextOrientation });
-    if (result.error) return setNotice(result.error);
+    const result = proposeLayout(graphNodes, useStore.getState().edges, { orientation: nextOrientation, sizes:useStore.getState().edgeLabelSizes });
+    if (result.error) return setNotice(result.error+(result.conflicts?.length?" Éléments : "+[...new Set(result.conflicts)].map(id=>graphNodes.find(n=>n.id===id)?.data.label||id).join(", "):""));
+    if(preview){setLayoutPreview(result);return;}
     useStore.setState({ nodes: result.nodes });
     setNotice(`Disposition ${nextOrientation === 'vertical' ? 'de haut en bas' : 'de gauche à droite'} · branches parallèles et convergence en fin de flux.`);
     frame();
   };
-  const arrange = () => applyLayout(orientation);
+  const arrange = () => applyLayout(orientation,true);
   // Cards change shape with the orientation (resources below vs. beside): lay out after they are re-measured.
   const toggleOrientation = () => {
     const next = orientation === 'vertical' ? 'horizontal' : 'vertical';
     setOrientation(next);
     requestAnimationFrame(() => requestAnimationFrame(() => applyLayout(next)));
   };
-  const loadExample = () => {
+  const loadExample = async () => {
     if (nodes.length && !window.confirm('Remplacer la carte actuelle par l’exemple ? Enregistrez votre travail avant de continuer.')) return;
     const example = createExample();
-    useStore.getState().mergeLibraries(example);
-    setGraph(example.nodes, example.edges, example.title);
+    await useStore.getState().replaceWorkspace(example);
     setFileHandle(null);
     setFocus(null);
     setNotice('KYC fictif · 100 dossiers/jour · Routages et temps illustratifs · Aucune décision réelle.');
     requestAnimationFrame(() => requestAnimationFrame(() => applyLayout(orientation)));
   };
-  return <div className="workspace">
+  return <div className="workspace" data-detail={useStore.getState().detailMode}>
+    {useStore.getState().saveStatus==='loading'&&<div className="studio-backdrop" role="status">Récupération de votre projet local…</div>}
     <Header>
     <div className="workspace-toolbar">
       <div className="toolbar-group">
@@ -103,19 +116,21 @@ function Workspace() {
       </div>
     </div>
     </Header>
+    <WorkspaceTools onArrange={arrange} onInspect={(id,diagnostic)=>{const state=useStore.getState();useStore.setState({selectedNodeId:state.nodes.some(n=>n.id===id)?id:null,selectedStepId:id,selectedItemId:null,nodes:state.nodes.map(n=>({...n,selected:n.id===id})),edges:state.edges.map(e=>({...e,selected:e.id===id})),inspectionDiagnostic:diagnostic});setProperties(true);}} />
+    {layoutPreview&&<div className="studio-backdrop"><section className="studio-dialog" role="dialog" aria-label="Aperçu du placement"><h2>Proposition de placement</h2><p>{layoutPreview.nodes.length} étapes · aucun chevauchement détecté · {Math.round(layoutPreview.elapsedMs)} ms. Appliquer reste annulable.</p><svg viewBox={`${Math.min(...layoutPreview.nodes.map(n=>n.position.x))-30} ${Math.min(...layoutPreview.nodes.map(n=>n.position.y))-30} ${Math.max(...layoutPreview.nodes.map(n=>n.position.x))-Math.min(...layoutPreview.nodes.map(n=>n.position.x))+400} ${Math.max(...layoutPreview.nodes.map(n=>n.position.y))-Math.min(...layoutPreview.nodes.map(n=>n.position.y))+550}`} style={{width:'100%',height:250}}>{layoutPreview.nodes.map(n=><g key={n.id}><rect x={n.position.x} y={n.position.y} width={n.width||300} height={n.height||300} fill="none" stroke="#8fbfd1" strokeWidth="8"/><text x={n.position.x} y={n.position.y+40} fill="currentColor" fontSize="30">{n.data.label}</text></g>)}</svg><div className="studio-row"><button onClick={()=>{useStore.setState({nodes:layoutPreview.nodes});setLayoutPreview(null);frame();}}>Appliquer le placement</button><button onClick={()=>setLayoutPreview(null)}>Conserver la carte</button></div></section></div>}
     {lastDeletion && <div className="workspace-notice is-undo" role="status">{deletionLabel}<button className="notice-action" onClick={undoDeletion}>Annuler</button><button aria-label="Fermer le message" onClick={dismissDeletion}><X size={13} /></button></div>}
     {focus && !lastDeletion && <div className="workspace-notice is-focus" role="status">{FOCUS_KIND_LABEL[focus.kind]} « {focus.label} » · {focusCount} étape{focusCount > 1 ? 's' : ''} concernée{focusCount > 1 ? 's' : ''} · le reste est estompé<button className="notice-action" onClick={() => setFocus(null)}>Retirer le focus</button></div>}
     {notice && !lastDeletion && !focus && <div className="workspace-notice" role="status">{notice}<button aria-label="Fermer le message" onClick={() => setNotice('')}><X size={13} /></button></div>}
     <main className="workspace-main">
       <Sidebar collapsed={!sidebar} onToggle={() => setSidebar(!sidebar)} onExpand={() => setSidebar(true)} />
       <section className="canvas-column" aria-label="Carte de processus">
-        <div className="canvas-stage"><VSMCanvas onInspect={() => setProperties(true)} />
+        <div className="canvas-stage"><VSMCanvas onInspect={() => {setProperties(true);useStore.setState({inspectionDiagnostic:null});}} />
           {!nodes.length && <div className="empty-canvas"><span className="empty-symbol">◇</span><h2>Dessinez votre flux.</h2><p>Glissez une étape depuis la palette<br />ou explorez un parcours KYC complet.</p><button onClick={loadExample}>Explorer l’exemple <ArrowRight size={15} /></button></div>}
           <div className="canvas-caption">{orientation === 'vertical' ? 'HAUT → BAS' : 'GAUCHE → DROITE'} <span>Glisser pour explorer · Molette pour zoomer</span></div>
         </div>
         <Timeline collapsed={!analysis} onToggle={() => setAnalysis(!analysis)} />
       </section>
-      <div className="inspector-shell" hidden={!properties}><PropertiesPanel onClose={() => setProperties(false)} /></div>
+      <div className="inspector-shell" hidden={!properties}><>{useStore.getState().inspectionDiagnostic&&<div className="inspection-diagnostic"><strong>{useStore.getState().inspectionDiagnostic.message}</strong><p>{useStore.getState().inspectionDiagnostic.formula}</p></div>}<PropertiesPanel onClose={() => setProperties(false)} /></></div>
       {!properties && <button className="inspector-tab" aria-label="Ouvrir l’inspecteur" onClick={() => setProperties(true)}><PanelRight size={16} /><span>Inspecteur</span></button>}
     </main>
     <footer className="statusbar"><span><i /> ESPACE LOCAL</span><span>{selectedNodeId ? 'Étape sélectionnée' : 'Sélectionnez une étape ou une connexion pour la modifier'}</span><span>VSM / PROCESS STUDIO</span></footer>

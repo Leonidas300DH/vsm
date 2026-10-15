@@ -1,0 +1,42 @@
+{
+  "contractVersion": "1.0",
+  "source": {
+    "scenarioId": "fixture-v3-current",
+    "revision": 0
+  },
+  "name": "Cible proposée",
+  "proposals": [
+    {
+      "id": "proposal-1",
+      "objectIds": [
+        "p"
+      ],
+      "rationale": "Justification sourcée",
+      "assumptions": [
+        "Hypothèses à vérifier"
+      ],
+      "alternatives": {
+        "human": "Option humaine",
+        "it": "Option système",
+        "agent": "Option agent"
+      },
+      "costs": {
+        "amount": null,
+        "currency": "EUR",
+        "period": "mois",
+        "basis": "À estimer"
+      },
+      "supervision": "Responsable et contrôle",
+      "exceptions": "Cas non couverts",
+      "changes": [
+        {
+          "kind": "nodes",
+          "id": "p",
+          "field": "cycle",
+          "category": "a",
+          "value": 2
+        }
+      ]
+    }
+  ]
+}

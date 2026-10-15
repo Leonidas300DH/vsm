@@ -8,6 +8,7 @@ const height = node => node.height || (node.type === 'startEnd' ? 100 : 260);
 // Vertical: resources sit beside the card, which comes first, so the ports are at the card's centre line.
 const CARD_WIDTH = 300;
 export const portOffset = (node, vertical = false) => {
+  if (node.layoutMetrics?.sourceOffset) return vertical ? node.layoutMetrics.sourceOffset.x : node.layoutMetrics.sourceOffset.y;
   if (node.type !== 'process') return vertical ? width(node) / 2 : height(node) / 2;
   if (vertical) return CARD_WIDTH / 2;
   const count = Math.max(0, ...RESOURCE_FIELDS.map(k => (node.data[k] || []).length));

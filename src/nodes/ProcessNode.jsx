@@ -12,9 +12,10 @@ const ProcessNode = ({ id, data, selected }) => {
         if (window.confirm(`Supprimer l’étape « ${data.label || 'Étape'} » et ses connexions ? Vous pourrez annuler juste après.`)) deleteNode(id);
     };
     const vertical = useStore(s => s.orientation === 'vertical');
+    const detailMode=useStore(s=>s.detailMode);
     const updateNodeInternals = useUpdateNodeInternals();
     // Handles move between left/right and top/bottom: React Flow must re-measure them.
-    useEffect(() => { updateNodeInternals(id); }, [vertical, id, updateNodeInternals]);
+    useEffect(() => { updateNodeInternals(id); }, [vertical, detailMode, id, updateNodeInternals]);
     const hasAttachments = data.attachments && data.attachments.length > 0;
     const subtype = data.subtype || 'standard';
 
@@ -119,13 +120,14 @@ const ProcessNode = ({ id, data, selected }) => {
                 <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {data.label}
                 </div>
+                <button className="nodrag node-delete" aria-label={data.positionLocked?'Déverrouiller la position':'Verrouiller la position'} title="Position verrouillée" onClick={e=>{e.stopPropagation();useStore.getState().updateNodeData(id,{positionLocked:!data.positionLocked});}}>{data.positionLocked?'◆':'◇'}</button>
                 <button type="button" className="node-delete nodrag" title="Supprimer l’étape" aria-label={`Supprimer l’étape ${data.label || ''}`} onClick={confirmDelete}>
                     <Trash2 size={12} />
                 </button>
             </div>
 
             {/* Body */}
-            <div style={{ padding: '0.5rem' }}>
+            <div className="node-body" style={{ padding: '0.5rem' }}>
                 {/* Volume Display */}
                 <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>Volume In:</span>
@@ -199,6 +201,7 @@ const ProcessNode = ({ id, data, selected }) => {
 
             </div>
 
+            <div className="node-operations">Volume : {displayVolume} · Charge historique : {data.process_time_total} min</div>
             {/* Attachments */}
             {hasAttachments && (
                 <div style={{

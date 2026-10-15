@@ -1,0 +1,42 @@
+export const toolBrands = [
+  {"id":"brand-excel","label":"Excel","file":"excel.svg","group":"Microsoft 365","description":"Contrôles, rapprochements et tableaux de suivi","aliases":["excel","microsoft excel","microsoft 365 excel","excel online"]},
+  {"id":"brand-outlook","label":"Outlook","file":"outlook.svg","group":"Microsoft 365","description":"Demandes de pièces et échanges avec le client","aliases":["outlook","microsoft outlook","outlook.com"]},
+  {"id":"brand-sharepoint","label":"SharePoint","file":"sharepoint.svg","group":"Microsoft 365","description":"Classement des pièces et partage documentaire","aliases":["sharepoint","microsoft sharepoint","sharepoint online"]},
+  {"id":"brand-power-automate","label":"Power Automate","file":"power-automate.svg","group":"Microsoft 365","description":"Automatisation des tâches et notifications","aliases":["power automate","microsoft power automate","microsoft flow"]},
+  {"id":"brand-teams","label":"Teams","file":"teams.svg","group":"Microsoft 365","description":"Réunions, échanges et coordination d’équipe","aliases":["teams","microsoft teams"]},
+  {"id":"brand-word","label":"Word","file":"word.svg","group":"Microsoft 365","description":"Rédaction et révision de documents","aliases":["word","microsoft word"]},
+  {"id":"brand-powerpoint","label":"PowerPoint","file":"powerpoint.svg","group":"Microsoft 365","description":"Présentations et supports de décision","aliases":["powerpoint","microsoft powerpoint"]},
+  {"id":"brand-onedrive","label":"OneDrive","file":"onedrive.svg","group":"Microsoft 365","description":"Stockage et partage de fichiers","aliases":["onedrive","microsoft onedrive"]},
+  {"id":"brand-onenote","label":"OneNote","file":"onenote.svg","group":"Microsoft 365","description":"Prise de notes et comptes rendus","aliases":["onenote","microsoft onenote"]},
+  {"id":"brand-copilot","label":"Microsoft Copilot","file":"copilot.svg","group":"IA","description":"Assistance à la rédaction et à l’analyse","aliases":["microsoft copilot"]},
+  {"id":"brand-chatgpt","label":"ChatGPT","file":"chatgpt.svg","group":"IA","description":"Analyse, synthèse, rédaction et aide au code","aliases":["chatgpt","chat gpt","openai chatgpt"],"darkFile":"chatgpt-dark.svg"},
+  {"id":"brand-claude","label":"Claude","file":"claude.svg","group":"IA","description":"Analyse de documents, rédaction et aide au code","aliases":["claude","claude ai"]},
+  {"id":"brand-gemini","label":"Gemini","file":"gemini.svg","group":"IA","description":"Assistance multimodale et synthèse","aliases":["gemini","google gemini"]},
+  {"id":"brand-google","label":"Google","file":"google.svg","group":"Google Workspace","description":"Recherche web et vérification de sources","aliases":["google","google search","recherche google"]},
+  {"id":"brand-gmail","label":"Gmail","file":"gmail.svg","group":"Google Workspace","description":"Messagerie et échanges avec les parties prenantes","aliases":["gmail"]},
+  {"id":"brand-google-drive","label":"Google Drive","file":"google-drive.svg","group":"Google Workspace","description":"Stockage, partage et classement de documents","aliases":["google drive"]},
+  {"id":"brand-google-docs","label":"Google Docs","file":"google-docs.png","group":"Google Workspace","description":"Rédaction collaborative et commentaires","aliases":["google docs"]},
+  {"id":"brand-google-sheets","label":"Google Sheets","file":"google-sheets.svg","group":"Google Workspace","description":"Tableaux de suivi, contrôles et rapprochements","aliases":["google sheets"]},
+  {"id":"brand-google-slides","label":"Google Slides","file":"google-slides.svg","group":"Google Workspace","description":"Création collaborative de présentations","aliases":["google slides"]},
+  {"id":"brand-google-calendar","label":"Google Calendar","file":"google-calendar.svg","group":"Google Workspace","description":"Planification, agendas et rendez-vous","aliases":["google calendar"]},
+  {"id":"brand-google-meet","label":"Google Meet","file":"google-meet.svg","group":"Google Workspace","description":"Visioconférences et échanges à distance","aliases":["google meet"]},
+  {"id":"brand-acrobat","label":"Adobe Acrobat Reader","file":"acrobat.svg","group":"Adobe","description":"Lecture, annotation et contrôle de fichiers PDF","aliases":["adobe acrobat reader","acrobat reader"]},
+  {"id":"brand-photoshop","label":"Adobe Photoshop","file":"photoshop.svg","group":"Adobe","description":"Retouche et composition d’images","aliases":["adobe photoshop","photoshop"]},
+  {"id":"brand-illustrator","label":"Adobe Illustrator","file":"illustrator.svg","group":"Adobe","description":"Création de visuels et illustrations vectorielles","aliases":["adobe illustrator","illustrator"]},
+  {"id":"brand-indesign","label":"Adobe InDesign","file":"indesign.svg","group":"Adobe","description":"Mise en page de rapports et publications","aliases":["adobe indesign","indesign"]},
+  {"id":"brand-premiere","label":"Adobe Premiere","file":"premiere.svg","group":"Adobe","description":"Montage et production vidéo","aliases":["adobe premiere","premiere","premiere pro","adobe premiere pro"]},
+  {"id":"brand-after-effects","label":"Adobe After Effects","file":"after-effects.svg","group":"Adobe","description":"Animation et effets visuels","aliases":["adobe after effects","after effects"]},
+  {"id":"brand-lightroom","label":"Adobe Lightroom","file":"lightroom.svg","group":"Adobe","description":"Classement et retouche photographique","aliases":["adobe lightroom","lightroom"]},
+  {"id":"brand-audition","label":"Adobe Audition","file":"audition.svg","group":"Adobe","description":"Enregistrement, nettoyage et montage audio","aliases":["adobe audition","audition"]},
+  {"id":"brand-adobe-sign","label":"Adobe Acrobat Sign","file":"adobe-sign.svg","group":"Adobe","description":"Circuits de validation et signature électronique","aliases":["adobe acrobat sign","adobe sign","acrobat sign"]},
+  {"id":"brand-notion","label":"Notion","file":"notion.svg","group":"Collaboration & automatisation","description":"Documentation, bases de connaissances et suivi de projets","aliases":["notion"]},
+  {"id":"brand-slack","label":"Slack","file":"slack.svg","group":"Collaboration & automatisation","description":"Messagerie d’équipe et notifications","aliases":["slack"]},
+  {"id":"brand-trello","label":"Trello","file":"trello.svg","group":"Collaboration & automatisation","description":"Suivi des tâches et tableaux Kanban","aliases":["trello"]},
+  {"id":"brand-figma","label":"Figma","file":"figma.svg","group":"Collaboration & automatisation","description":"Conception d’interfaces et collaboration design","aliases":["figma"]},
+  {"id":"brand-canva","label":"Canva","file":"canva.svg","group":"Collaboration & automatisation","description":"Création de supports visuels et présentations","aliases":["canva"]},
+  {"id":"brand-n8n","label":"n8n","file":"n8n.svg","group":"Collaboration & automatisation","description":"Automatisation et orchestration des workflows","aliases":["n8n"]}
+];
+export function resolveToolBrand(icon, toolName = '') {
+  const normalized=toolName.trim().toLowerCase().replace(/\s+/g,' ');
+  return toolBrands.find(b=>b.id===icon) || toolBrands.find(b=>b.aliases.includes(normalized));
+}

@@ -1,3 +1,4 @@
+import { installWorkspace } from '../services/workspace.js';
 import { create } from 'zustand';
 import { addEdge, applyNodeChanges, applyEdgeChanges } from 'reactflow';
 import { resourceKinds, referencedResources, mergeResources } from '../utils/resources';
@@ -67,7 +68,8 @@ const useStore = create((set, get) => ({
   knowledge: readLibrary('knowledge'),
   setLibrary: (kind, entries) => {
     if (!resourceKinds[kind]) return;
-    localStorage.setItem(`vsm_global_${kind}`, JSON.stringify(entries));
+    // Legacy cache is best-effort; IndexedDB is the durable source after migration.
+    try { localStorage.setItem(`vsm_global_${kind}`, JSON.stringify(entries)); } catch { /* Keep the complete library in the project. */ }
     set({ [kind]: entries });
   },
   mergeLibraries: (libraries) => {
@@ -107,27 +109,27 @@ const useStore = create((set, get) => ({
   setSelectedItem: (itemId) => set({ selectedItemId: itemId }),
 
   setTools: (tools) => {
-    localStorage.setItem('vsm_global_tools', JSON.stringify(tools));
+    try { localStorage.setItem('vsm_global_tools', JSON.stringify(tools)); } catch { /* IndexedDB persists the project. */ }
     set({ tools });
   },
 
   // Tool Actions
   addTool: (tool) => {
     const newTools = [...get().tools, { ...tool, id: tool.id || crypto.randomUUID() }];
-    localStorage.setItem('vsm_global_tools', JSON.stringify(newTools));
+    try { localStorage.setItem('vsm_global_tools', JSON.stringify(newTools)); } catch { /* IndexedDB persists the project. */ }
     set({ tools: newTools });
   },
 
   updateTool: (id, updates) => {
     const newTools = get().tools.map(t => t.id === id ? { ...t, ...updates } : t);
-    localStorage.setItem('vsm_global_tools', JSON.stringify(newTools));
+    try { localStorage.setItem('vsm_global_tools', JSON.stringify(newTools)); } catch { /* IndexedDB persists the project. */ }
     set({ tools: newTools });
   },
 
   deleteTool: (id) => {
     if (referencedResources(get().nodes, "tools", id).length) return;
     const newTools = get().tools.filter(t => t.id !== id);
-    localStorage.setItem('vsm_global_tools', JSON.stringify(newTools));
+    try { localStorage.setItem('vsm_global_tools', JSON.stringify(newTools)); } catch { /* IndexedDB persists the project. */ }
     set({ tools: newTools });
   },
 
@@ -331,4 +333,5 @@ const useStore = create((set, get) => ({
   },
 }));
 
+installWorkspace(useStore);
 export default useStore;

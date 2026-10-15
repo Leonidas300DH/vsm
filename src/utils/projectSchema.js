@@ -1,6 +1,6 @@
 // Validation and normalisation of .vsm project files.
 // Accepts legacy files (no meta, version '1.0') and files written by this version.
-export const FILE_VERSION = '2.0';
+export const FILE_VERSION = '3.0';
 const NODE_TYPES = new Set(['process', 'startEnd']);
 
 const isObject = v => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -54,6 +54,7 @@ export function validateProject(data) {
     ok: true,
     errors: warnings,
     project: {
+      ...data,
       title,
       nodes,
       edges,

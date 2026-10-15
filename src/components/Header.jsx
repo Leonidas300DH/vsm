@@ -1,53 +1,43 @@
 import React, { useState, useRef } from 'react';
 import { Play, Zap, LayoutTemplate, FileText, Save, FolderOpen, Printer, LogOut, ChevronDown, FilePlus, Clock, File, X, Trash2 } from 'lucide-react';
 import useStore from '../store/useStore';
-import { useReactFlow } from 'reactflow';
 import { hasFileSystemAccess, openFile, saveFile, saveFileAs } from '../utils/fileSystem';
-import { validateProject, FILE_VERSION } from '../utils/projectSchema';
+import { migrateProject } from '../services/project.js';
+import { makePortable, importEmbedded } from '../services/portable.js';
 
 const Header = ({ children }) => {
     const {
-        nodes,
-        edges,
-        setGraph,
-        resetGraph,
         projectTitle,
         setProjectTitle,
         fileHandle,
         setFileHandle,
-        addToRecentFiles,
-        tools,
-        actors, knowledge, mergeLibraries
+        addToRecentFiles
     } = useStore();
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [report,setReport]=useState(null);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const fileInputRef = useRef(null);
     const titleInputRef = useRef(null);
 
-    const handleNew = () => {
-        if (window.confirm('Are you sure you want to start a new project? Unsaved changes will be lost.')) {
-            resetGraph();
-            setFileHandle(null); // Clear file handle for new project
-            setProjectTitle('Untitled VSM');
-        }
+    const handleNew = async () => {
+        try {
+            await useStore.getState().replaceWorkspace({title:"Untitled VSM",nodes:[],edges:[],tools:useStore.getState().tools,actors:useStore.getState().actors,knowledge:useStore.getState().knowledge});
+            setFileHandle(null);
+        } catch(error) { alert(error.message); }
         setIsMenuOpen(false);
     };
 
-    const getProjectData = () => ({
-        meta: {
-            version: FILE_VERSION,
-            application: 'vsm-builder',
-            timestamp: new Date().toISOString()
-        },
-        title: projectTitle,
-        nodes,
-        edges,
-        tools, actors, knowledge // Portable resource libraries
-    });
+    const getProjectData = async () => {
+        const project = await makePortable(useStore.getState().getWorkspaceProject());
+        if (project.missingFiles.length && !window.confirm(`Pièces jointes indisponibles : ${project.missingFiles.map(f=>f.name||f.id).join(', ')}. Exporter avec ces références manquantes ?`)) return null;
+        return project;
+    };
 
     const handleSave = async () => {
-        const content = JSON.stringify(getProjectData(), null, 2);
+        const project = await getProjectData();
+        if (!project) return;
+        const content = JSON.stringify(project, null, 2);
 
         if (fileHandle && hasFileSystemAccess()) {
             try {
@@ -66,7 +56,9 @@ const Header = ({ children }) => {
     };
 
     const handleSaveAs = async () => {
-        const content = JSON.stringify(getProjectData(), null, 2);
+        const project = await getProjectData();
+        if (!project) return;
+        const content = JSON.stringify(project, null, 2);
 
         if (hasFileSystemAccess()) {
             const handle = await saveFileAs(content, `${projectTitle}.vsm`);
@@ -83,7 +75,7 @@ const Header = ({ children }) => {
             a.href = url;
             a.download = `${projectTitle}.vsm`;
             a.click();
-            URL.revokeObjectURL(url);
+            setTimeout(()=>URL.revokeObjectURL(url),1000);
             addToRecentFiles({ title: projectTitle, content: JSON.parse(content) });
         }
         setIsMenuOpen(false);
@@ -95,7 +87,7 @@ const Header = ({ children }) => {
             if (result) {
                 try {
                     const data = JSON.parse(result.text);
-                    loadProject(data, result.name, result.handle);
+                    await loadProject(data, result.name, result.handle);
                 } catch (error) {
                     alert('Error parsing file: ' + error.message);
                 }
@@ -111,10 +103,10 @@ const Header = ({ children }) => {
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
             try {
                 const data = JSON.parse(event.target.result);
-                loadProject(data, file.name);
+                await loadProject(data, file.name);
             } catch (error) {
                 alert('Error parsing file: ' + error.message);
             }
@@ -123,90 +115,22 @@ const Header = ({ children }) => {
         e.target.value = ''; // Reset input
     };
 
-    const loadProject = (data, filename, handle = null) => {
-        const result = validateProject(data);
-        if (!result.ok) {
-            alert(`Invalid VSM file:\n${result.errors.join('\n')}`);
-            return;
-        }
-        const { project } = result;
+    const loadProject = async (data, filename, handle = null) => {
+        const project = migrateProject(data);
         const title = project.title || filename.replace(/\.(json|vsm)$/, '');
-        setGraph(project.nodes, project.edges, title);
-        mergeLibraries({ tools: project.tools, actors: project.actors, knowledge: project.knowledge });
+        await importEmbedded(project);
+        await useStore.getState().replaceWorkspace({ ...project, title });
         setFileHandle(handle);
         addToRecentFiles({ title, content: data });
-        if (result.errors.length) {
-            alert(`File loaded with warnings:\n${result.errors.join('\n')}`);
-        }
     };
-
-    const { fitView, getViewport, setViewport } = useReactFlow();
 
     const handleExportPDF = async () => {
         setIsMenuOpen(false);
-        // Wait for menu to close
-        setTimeout(async () => {
-            try {
-                // Loaded on demand: these two libraries weigh about a third of the bundle.
-                const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-                    import('html2canvas'),
-                    import('jspdf'),
-                ]);
-                const element = document.querySelector('.react-flow');
-                if (!element) return;
-
-                // Save current viewport
-                const viewport = getViewport();
-
-                // Fit view to show all content
-                await fitView({ padding: 0.2, duration: 0 });
-
-                // Wait a moment for render (increased to ensure full render)
-                await new Promise(resolve => setTimeout(resolve, 500));
-
-                // Hide controls for screenshot
-                const controls = document.querySelector('.react-flow__controls');
-                const panel = document.querySelector('.react-flow__panel');
-                if (controls) controls.style.display = 'none';
-                if (panel) panel.style.display = 'none';
-
-                const canvas = await html2canvas(element, {
-                    scale: 2, // Improve quality
-                    useCORS: true,
-                    logging: false
-                });
-
-                // Restore controls
-                if (controls) controls.style.display = '';
-                if (panel) panel.style.display = '';
-
-                // Restore viewport
-                setViewport(viewport);
-
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF({
-                    orientation: 'landscape',
-                    unit: 'px',
-                    format: [canvas.width, canvas.height]
-                });
-
-                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-                pdf.save(`${projectTitle}.pdf`);
-            } catch (error) {
-                console.error('PDF Export failed:', error);
-                alert('Failed to export PDF. See console for details.');
-            }
-        }, 100);
+        try { const {exportReport}=await import('../services/report.js'); if(report)URL.revokeObjectURL(report.url);setReport(await exportReport(useStore.getState().getWorkspaceProject())); }
+        catch(error){alert(error.message);}
     };
 
-    const handleClose = () => {
-        if (window.confirm('Are you sure you want to close the current project? Unsaved changes will be lost.')) {
-            resetGraph();
-            setFileHandle(null); // Clear file handle
-            setProjectTitle('Untitled VSM');
-        }
-        setIsMenuOpen(false);
-    };
+    const handleClose = handleNew;
 
     const handleTitleClick = () => {
         setIsEditingTitle(true);
@@ -338,6 +262,7 @@ const Header = ({ children }) => {
                 </div>
             </div>
 
+            {report&&<a href={report.url} download={report.name}>Télécharger PDF</a>}
             {children}
 
             {/* Overlay to close menu when clicking outside */}
