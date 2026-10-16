@@ -162,6 +162,18 @@
   box-shadow: 0 4px 18px #0003;
 }
 .selection-confirm input { width: 155px; }
+.group-back { display:flex; gap:6px; align-items:center; border-right:1px solid var(--c-30434f) !important; border-radius:0 !important; font-weight:600; }
+.step-detail-shortcut { position:absolute; right:0; top:-38px; margin:0; padding:0; opacity:0; pointer-events:none; }
+.process-card:hover .step-detail-shortcut,
+.process-card:focus-within .step-detail-shortcut,
+.react-flow__node.selected .step-detail-shortcut { opacity:1; pointer-events:auto; }
+.step-detail-shortcut button { background:var(--c-111e27); box-shadow:0 2px 8px #0003; }
+.draft-completion { margin-left:auto; display:flex; flex-direction:column; gap:4px; font-size:12px; }
+.draft-completion label { display:flex; align-items:center; gap:6px; }
+.draft-completion small { color:var(--color-text-secondary); }
+.draft-apply { background:var(--c-a3c8d8) !important; color:var(--c-0b1218) !important; }
+.draft-apply:disabled { opacity:.45; }
+.draft-review > header { display:flex; justify-content:space-between; align-items:center; }
 .selection-confirm small { flex-basis: 100%; color: var(--c-ff9f43); }
 .is-selecting .react-flow__pane { cursor: crosshair; }
 .is-selecting .react-flow__selection {
@@ -347,6 +359,8 @@
   font-size: 12px;
 }
 .decomposition-editor > footer {
+  align-items: center;
+  flex-wrap: wrap;
   display: flex;
   gap: 10px;
   padding: 10px 14px;

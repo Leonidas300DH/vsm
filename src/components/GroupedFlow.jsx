@@ -4,6 +4,7 @@ import {
   Layers,
   X,
   ChevronRight,
+  ArrowLeft,
   Ungroup,
   Trash2,
   Maximize2,
@@ -106,6 +107,7 @@ export default function GroupedFlow({
     [to, setTo] = useState("");
   const instance = useRef(null),
     dragStart = useRef(null),
+    selectingRectangle = useRef(false),
     [drag, setDrag] = useState(null);
   const readOnly = groupReadOnly || state.readOnly;
   const visibleSelection = selection.filter(
@@ -302,7 +304,7 @@ export default function GroupedFlow({
       setName(scenario.groups.find((g) => g.id === id).name);
     },
   };
-  const displayNodes = projection.nodes.map((n) => ({
+  const displayNodes = projection.nodes.filter(n => n.id !== focusId).map((n) => ({
     ...n,
     ...(n.type === "subprocess" && !n.data.collapsed
       ? { style: { ...n.style, pointerEvents: "none" }, dragHandle: ".subprocess-node > header" }
@@ -316,7 +318,7 @@ export default function GroupedFlow({
   }));
   const nodesChanged = (changes) => {
     const selectedChanges = changes.filter((c) => c.type === "select");
-    if (selectedChanges.length)
+    if (selectedChanges.length && (!selecting || selectingRectangle.current))
       setSelection((old) => {
         const ids = new Set(old);
         selectedChanges.forEach((c) =>
@@ -351,22 +353,34 @@ export default function GroupedFlow({
           selectionKeyCode="Shift"
           selectionOnDrag={selecting}
           selectionMode={SelectionMode.Full}
+          zoomOnDoubleClick={false}
           panOnDrag={selecting ? [1, 2] : props.panOnDrag}
           nodesDraggable={selecting ? false : props.nodesDraggable}
           nodesConnectable={selecting ? false : props.nodesConnectable}
           elevateNodesOnSelect={false}
           deleteKeyCode={readOnly || selecting ? null : props.deleteKeyCode}
           onNodeClick={(event, node) => {
-            if (selecting) return;
+            if (selecting) {
+              setSelection(old => groupingUnits(old.includes(node.id) ? old.filter(id => id !== node.id) : [...old,node.id], projection.parents, focusId));
+              return;
+            }
             if (node.type === "subprocess") {
               onGroupSelect?.(node.id);
-              ui.inspect(node.id);
+
               if (!event.shiftKey) setSelection([node.id]);
             } else {
               if (!event.shiftKey) setSelection([node.id]);
               props.onNodeClick?.(event, node);
             }
           }}
+          onNodeDoubleClick={(event, node) => {
+            if (selecting || event.target.closest('button,input,select,a')) return;
+            event.stopPropagation();
+            if (node.type === "subprocess") focus(node.id);
+            else if (!readOnly && node.type === "process") setDraftId(node.id);
+          }}
+          onSelectionStart={() => {selectingRectangle.current = true;}}
+          onSelectionEnd={() => {selectingRectangle.current = false;}}
           onPaneClick={(event) => {
             setSelection([]);
             setInspected(null);
@@ -426,7 +440,8 @@ export default function GroupedFlow({
           {props.children}
         </ReactFlow>
         {focusId && (
-          <nav className="group-breadcrumb">
+          <nav className="group-breadcrumb" aria-label="Niveaux du VSM">
+            <button className="group-back" onClick={() => toggle(focusId)} title="Revenir à la synthèse"><ArrowLeft size={16}/>Retour</button>
             <button onClick={() => focus(null)}>Carte entière</button>
             {ancestors.map((a) => (
               <span key={a.id}>
@@ -455,7 +470,7 @@ export default function GroupedFlow({
           </div>
         {!readOnly && selecting && (
           <div className="group-selection selection-confirm nodrag" role="region" aria-label="Regrouper la sélection">
-            <span aria-live="polite">{visibleSelection.length ? `${visibleSelection.length} élément${visibleSelection.length > 1 ? "s" : ""} sélectionné${visibleSelection.length > 1 ? "s" : ""}` : "Tracez un rectangle autour des étapes"}</span>
+            <span aria-live="polite">{visibleSelection.length ? `${visibleSelection.length} élément${visibleSelection.length > 1 ? "s" : ""} sélectionné${visibleSelection.length > 1 ? "s" : ""}` : "Cliquez sur les étapes ou tracez un rectangle"}</span>
             {visibleSelection.length > 1 && <input aria-label="Nom du groupe à créer" value={name} onChange={(event) => setName(event.target.value)} />}
             <button className="confirm-group" disabled={visibleSelection.length < 2 || !!selectionIssue || !name.trim()} onClick={() => execute({type: "group", id: uid(), ids: visibleSelection, name})}><Layers size={15} /> Regrouper</button>
             <button onClick={cancelSelection}>Annuler</button>
@@ -469,20 +484,7 @@ export default function GroupedFlow({
               {visibleSelection.length > 1 ? "s" : ""}
             </span>
               <button
-                onClick={() => {
-                  try {
-                    groupingSelection(scenario, visibleSelection);
-                    setName("Nouveau sous-processus");
-                    setPending({
-                      type: "group",
-                      id: uid(),
-                      ids: visibleSelection,
-                    });
-                    setError("");
-                  } catch (e) {
-                    setError(e.message);
-                  }
-                }}
+                onClick={() => execute({type:"group", id:uid(), ids:visibleSelection, name:"Nouveau groupe"})}
               >
                 <Layers size={15} /> Regrouper
               </button>

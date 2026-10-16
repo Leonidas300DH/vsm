@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useContext } from 'react';
 import { Handle, Position, useUpdateNodeInternals } from 'reactflow';
-import { Paperclip, AlertTriangle, Plus, User, Workflow, Bot, Box, Trash2, Layers, ZoomIn } from 'lucide-react';
+import { Paperclip, AlertTriangle, Plus, User, Workflow, Bot, Box, Trash2, Layers, ZoomIn, SlidersHorizontal } from 'lucide-react';
 import { getFile } from '../utils/db';
 import { GroupUIContext } from '../store/groupContext';
 import { displayNumber as fmt } from '../services/analysis';
@@ -129,6 +129,7 @@ const ProcessNode = ({ id, data, selected, aggregate, ports, onOpenDetail }) => 
                 <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {data.label}
                 </div>
+                {aggregate && <button className="nodrag node-delete" aria-label="Propriétés du groupe" title="Renommer, dissocier et consulter les calculs" onClick={e => {e.stopPropagation();groupUI.inspect(id);}}><SlidersHorizontal size={13}/></button>}
                 {!readOnly && !aggregate && <button className="nodrag node-delete" aria-label={data.positionLocked?'Déverrouiller la position':'Verrouiller la position'} title="Position verrouillée" onClick={e=>{e.stopPropagation();scoped.updateNodeData(id,{positionLocked:!data.positionLocked});}}>{data.positionLocked?'◆':'◇'}</button>}
                 {!readOnly && !aggregate && <button type="button" className="node-delete nodrag" title="Supprimer l’étape" aria-label={`Supprimer l’étape ${data.label || ''}`} onClick={confirmDelete}>
                     <Trash2 size={12} />
@@ -218,8 +219,8 @@ const ProcessNode = ({ id, data, selected, aggregate, ports, onOpenDetail }) => 
             </div>
 
             <div className="node-operations">Volume : {displayVolume} · Charge : {aggregate ? fmt(aggregate.workload) : data.process_time_total} min</div>
-            {aggregate && <div className="step-detail-action"><button className="nodrag" onClick={e => {e.stopPropagation(); onOpenDetail();}}><ZoomIn size={14}/>{aggregate.count} étapes · Ouvrir le détail</button>{!aggregate.complete && <small>Indicateurs incomplets · voir le détail</small>}</div>}
-            {!aggregate && selected && !readOnly && !scoped.isDecomposition && groupUI.decompose && <div className="step-detail-action"><button className="nodrag" onClick={e => {e.stopPropagation(); groupUI.decompose(id);}}><Layers size={14}/>Détailler cette étape</button></div>}
+            {aggregate && <div className="step-detail-action"><button className="nodrag" onClick={e => {e.stopPropagation(); onOpenDetail();}}><ZoomIn size={14}/>{aggregate.count} sous-étapes · Ouvrir</button>{!aggregate.complete && <small>Indicateurs incomplets · voir le détail</small>}</div>}
+            {!aggregate && !readOnly && !scoped.isDecomposition && groupUI.decompose && <div className="step-detail-action step-detail-shortcut"><button className="nodrag" title="Détailler cette étape · double-clic sur la carte" onClick={e => {e.stopPropagation(); groupUI.decompose(id);}}><Layers size={14}/>Détailler cette étape</button></div>}
             {/* Attachments */}
             {hasAttachments && (
                 <div style={{

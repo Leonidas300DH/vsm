@@ -18,6 +18,7 @@ import { groupCollisions, layoutGroups } from "../services/groupProjection";
 import { applyGroupCommand, summarizeGroup } from "../services/groups";
 import { analyze, displayNumber as fmt } from "../services/analysis";
 import { calculateMetrics } from "../utils/calculations";
+import { startDecomposition } from "../services/decomposition";
 import { resourceKinds } from "../utils/resources";
 function FrameDraft({ count }) {
   const ready = useNodesInitialized();
@@ -46,22 +47,7 @@ export default function DecompositionEditor({
   const [original] = useState(() =>
     structuredClone(scenario.nodes.find((n) => n.id === nodeId)),
   );
-  const [draft, setDraft] = useState(() =>
-    structuredClone(
-      scenario.decompositionDrafts?.find((d) => d.nodeId === nodeId) || {
-        id: nodeId,
-        nodeId,
-        reference: original,
-        nodes: [],
-        edges: [],
-        inputs: {},
-        outputs: {},
-        tools: scenario.tools || [],
-        actors: scenario.actors || [],
-        knowledge: scenario.knowledge || [],
-      },
-    ),
-  );
+  const [draft, setDraft] = useState(() => startDecomposition(scenario, nodeId));
   const [error, setError] = useState(""),
     [saved, setSaved] = useState(false),
     [accept, setAccept] = useState(false),
@@ -224,6 +210,12 @@ export default function DecompositionEditor({
       return rid;
     },
   };
+  const activate = async () => {
+    try {
+      await execute({ type: "activateDraft", nodeId, draft, acceptIncomplete: accept, arrange: requiresArrange });
+      onClose();
+    } catch (e) { setError(e.message); }
+  };
   const save = async () => {
     try {
       await execute({ type: "saveDraft", nodeId, draft });
@@ -322,7 +314,7 @@ export default function DecompositionEditor({
             </div>
           )}
         </div>
-        <GraphContext.Provider value={context}>
+        {(selectedNode || draft.edges.some(e => e.selected)) && <GraphContext.Provider value={context}>
           <PropertiesPanel
             onClose={() =>
               change((d) => {
@@ -332,7 +324,7 @@ export default function DecompositionEditor({
               })
             }
           />
-        </GraphContext.Provider>
+        </GraphContext.Provider>}
       </div>
       <div className="draft-boundaries">
         {boundary.map((e) => {
@@ -406,14 +398,19 @@ export default function DecompositionEditor({
         >
           Abandonner le brouillon
         </button>
-        <button onClick={() => setReview(!review)}>Vérifier les écarts</button>
-        <button disabled={!candidate} onClick={() => setReview(true)}>
-          Valider le détail…
+        <div className="draft-completion">
+          <span>Charge : {fmt(referenceSummary.workload)} → {fmt(detailSummary?.workload)} · Lead time : {fmt(referenceSummary.lead)} → {fmt(detailSummary?.lead)}</span>
+          {candidate && !result.complete && <label><input type="checkbox" checked={accept} onChange={e => setAccept(e.target.checked)}/>Accepter les indicateurs inconnus</label>}
+          {requiresArrange && <small>Les étapes seront espacées automatiquement. Annuler reste disponible.</small>}
+        </div>
+        <button onClick={() => setReview(!review)} aria-expanded={review}>Voir les écarts</button>
+        <button className="draft-apply" disabled={!candidate || (!result.complete && !accept)} onClick={activate}>
+          Utiliser ces sous-étapes
         </button>
       </footer>
       {review && (
         <section className="draft-review">
-          <h3>Avant / après activation</h3>
+          <header><h3>Avant / après activation</h3><button aria-label="Fermer les écarts" onClick={() => setReview(false)}><X size={16}/></button></header>
           {candidateError ? (
             <p role="alert">{candidateError}</p>
           ) : (
@@ -512,21 +509,7 @@ export default function DecompositionEditor({
               )}
               <button
                 disabled={!result.complete && !accept}
-                onClick={async () => {
-                  try {
-                    await execute({ type: "saveDraft", nodeId, draft });
-                    await execute({
-                      type: "activateDraft",
-                      nodeId,
-                      draft,
-                      acceptIncomplete: accept,
-                      arrange: requiresArrange,
-                    });
-                    onClose();
-                  } catch (e) {
-                    setError(e.message);
-                  }
-                }}
+                onClick={activate}
               >
                 Activer ce détail
               </button>
