@@ -332,7 +332,15 @@ export default function GroupedFlow({
   };
   return (
     <GroupUIContext.Provider value={ui}>
-      <div className={`grouped-flow ${selecting ? "is-selecting" : ""}`} onKeyDown={(event) => {
+      <div className={`grouped-flow ${selecting ? "is-selecting" : ""}`} onKeyDownCapture={(event) => {
+        if (!selecting || !["Enter", " "].includes(event.key)) return;
+        const node = event.target.closest('.react-flow__node');
+        if (!node || event.target !== node) return;
+        const id = node.getAttribute('data-id');
+        event.preventDefault();
+        event.stopPropagation();
+        setSelection(old => groupingUnits(old.includes(id) ? old.filter(x => x !== id) : [...old,id], projection.parents, focusId));
+      }} onKeyDown={(event) => {
         if (event.key === "Escape" && selecting && !pending) {
           event.stopPropagation();
           cancelSelection();
