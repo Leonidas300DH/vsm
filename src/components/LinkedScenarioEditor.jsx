@@ -114,7 +114,22 @@ export default function LinkedScenarioEditor({ onClose }) {
       setNotice(`${available.find(s => s.id === id)?.name} est maintenant indépendant. Les autres liens restent actifs.`);
     }
   };
-  const select = (scenarioId, kind, id) => { detach(scenarioId); setSelection({ scenarioId, kind, id }); setInspector(true); };
+  const select = (scenarioId, kind, id) => {
+    detach(scenarioId); setSelection({ scenarioId, kind, id }); setInspector(true);
+    // Keep the selected step readable on large maps, as in the comparison view.
+    requestAnimationFrame(() => {
+      const origin = instances.current[scenarioId];
+      if (!origin) return;
+      const edge = kind === 'edges' && origin.getEdges().find(e => e.id === id);
+      const ids = edge ? [edge.source, edge.target] : [id];
+      const targets = Object.entries(instances.current).filter(([key]) => containers.current[key] && (navigation || key === scenarioId));
+      const nodes = targets.flatMap(([, instance]) => instance.getNodes().filter(n => ids.includes(n.id)));
+      if (!nodes.length) return;
+      const sizes = targets.map(([key]) => containers.current[key].getBoundingClientRect());
+      const viewport = getViewportForBounds(getNodesBounds(nodes), Math.min(...sizes.map(s => s.width)), Math.min(...sizes.map(s => s.height)), .02, .85, .25);
+      targets.forEach(([, instance]) => instance.setViewport(viewport));
+    });
+  };
   const geometry = () => Object.fromEntries(Object.entries(instances.current).map(([id, instance]) => [id, Object.fromEntries(instance.getNodes().map(n => [n.id, { width: n.width, height: n.height, layoutMetrics: n.layoutMetrics }]))]));
   const execute = (originId, command, confirmed = false) => {
     setError('');
