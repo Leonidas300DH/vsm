@@ -135,6 +135,38 @@ test("disconnected and partial hierarchy selections identify required correction
   assert.throws(() => groupingSelection(s, ["p0", "p2"]), /Étape 1/);
   assert.throws(() => group(group(s), ["g", "p0"]), /même niveau/);
 });
+test("regrouping every member of an existing frame refuses a redundant wrapper without changing data", () => {
+  const s = group(fixture()), before = structuredClone(s);
+  assert.throws(() => groupingSelection(s, ["p0", "p1"]), /déjà regroupés/);
+  assert.throws(() => group(s, ["p1", "p0"], "duplicate"), /déjà regroupés/);
+  assert.throws(() => group(s, ["g"], "wrapper"), /au moins deux/);
+  assert.deepEqual(s, before);
+  const larger = group(s, ["g", "p2"], "larger");
+  assert.deepEqual(larger.groups.find(g => g.id === "larger").members, ["g", "p2"]);
+});
+test("deleting a sibling cannot introduce a single-group wrapper; dissolving its frame preserves all detail", () => {
+  let s = group(fixture(5));
+  s = group(s, ["p2", "p3"], "sibling");
+  s = group(s, ["g", "sibling"], "outer");
+  const before = structuredClone(s);
+  assert.throws(() => applyGroupCommand(s, {type:"deleteGroup",id:"sibling"}), /un seul sous-groupe/);
+  assert.deepEqual(s, before);
+  const dissolved = applyGroupCommand(s, {type:"ungroup",id:"outer"});
+  assert.deepEqual(dissolved.nodes, s.nodes);
+  assert.deepEqual(dissolved.edges, s.edges);
+  assert.equal(dissolved.groups.length, 2);
+});
+test("legacy duplicate frames remain readable and can be dissolved without losing graph or metadata", () => {
+  const s = group(fixture());
+  s.groups.push({id:"duplicate",name:"Ancien cadre",members:["g"],custom:{source:"legacy"}});
+  validateGroups(s);
+  const cleaned = applyGroupCommand(s, {type:"ungroup",id:"duplicate"});
+  assert.equal(cleaned.groups.length, 1);
+  assert.deepEqual(cleaned.nodes, s.nodes);
+  assert.deepEqual(cleaned.edges, s.edges);
+  assert.deepEqual(cleaned.retiredGroups[0].custom,{source:"legacy"});
+  assert.deepEqual(metrics(cleaned), metrics(s));
+});
 test("aggregate uses boundary passages and route-local times, not sum of repeated volumes", () => {
   const s = group(fixture());
   const a = summarizeGroup(s, "g");

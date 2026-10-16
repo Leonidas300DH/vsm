@@ -105,6 +105,9 @@ export function groupingSelection(scenario, ids) {
     throw new Error("Sélectionnez au moins deux étapes ou groupes.");
   if (new Set(selected.map((id) => parents.get(id) || "")).size > 1)
     throw new Error("Sélectionnez des éléments entiers du même niveau.");
+  const parent = scenario.groups?.find(g => g.id === parents.get(selected[0]));
+  if (parent && parent.members.length === selected.length && parent.members.every(id => selected.includes(id)))
+    throw new Error(`Ces éléments sont déjà regroupés dans « ${parent.name} ». Renommez ce groupe plutôt que d’ajouter un cadre identique.`);
   const known = new Set(
     [...scenario.nodes, ...(scenario.groups || [])].map((n) => n.id),
   );
@@ -371,7 +374,18 @@ export function applyGroupCommand(scenario, command) {
       (d) => d.nodeId !== original.id,
     );
   } else throw new Error("Commande de sous-processus inconnue.");
-  return validateGroups(next);
+  validateGroups(next);
+  // Older files remain readable. New edits must never introduce a wrapper
+  // whose only member is another group with exactly the same business content.
+  const redundant = scenario => {
+    const groups = new Set((scenario.groups || []).map(g => g.id));
+    return (scenario.groups || []).filter(g => g.members.length === 1 && groups.has(g.members[0]));
+  };
+  const existing = new Set(redundant(scenario).map(g => g.id));
+  const introduced = redundant(next).find(g => !existing.has(g.id));
+  if (introduced)
+    throw new Error(`« ${introduced.name} » ne peut pas contenir un seul sous-groupe. Dissociez ce cadre avant cette opération.`);
+  return next;
 }
 export function summarizeGroup(scenario, id, analysis = analyze(scenario)) {
   const ids = new Set(groupLeaves(scenario, id)),
