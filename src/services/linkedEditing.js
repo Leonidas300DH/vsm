@@ -126,7 +126,8 @@ export function prepareLinkedEdit(project, session, originId, command, geometry 
       if (command.kind === 'nodes' && entry.type !== original.type) throw new Error(`${target.name} : type d’étape incompatible.`);
       const categories = new Set(target.nodes.flatMap(n => n.data.volumeItems || []).map(item => item.id));
       for (const f of fields) if (['cycleTimes', 'itemRouting', 'itemData'].includes(f.path[1]) && f.path[2] && !categories.has(f.path[2])) throw new Error(`${target.name} : catégorie ${f.path[2]} absente.`);
-      patch(entry, fields);
+      const appliedFields = id !== originId && !session.positions ? fields.filter(f => f.path.join('.') !== 'data.positionLocked') : fields;
+      patch(entry, appliedFields);
       if (command.kind === 'nodes') touchedNodes = [entry];
       description = `${original.data?.label || original.name || command.id} · ${fields.map(f => f.path.join('.')).join(', ')}`;
     } else if (command.type === 'move') {
@@ -158,7 +159,11 @@ export function prepareLinkedEdit(project, session, originId, command, geometry 
         const match = source[kind]?.find(x => x.id === entry.id);
         if (!match) return entry;
         const replacement = clone(match);
-        if (kind === 'nodes' && !session.positions) replacement.position = clone(entry.position);
+        if (kind === 'nodes') {
+          if (session.positions && entry.data.positionLocked && signature(entry.position) !== signature(match.position)) throw new Error(`${target.name} : position verrouillée (${entry.data.label || entry.id}).`);
+          if (!session.positions) replacement.position = clone(entry.position);
+          replacement.data.positionLocked = entry.data.positionLocked;
+        }
         return replacement;
       });
       touchedNodes = target.nodes.filter(n => source.nodes.some(x => x.id === n.id));

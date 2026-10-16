@@ -252,3 +252,12 @@ test('category addition/removal propagates by ID and missing edited categories b
   assert.throws(()=>prepareLinkedEdit(p,session,master,edit({volumeItems:original.map(x=>({...x,value:33}))},'in')),/absente/);
   assert.equal(node(p,master,'in').data.volumeItems[0].value,10);
 });
+test('realignment respects child position locks and local lock edits do not leak',()=>{
+  const {p,master,a,session}=fixture();node(p,a).data.positionLocked=true;node(p,a).position.y=800;
+  const next=prepareLinkedEdit(p,session,master,{type:'realign',childIds:[a]}).project;
+  assert.equal(node(next,a).data.positionLocked,true);assert.equal(node(next,a).position.y,800);
+  assert.throws(()=>prepareLinkedEdit(p,{...session,positions:true},master,{type:'realign',childIds:[a]}),/verrouillée/);
+  node(p,master).data.positionLocked=true;
+  const unlocked=prepareLinkedEdit(p,session,master,edit({positionLocked:false})).project;
+  assert.equal(node(unlocked,a).data.positionLocked,true);assert.equal(node(unlocked,master).data.positionLocked,false);
+});
