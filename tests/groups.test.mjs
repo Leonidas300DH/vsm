@@ -12,6 +12,7 @@ import {
 } from "../src/services/groups.js";
 import {
   projectGroups,
+  inlineGroupView,
   layoutGroups,
 } from "../src/services/groupProjection.js";
 import { analyze } from "../src/services/analysis.js";
@@ -158,7 +159,37 @@ test("projection preserves canonical edge IDs, independent ports and never rewri
   assert.equal(p.edges.find((e) => e.id === "e0").targetHandle, "in:e0");
   assert.equal(p.edges.find((e) => e.id === "e2").sourceHandle, "out:e2");
   assert.equal(JSON.stringify(s), before);
-  assert.equal(projectGroups(s, { focusId: "g" }).nodes.length, 3);
+  assert.deepEqual(projectGroups(s, { focusId: "g" }), projectGroups(s));
+});
+test("unfolding nested groups keeps frames, neighbours and boundary connections on the full map", () => {
+  const s = group(group(fixture(4)), ["g", "p2"], "outer");
+  const original = structuredClone(s), totals = metrics(s);
+  for (const collapsed of [["outer", "g"], ["g"], [], ["outer"], []]) {
+    const projected = projectGroups(s, { collapsed });
+    const visible = new Set(projected.nodes.map(n => n.id));
+    for (const id of [s.nodes[0].id, "p3", s.nodes.at(-1).id, "outer"]) assert.ok(visible.has(id));
+    assert.equal(visible.has("g"), !collapsed.includes("outer"));
+    assert.equal(visible.has("p0"), !collapsed.includes("outer") && !collapsed.includes("g"));
+    for (const id of ["e0", "e3", "e4"]) assert.ok(projected.edges.some(e => e.id === id));
+    if (!collapsed.length) {
+      assert.equal(projected.edges.length, s.edges.length);
+      assert.ok(projected.nodes.filter(n => n.type === "subprocess").every(n => !n.data.collapsed));
+      for (const node of s.nodes) assert.deepEqual(projected.nodes.find(n => n.id === node.id).position, node.position);
+    }
+    assert.deepEqual(s, original);
+    assert.deepEqual(metrics(s), totals);
+  }
+});
+test("old isolated-view preferences reopen the ancestor path without isolating it or opening siblings", () => {
+  const s = group(group(fixture(4)), ["g", "p2"], "outer");
+  const saved = { focusId: "g", collapsed: ["g", "outer", "other"], custom: 42 };
+  const view = inlineGroupView(s, saved);
+  assert.deepEqual(view, { collapsed: ["other"], custom: 42 });
+  assert.deepEqual(saved.collapsed, ["g", "outer", "other"]);
+  assert.deepEqual(inlineGroupView(s, view), view);
+  assert.deepEqual(inlineGroupView(s), { collapsed: [] });
+  assert.deepEqual(inlineGroupView(s, { focusId: "deleted", collapsed: ["outer"] }), { collapsed: ["outer"] });
+  assert.equal(projectGroups(s, view).nodes.length, s.nodes.length + s.groups.length);
 });
 test("frames include full measured card and satellite extents; collective movement respects locks", () => {
   let s = group(fixture());

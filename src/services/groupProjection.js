@@ -15,9 +15,21 @@ export const nodeSize = (n) => ({
         ) *
           110),
 });
+// Recover old isolated-view preferences as an open path in the complete map.
+export function inlineGroupView(scenario, saved = {}) {
+  const { focusId, ...view } = saved;
+  const parents = groupParents(scenario), open = new Set();
+  let id = focusId;
+  while (id && !open.has(id)) {
+    open.add(id);
+    id = parents.get(id);
+  }
+  return { ...view, collapsed: (view.collapsed || []).filter(id => !open.has(id)) };
+}
+
 export function projectGroups(
   scenario,
-  { collapsed = [], focusId = null } = {},
+  { collapsed = [] } = {},
 ) {
   const groups = new Map((scenario.groups || []).map((g) => [g.id, g])),
     parents = groupParents(scenario),
@@ -77,16 +89,13 @@ export function projectGroups(
       owner.set(id, id);
       return;
     }
-    if (closed.has(id) && id !== focusId) {
+    if (closed.has(id)) {
       for (const leaf of leaves.get(id)) owner.set(leaf, id);
     } else g.members.forEach(walk);
   };
-  const roots =
-    focusId && groups.has(focusId)
-      ? [focusId]
-      : [...scenario.nodes, ...groups.values()]
-          .filter((n) => !parents.has(n.id))
-          .map((n) => n.id);
+  const roots = [...scenario.nodes, ...groups.values()]
+    .filter((n) => !parents.has(n.id))
+    .map((n) => n.id);
   roots.forEach(walk);
   const nodes = scenario.nodes
     .filter((n) => visible.has(n.id))
@@ -103,7 +112,7 @@ export function projectGroups(
     const g = groups.get(id);
     if (!g) continue;
     const b = boxes.get(id),
-      isClosed = closed.has(id) && id !== focusId;
+      isClosed = closed.has(id);
     const boundary = scenario.edges.filter(
       (e) => leaves.get(id).has(e.source) !== leaves.get(id).has(e.target),
     );

@@ -94,7 +94,6 @@
   margin-top: 8px;
 }
 .group-selection,
-.group-breadcrumb,
 .group-message {
   position: absolute;
   z-index: 35;
@@ -162,7 +161,6 @@
   box-shadow: 0 4px 18px #0003;
 }
 .selection-confirm input { width: 155px; }
-.group-back { display:flex; gap:6px; align-items:center; border-right:1px solid var(--c-30434f) !important; border-radius:0 !important; font-weight:600; }
 .step-detail-shortcut { position:absolute; right:0; top:-38px; margin:0; padding:0; opacity:0; pointer-events:none; }
 .process-card:hover .step-detail-shortcut,
 .process-card:focus-within .step-detail-shortcut,
@@ -188,17 +186,6 @@
 .grouped-flow .react-flow__nodesselection-rect { pointer-events: none; }
 .is-selecting .react-flow__node button,
 .is-selecting .react-flow__handle { pointer-events: none; }
-.group-breadcrumb ~ .group-selection {
-  top: 50px;
-}
-.group-breadcrumb {
-  left: 12px;
-  top: 12px;
-}
-.group-breadcrumb span {
-  display: flex;
-  align-items: center;
-}
 .group-message {
   bottom: 70px;
   left: 15px;
@@ -425,10 +412,6 @@
   .draft-workspace > aside {
     flex-basis: 230px;
     width: 230px !important;
-  }
-  .group-breadcrumb {
-    max-width: 95%;
-    overflow: auto;
   }
 }
 

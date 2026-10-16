@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useContext } from 'react';
 import { Handle, Position, useUpdateNodeInternals } from 'reactflow';
-import { Paperclip, AlertTriangle, Plus, User, Workflow, Bot, Box, Trash2, Layers, ZoomIn, SlidersHorizontal } from 'lucide-react';
+import { Paperclip, AlertTriangle, Plus, User, Workflow, Bot, Box, Trash2, Layers, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import { getFile } from '../utils/db';
 import { GroupUIContext } from '../store/groupContext';
 import { displayNumber as fmt } from '../services/analysis';
@@ -219,7 +219,7 @@ const ProcessNode = ({ id, data, selected, aggregate, ports, onOpenDetail }) => 
             </div>
 
             <div className="node-operations">Volume : {displayVolume} · Charge : {aggregate ? fmt(aggregate.workload) : data.process_time_total} min</div>
-            {aggregate && <div className="step-detail-action"><button className="nodrag" onClick={e => {e.stopPropagation(); onOpenDetail();}}><ZoomIn size={14}/>{aggregate.count} sous-étapes · Ouvrir</button>{!aggregate.complete && <small>Indicateurs incomplets · voir le détail</small>}</div>}
+            {aggregate && <div className="step-detail-action"><button className="nodrag" onClick={e => {e.stopPropagation(); onOpenDetail();}}><ChevronDown size={14}/>{aggregate.count} sous-étapes · Déplier</button>{!aggregate.complete && <small>Indicateurs incomplets · voir le détail</small>}</div>}
             {!aggregate && !readOnly && !scoped.isDecomposition && groupUI.decompose && <div className="step-detail-action step-detail-shortcut"><button className="nodrag" title="Détailler cette étape · double-clic sur la carte" onClick={e => {e.stopPropagation(); groupUI.decompose(id);}}><Layers size={14}/>Détailler cette étape</button></div>}
             {/* Attachments */}
             {hasAttachments && (
