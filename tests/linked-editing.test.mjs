@@ -232,3 +232,23 @@ test('closing linked editing stops its session; unrelated projects do not inheri
     assert.notEqual(store.getState().linkedEditSession.masterId,master);
   }finally{controller.close();}
 });
+test('editing a category volume preserves other child categories and per-category metadata',()=>{
+  const {p,master,a,session}=fixture();
+  const source=node(p,master,'in'), child=node(p,a,'in');
+  child.data.volumeItems[0].name='Child category name';child.data.volumeItems[1].value=99;
+  child.data.volumeItems.push({id:'child-only',name:'Specific',value:7});
+  const volumeItems=structuredClone(source.data.volumeItems);volumeItems[0].value=25;
+  const next=prepareLinkedEdit(p,session,master,edit({volumeItems},'in')).project;
+  const items=node(next,a,'in').data.volumeItems;
+  assert.equal(items[0].value,25);assert.equal(items[0].name,'Child category name');assert.equal(items[1].value,99);assert.equal(items[2].value,7);
+});
+test('category addition/removal propagates by ID and missing edited categories block atomically',()=>{
+  const {p,master,a,session}=fixture(), original=node(p,master,'in').data.volumeItems;
+  const added=prepareLinkedEdit(p,session,master,edit({volumeItems:[...original,{id:'new',name:'New',value:2}]},'in')).project;
+  assert.equal(node(added,a,'in').data.volumeItems.at(-1).id,'new');
+  const removed=prepareLinkedEdit(added,session,master,edit({volumeItems:original},'in')).project;
+  assert.equal(node(removed,a,'in').data.volumeItems.length,2);
+  node(p,a,'in').data.volumeItems=[];
+  assert.throws(()=>prepareLinkedEdit(p,session,master,edit({volumeItems:original.map(x=>({...x,value:33}))},'in')),/absente/);
+  assert.equal(node(p,master,'in').data.volumeItems[0].value,10);
+});

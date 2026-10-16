@@ -12,15 +12,40 @@ export function changedFields(before, updates, path = []) {
   return Object.entries(updates).flatMap(([key, value]) => {
     if (!safeKey(key)) throw new Error('Champ non autorisé.');
     const at = [...path, key];
+    // Category rows are entities, not one replaceable value. Editing one volume
+    // must not reset another category's independent volume or metadata.
+    if (key === 'volumeItems' && Array.isArray(value)) {
+      const old = new Map((before?.[key] || []).map(item => [item.id, item]));
+      const next = new Map(value.map(item => [item.id, item]));
+      if (next.size !== value.length || value.some(item => !item.id)) throw new Error('Identifiants de catégories invalides.');
+      return [...new Set([...old.keys(), ...next.keys()])].flatMap(itemId => {
+        if (!next.has(itemId)) return [{ path: at, itemId, operation: 'remove' }];
+        if (!old.has(itemId)) return [{ path: at, itemId, operation: 'add', value: clone(next.get(itemId)) }];
+        const fields = changedFields(old.get(itemId), next.get(itemId));
+        return fields.length ? [{ path: at, itemId, operation: 'update', fields }] : [];
+      });
+    }
     if (object(value)) return changedFields(before?.[key], value, at);
     return signature(before?.[key]) === signature(value) ? [] : [{ path: at, value: clone(value) }];
   });
 }
 function patch(target, fields) {
-  for (const { path, value } of fields) {
+  for (const { path, value, operation, itemId, fields: nestedFields } of fields) {
     let cursor = target;
     for (const key of path.slice(0, -1)) { if (!object(cursor[key])) cursor[key] = {}; cursor = cursor[key]; }
-    cursor[path.at(-1)] = clone(value);
+    const key = path.at(-1);
+    if (operation) {
+      const items = cursor[key] || [];
+      const item = items.find(row => row.id === itemId);
+      if (operation === 'remove') cursor[key] = items.filter(row => row.id !== itemId);
+      else if (operation === 'add') {
+        if (item) throw new Error(`Catégorie déjà présente : ${itemId}.`);
+        cursor[key] = [...items, clone(value)];
+      } else {
+        if (!item) throw new Error(`Catégorie ${itemId} absente : aucune modification appliquée.`);
+        patch(item, nestedFields);
+      }
+    } else cursor[key] = clone(value);
   }
 }
 export function linkedSession(project, saved = project.linkedEditing || {}) {
