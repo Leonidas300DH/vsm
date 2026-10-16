@@ -131,3 +131,19 @@ Les raccourcis Ctrl/Cmd+Z et Ctrl/Cmd+Maj+Z fonctionnent hors des champs de sais
 Le projet complet, ses ressources et le choix du groupe sont sauvegardés et
 transportés dans le fichier VSM. À chaque réouverture de l’atelier, **la propagation
 est en pause**. Il n’existe aucune propagation en arrière-plan hors de cet atelier.
+
+## Sous-processus imbriqués (format 3.1)
+
+La carte conserve son apparence et toutes les étapes métier. Maintenir **Maj** pour sélectionner plusieurs étapes (clics ou rectangle), puis choisir **Regrouper**. Les éléments doivent être connectés et appartenir au même niveau. Le message de diagnostic indique les étapes intermédiaires manquantes.
+
+Un cadre contient les étapes, leurs ressources et les connexions internes. Le chevron replie le cadre en carte de synthèse ; le bouton d’agrandissement ouvre son détail avec un fil d’Ariane. Les groupes peuvent être imbriqués. Les états ouverts/repliés restent des préférences locales, indépendantes des scénarios comparés et de l’édition liée.
+
+**Dissocier** retire seulement le cadre. **Supprimer le contenu** retire les étapes et leurs connexions après aperçu ; les bibliothèques restent conservées. Les deux opérations, ainsi que le déplacement collectif et le regroupement, sont annulables. Un enfant verrouillé bloque le déplacement collectif. Le réagencement horizontal tient compte des cadres et des étiquettes ; s’il ne trouve pas de placement valide, il conserve la carte et affiche le diagnostic.
+
+La synthèse analytique utilise le détail actif. La charge est additionnée une fois par étape élémentaire. Les volumes sont les passages aux frontières, par catégorie, et non une somme des volumes internes ni un décompte garanti de dossiers uniques. Processing time, attentes internes et lead time sont pondérés par les routages. Les attentes des connexions externes ne sont pas attribuées au groupe. Les ressources sont réunies par identifiant, avec les étapes utilisatrices dans l’inspecteur ; aucune capacité supplémentaire n’est créée. Les boucles et données inconnues sont signalées.
+
+Pour détailler une étape, la sélectionner puis choisir **Détailler en sous-étapes**. Ajouter des cartes, modifier leurs propriétés, relier les étapes et associer chaque connexion externe à une étape interne. Les temps ne sont pas inventés. **Enregistrer le brouillon** conserve ce travail sans remplacer l’étape active ; attendre la confirmation de sauvegarde. **Vérifier les écarts** compare les résultats du scénario avant/après. L’activation nécessite des frontières et routages valides, et une acceptation explicite des indicateurs incomplets. L’étape initiale reste consultable comme référence. Une activation avec réagencement forme une seule opération annulable.
+
+Dans l’édition liée, un changement de structure présente les scénarios concernés avant application. Un enfant incompatible bloque la transaction entière. Les brouillons sont préparés localement dans leur scénario ; seule leur activation proposée est répliquée. Modifier un enfant le délie. Les copies de scénarios, modèles réutilisables, fichiers VSM, commentaires, présentations et rapports conservent la hiérarchie. Le dossier d’analyse contient les groupes actifs, sans transmettre les brouillons ni les documents de référence.
+
+Le format 3.1 contient toujours le graphe détaillé à plat. Les anciennes cartes n’acquièrent aucun groupe à l’ouverture. Le nouvel exemple KYC contient un groupe de constitution du dossier et deux sous-groupes.

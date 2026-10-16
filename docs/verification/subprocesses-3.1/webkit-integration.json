@@ -1,0 +1,13 @@
+{
+  "url": "http://127.0.0.1:4174/",
+  "checks": [
+    "KYC nested frame and breadcrumb focus",
+    "Nested collapse and restore on KYC",
+    "PDF downloaded with hierarchy sections",
+    "Portable VSM 3.1 contains nested groups",
+    "Group rename preview propagates to selected linked children",
+    "Child group edit detaches; undo redo remain independent"
+  ],
+  "errors": [],
+  "warnings": []
+}

@@ -1,5 +1,7 @@
+import { applyGroupCommand as applyHierarchyCommand } from '../services/groups';
+import GroupedFlow from './GroupedFlow';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import ReactFlow, { ReactFlowProvider, Background, Controls, getNodesBounds, getViewportForBounds, useNodesInitialized } from 'reactflow';
+import { ReactFlowProvider, Background, Controls, getNodesBounds, getViewportForBounds, useNodesInitialized } from 'reactflow';
 import { Link, Unlink, Pause, Play, X, Undo2, Redo2, Scan, Plus, ArrowDownToLine, PanelRight, Settings2 } from 'lucide-react';
 import useStore from '../store/useStore';
 import { GraphContext } from '../store/graphContext';
@@ -39,15 +41,15 @@ function LinkedMap({ scenario, context, selection, onSelect, onInit, onMove, onR
   const [drag, setDrag] = useState(null);
   const nodes = context.nodes.map(n => ({ ...n, selected: selection?.kind === 'nodes' && selection.id === n.id, draggable: !n.data.positionLocked, ...(drag?.id === n.id ? { position: drag.position } : {}) }));
   const edges = context.edges.map(e => ({ ...e, type: 'flow', selected: selection?.kind === 'edges' && selection.id === e.id, markerEnd: { type: 'arrowclosed' } }));
-  return <GraphContext.Provider value={context}><ReactFlowProvider><ReactFlow
-    nodes={nodes} edges={edges} nodeTypes={nodeTypes} edgeTypes={edgeTypes} onInit={onInit} onMove={onMove}
+  return <GraphContext.Provider value={context}><ReactFlowProvider><GroupedFlow
+    groupScenario={scenario} groupSelection={selection?.kind==='groups'?selection.id:null} onGroupSelect={id=>onSelect('groups',id)} nodes={nodes} edges={edges} nodeTypes={nodeTypes} edgeTypes={edgeTypes} onInit={onInit} onMove={onMove}
     onNodeClick={(_, node) => onSelect('nodes', node.id)} onEdgeClick={(_, edge) => onSelect('edges', edge.id)}
     onNodeDragStart={(_, node) => onSelect('nodes', node.id)} onNodeDrag={(_, node) => setDrag({ id: node.id, position: node.position })}
     onNodeDragStop={(_, node) => { setDrag(null); execute(scenario.id, { type: 'move', id: node.id, position: node.position }); }}
     onConnect={connection => execute(scenario.id, { type: 'insert', edges: [{ ...connection, id: uid(), type: 'flow', data: { routingType: 'global', percentage: 100 } }] })}
     deleteKeyCode={null} multiSelectionKeyCode={null} selectionKeyCode={null} minZoom={.02} maxZoom={2} fitView fitViewOptions={{ padding: .15 }}>
     <Ready onReady={onReady}/><Background color={context.theme === 'light' ? '#c4d1da' : '#2b404d'} gap={24}/><Controls showInteractive={false}/>
-  </ReactFlow></ReactFlowProvider></GraphContext.Provider>;
+  </GroupedFlow></ReactFlowProvider></GraphContext.Provider>;
 }
 
 function useScenarioContext(scenario, state, session, selection, execute, detach, group, setNotice) {
@@ -57,6 +59,18 @@ function useScenarioContext(scenario, state, session, selection, execute, detach
     const update = (kind, id, data) => execute(scenario.id, { type: 'patch', kind, id, updates: { data } });
     const getNode = id => useStore.getState().getWorkspaceProject().scenarios.find(s => s.id === scenario.id).nodes.find(n => n.id === id);
     return {
+      applyGroupCommand: async operation => {
+        if (['saveDraft','discardDraft'].includes(operation.type)) {
+          detach(scenario.id);
+          const p = useStore.getState().getWorkspaceProject();
+          const i = p.scenarios.findIndex(s=>s.id===scenario.id);
+          p.scenarios[i] = applyHierarchyCommand(p.scenarios[i], operation);
+          useStore.getState().editWorkspace(p);
+          await useStore.getState().flushWorkspace();
+          return;
+        }
+        return execute(scenario.id, { type: 'hierarchy', operation });
+      },
       ...graph, tools: scenario.tools || [], actors: scenario.actors || [], knowledge: scenario.knowledge || [],
       nodes: graph.nodes.map(n => ({ ...n, selected: chosen?.kind === 'nodes' && chosen.id === n.id })),
       edges: graph.edges.map(e => ({ ...e, selected: chosen?.kind === 'edges' && chosen.id === e.id })),
@@ -192,7 +206,7 @@ export default function LinkedScenarioEditor({ onClose }) {
         {visible.map((scenario, index) => {
           const isMaster = index === 0, isLinked = session.linkedIds.includes(scenario.id);
           const chosen = selection && (selection.scenarioId === scenario.id || (selection.scenarioId === session.masterId && isLinked)) ? selection : null;
-          const missing = chosen && !scenario[chosen.kind].some(x => x.id === chosen.id);
+          const missing = chosen && !(scenario[chosen.kind] || []).some(x => x.id === chosen.id);
           return <section className={`linked-pane ${isMaster ? 'is-master' : ''}`} data-scenario-id={scenario.id} key={scenario.id} aria-label={`Carte ${scenario.name}`}>
             <header className="linked-pane-header"><b className="linked-role">{isMaster ? 'MAÎTRE' : isLinked ? 'LIÉ' : 'INDÉPENDANT'}</b><strong>{scenario.name}</strong>{missing && <span className="linked-missing">Élément absent de ce scénario</span>}
               {!isMaster && <><button aria-label={`${isLinked ? 'Délier' : 'Relier'} ${scenario.name}`} aria-pressed={isLinked} onClick={() => { configure({ linkedIds: isLinked ? session.linkedIds.filter(id => id !== scenario.id) : [...session.linkedIds, scenario.id] }); setNotice(isLinked ? `${scenario.name} est indépendant.` : `${scenario.name} est lié pour les prochaines modifications ; ses différences actuelles sont conservées.`); }}>{isLinked ? <Link size={13}/> : <Unlink size={13}/>} {isLinked ? 'Délier' : 'Relier'}</button><button onClick={() => execute(master.id, { type: 'realign', childIds: [scenario.id] })} title="Prévisualiser le réalignement des éléments communs"><ArrowDownToLine size={13}/>Réaligner…</button></>}

@@ -1,3 +1,5 @@
+import { applyGroupCommand } from './groups.js';
+import { layoutGroups } from './groupProjection.js';
 import { linkedSession, prepareLinkedEdit, needsLinkedPreview } from './linkedEditing.js';
 import { calculateMetrics } from "../utils/calculations.js";
 import {
@@ -42,6 +44,7 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
     return {
       ...p,
       ...Object.fromEntries(graphKeys.map((k) => [k, snapshot[k]])),
+      groups: snapshot.groups, decompositionDrafts: snapshot.decompositionDrafts, retiredGroups: snapshot.retiredGroups,
       title: s.projectTitle,
     };
   };
@@ -168,6 +171,12 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
       store.getState().editWorkspace(next);
       await flush();
       return next.activeScenarioId;
+    },
+    applyGroupCommand: (command) => {
+      const project = capture(), index = project.scenarios.findIndex(s => s.id === project.activeScenarioId);
+      project.scenarios[index] = command.type === 'layoutGroups' ? layoutGroups(project.scenarios[index]) : applyGroupCommand(project.scenarios[index], command);
+      if (command.arrange) project.scenarios[index] = layoutGroups(project.scenarios[index]);
+      store.getState().editWorkspace(project);
     },
     linkedEditSession: null,
     endLinkedEditing: () => {
@@ -352,7 +361,7 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
     window.addEventListener("pagehide", () => flush().catch(() => {}));
     window.addEventListener("keydown", (e) => {
       if (
-        !document.querySelector(".scenario-comparison, .linked-editor") &&
+        !document.querySelector(".scenario-comparison, .linked-editor, .decomposition-editor") &&
         (e.metaKey || e.ctrlKey) &&
         e.key.toLowerCase() === "z" &&
         !["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)

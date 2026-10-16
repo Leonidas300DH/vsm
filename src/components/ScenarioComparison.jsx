@@ -1,5 +1,6 @@
+import GroupedFlow from './GroupedFlow';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import ReactFlow, { ReactFlowProvider, Background, Controls, useNodesInitialized, getNodesBounds, getViewportForBounds } from 'reactflow';
+import { ReactFlowProvider, Background, Controls, useNodesInitialized, getNodesBounds, getViewportForBounds } from 'reactflow';
 import { useEffect } from 'react';
 import { X, Rows2, Columns2, Link, Unlink, Scan, ChevronDown, ChevronUp } from 'lucide-react';
 import useStore from '../store/useStore';
@@ -24,13 +25,13 @@ function ComparisonMap({ scenario, changes, selected, onSelect, onInit, onMove, 
       data: { ...node.data, comparisonBadge: change && changeLabels[change.type] } };
   }), [graph, changes, scenario, selected]);
   const edges = useMemo(() => graph.edges.map(edge => ({ ...edge, type: 'flow', selected: false, className: changes.some(c => c.kind === 'edges' && c.id === edge.id) ? 'comparison-changed' : '', markerEnd: { type: 'arrowclosed' } })), [graph, changes]);
-  return <GraphContext.Provider value={context}><ReactFlowProvider><ReactFlow
-    nodes={nodes} edges={edges} nodeTypes={nodeTypes} edgeTypes={edgeTypes}
+  return <GraphContext.Provider value={context}><ReactFlowProvider><GroupedFlow
+    groupScenario={scenario} groupReadOnly nodes={nodes} edges={edges} nodeTypes={nodeTypes} edgeTypes={edgeTypes}
     onInit={onInit} onMove={onMove} onNodeClick={(_, node) => onSelect(node.id)}
     nodesDraggable={false} nodesConnectable={false} edgesUpdatable={false} deleteKeyCode={null}
     selectionKeyCode={null} multiSelectionKeyCode={null} minZoom={0.02} maxZoom={2} fitView fitViewOptions={{ padding: .12 }}>
     <Ready onReady={onReady}/><Background color={theme === 'light' ? '#c4d1da' : '#2b404d'} gap={24}/><Controls showInteractive={false}/>
-  </ReactFlow></ReactFlowProvider></GraphContext.Provider>;
+  </GroupedFlow></ReactFlowProvider></GraphContext.Provider>;
 }
 
 export default function ScenarioComparison({ project, onClose, onLinkedEdit }) {
@@ -117,7 +118,7 @@ export default function ScenarioComparison({ project, onClose, onLinkedEdit }) {
     {details && <div className="comparison-details">
       <table><thead><tr><th>Indicateur</th><th>{a.name}</th><th>{b.name}</th><th>Écart</th><th>%</th></tr></thead><tbody>{result.metrics.map(m => <tr key={m.key}><th>{m.label}</th><td>{fmt(m.before)} min</td><td>{fmt(m.after)} min</td><td>{fmt(m.delta)} min</td><td>{m.percent == null ? '—' : `${fmt(m.percent)} %`}</td></tr>)}</tbody></table>
       <p>Charge sur la période du scénario ; délais par dossier pondérés selon les routages. Les données inconnues restent inconnues. Les capacités et hypothèses sont consultables dans l’Atelier de chaque onglet.</p>
-      {result.changes.length === 0 ? <p>Aucune différence métier.</p> : <div className="comparison-change-list">{result.changes.map(c => <button key={`${c.kind}:${c.id}`} onClick={() => focusNodes([...new Set([...affectedNodes(c, a), ...affectedNodes(c, b)])])}><span className="change-badge">{changeLabels[c.type]}</span>{c.label}<small>{c.kind === 'nodes' ? 'Étape' : c.kind === 'edges' ? 'Connexion' : c.kind === 'tools' ? 'Outil' : c.kind === 'actors' ? 'Acteur' : 'Connaissance'}</small></button>)}</div>}
+      {result.changes.length === 0 ? <p>Aucune différence métier.</p> : <div className="comparison-change-list">{result.changes.map(c => <button key={`${c.kind}:${c.id}`} onClick={() => focusNodes([...new Set([...affectedNodes(c, a), ...affectedNodes(c, b)])])}><span className="change-badge">{changeLabels[c.type]}</span>{c.label}<small>{c.structural ? 'Structure / regroupement' : c.kind === 'nodes' ? 'Étape' : c.kind === 'edges' ? 'Connexion' : c.kind === 'tools' ? 'Outil' : c.kind === 'actors' ? 'Acteur' : 'Connaissance'}</small></button>)}</div>}
     </div>}
   </section>;
 }

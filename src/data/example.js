@@ -71,5 +71,10 @@ export function createExample() {
     node.data.measurements = Object.fromEntries([...Object.keys(node.data.cycleTimes).map(id=>`cycle:${id}`),'wait','capacity'].map(key=>[key,{unit:'min',status:'estimated',scope:'Par dossier, période : jour ouvré',source:'Exemple fictif KYC',date:'2026-10-15',owner:'Démonstration'}]));
   }
   for (const edge of example.edges) edge.data.wait_time = 0;
+  example.groups = [
+    { id:'kyc-documents', name:'Collecte documentaire', members:['intake','portal','extract'] },
+    { id:'kyc-completeness', name:'Complétude et compléments', members:['complete','request','recheck'] },
+    { id:'kyc-admission', name:'Constituer le dossier KYC', members:['kyc-documents','kyc-completeness'] },
+  ];
   return example;
 }

@@ -2,7 +2,7 @@ import { getFile, saveFile } from "../utils/db.js";
 export function attachmentReferences(project) {
   const refs = new Map();
   for (const scenario of project.scenarios || [project])
-    for (const node of scenario.nodes)
+    for (const node of [...scenario.nodes, ...(scenario.groups || []).flatMap(g => [g.reference, g.draftReference].filter(Boolean)), ...(scenario.decompositionDrafts || []).flatMap(d => [...(d.nodes || []), d.reference].filter(Boolean)), ...(scenario.retiredGroups || []).flatMap(g => [g.reference, g.draftReference].filter(Boolean))])
       for (const a of node.data.attachments || []) refs.set(a.id, a);
   return [...refs.values()];
 }

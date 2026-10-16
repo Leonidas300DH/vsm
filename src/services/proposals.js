@@ -75,6 +75,7 @@ export function analysisPackage(
       engine: scenario.engine,
       nodes: clean.nodes,
       edges: clean.edges,
+      groups: (scenario.groups || []).map(g => ({ id: g.id, name: g.name, members: [...g.members] })),
       ...resources,
     },
     constraints,

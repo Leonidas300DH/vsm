@@ -1,0 +1,3493 @@
+{
+  "title": "KYC · Entrée en relation & vigilance renforcée",
+  "tools": [
+    {
+      "id": "kyc-web",
+      "name": "Internet",
+      "icon": "globe",
+      "description": "Recherche de sociétés, registres publics et sources ouvertes"
+    },
+    {
+      "id": "kyc-mail",
+      "name": "Outlook",
+      "icon": "brand-outlook",
+      "description": "Échanges client et demandes de justificatifs"
+    },
+    {
+      "id": "kyc-docs",
+      "name": "SharePoint",
+      "icon": "brand-sharepoint",
+      "description": "Dossier documentaire et archivage des preuves"
+    },
+    {
+      "id": "kyc-auto",
+      "name": "Power Automate",
+      "icon": "brand-power-automate",
+      "description": "Notifications et orchestration des tâches"
+    },
+    {
+      "id": "kyc-case",
+      "name": "Excel",
+      "icon": "brand-excel",
+      "description": "Rapprochements, grille de contrôle et suivi des dossiers"
+    },
+    {
+      "id": "kyc-ocr",
+      "name": "OCR documentaire",
+      "icon": "scan",
+      "description": "Extraction et rapprochement des pièces"
+    },
+    {
+      "id": "kyc-screening",
+      "name": "World-Check · screening",
+      "icon": "shield",
+      "description": "Recherche PEP et sanctions"
+    },
+    {
+      "id": "kyc-core",
+      "name": "Core Banking",
+      "icon": "database",
+      "description": "Référentiel client"
+    }
+  ],
+  "actors": [
+    {
+      "id": "kyc-analyst",
+      "name": "Analyste KYC",
+      "team": "Entrée en relation",
+      "scope": "internal",
+      "description": "Collecte et vérification du dossier",
+      "headcount": 5,
+      "availableTime": 480
+    },
+    {
+      "id": "kyc-compliance",
+      "name": "Responsable conformité",
+      "team": "Conformité",
+      "scope": "external",
+      "description": "Revue et arbitrage des dossiers sensibles",
+      "headcount": 2,
+      "availableTime": 480
+    }
+  ],
+  "knowledge": [
+    {
+      "id": "kyc-policy",
+      "name": "Politique KYC",
+      "description": "Procédure illustrative d’entrée en relation"
+    },
+    {
+      "id": "kyc-risk",
+      "name": "Matrice des risques",
+      "description": "Critères illustratifs de vigilance renforcée"
+    },
+    {
+      "id": "kyc-evidence",
+      "name": "Référentiel des pièces",
+      "description": "Pièces attendues et contrôles de cohérence"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "start",
+      "type": "startEnd",
+      "position": {
+        "x": 0,
+        "y": -65
+      },
+      "data": {
+        "type": "start",
+        "label": "Dossiers KYC entrants",
+        "description": "100 dossiers/jour · Données fictives",
+        "volumeItems": [
+          {
+            "id": "retail",
+            "name": "Particuliers",
+            "value": 70,
+            "color": "#8fbfd1"
+          },
+          {
+            "id": "business",
+            "name": "Entreprises",
+            "value": 30,
+            "color": "#d5b375"
+          }
+        ]
+      }
+    },
+    {
+      "id": "intake",
+      "type": "process",
+      "position": {
+        "x": 1004,
+        "y": -197
+      },
+      "data": {
+        "label": "Collecter les pièces",
+        "subtype": "standard",
+        "executionMode": "step",
+        "description": "Identité, adresse, activité et pièces société",
+        "toolsUsed": [
+          "kyc-docs"
+        ],
+        "actorsUsed": [
+          "kyc-analyst"
+        ],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 4,
+          "business": 8
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "actorAllocations": {
+          "kyc-analyst": 0.1
+        },
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "extract",
+      "type": "process",
+      "position": {
+        "x": 2884,
+        "y": -197
+      },
+      "data": {
+        "label": "AI · Extraire & rapprocher",
+        "subtype": "ai",
+        "executionMode": "step",
+        "description": "Extraction documentaire et incohérences à vérifier",
+        "toolsUsed": [
+          "kyc-ocr"
+        ],
+        "actorsUsed": [],
+        "knowledgeUsed": [
+          "kyc-evidence"
+        ],
+        "cycleTimes": {
+          "retail": 0.5,
+          "business": 1.5
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "technicalCapacity": 480,
+        "actorAllocations": {},
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "complete",
+      "type": "process",
+      "position": {
+        "x": 3888,
+        "y": -197
+      },
+      "data": {
+        "label": "Contrôler la complétude",
+        "subtype": "standard",
+        "executionMode": "step",
+        "description": "Séparer les dossiers complets et incomplets",
+        "toolsUsed": [
+          "kyc-case"
+        ],
+        "actorsUsed": [
+          "kyc-analyst"
+        ],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 2,
+          "business": 4
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "actorAllocations": {
+          "kyc-analyst": 0.1
+        },
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "request",
+      "type": "process",
+      "position": {
+        "x": 4828,
+        "y": -197
+      },
+      "data": {
+        "label": "Demander les compléments",
+        "subtype": "standard",
+        "executionMode": "step",
+        "description": "Demande ciblée de pièces manquantes",
+        "toolsUsed": [
+          "kyc-mail"
+        ],
+        "actorsUsed": [
+          "kyc-analyst"
+        ],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 5,
+          "business": 10
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "actorAllocations": {
+          "kyc-analyst": 0.1
+        },
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "recheck",
+      "type": "process",
+      "position": {
+        "x": 5768,
+        "y": -197
+      },
+      "data": {
+        "label": "Vérifier les compléments",
+        "subtype": "standard",
+        "executionMode": "step",
+        "description": "Réintégration après contrôle documentaire",
+        "toolsUsed": [
+          "kyc-case"
+        ],
+        "actorsUsed": [
+          "kyc-analyst"
+        ],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 3,
+          "business": 6
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "actorAllocations": {
+          "kyc-analyst": 0.1
+        },
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "screen",
+      "type": "process",
+      "position": {
+        "x": 8376,
+        "y": -173
+      },
+      "data": {
+        "label": "AI · Préparer le screening",
+        "subtype": "ai",
+        "executionMode": "step",
+        "description": "Rapprochements PEP, sanctions et homonymes à examiner",
+        "toolsUsed": [
+          "kyc-case"
+        ],
+        "actorsUsed": [],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 1,
+          "business": 3
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "technicalCapacity": 480,
+        "actorAllocations": {},
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "risk",
+      "type": "process",
+      "position": {
+        "x": 10256,
+        "y": -178
+      },
+      "data": {
+        "label": "Qualifier le risque",
+        "subtype": "standard",
+        "executionMode": "step",
+        "description": "Routage illustratif validé par un analyste",
+        "toolsUsed": [
+          "kyc-case",
+          "kyc-web"
+        ],
+        "actorsUsed": [
+          "kyc-analyst"
+        ],
+        "knowledgeUsed": [
+          "kyc-risk"
+        ],
+        "cycleTimes": {
+          "retail": 5,
+          "business": 12
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "actorAllocations": {
+          "kyc-analyst": 0.1
+        },
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "standard",
+      "type": "process",
+      "position": {
+        "x": 11737,
+        "y": 717
+      },
+      "data": {
+        "label": "Vigilance standard",
+        "subtype": "standard",
+        "executionMode": "step",
+        "description": "Revue proportionnée au profil de risque",
+        "toolsUsed": [
+          "kyc-case"
+        ],
+        "actorsUsed": [
+          "kyc-analyst"
+        ],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 6,
+          "business": 15
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "actorAllocations": {
+          "kyc-analyst": 0.1
+        },
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "enhanced",
+      "type": "process",
+      "position": {
+        "x": 11737,
+        "y": -178
+      },
+      "data": {
+        "label": "Vigilance renforcée",
+        "subtype": "actor",
+        "executionMode": "step",
+        "description": "Origine des fonds, structure et bénéficiaires effectifs",
+        "toolsUsed": [
+          "kyc-web",
+          "kyc-case"
+        ],
+        "actorsUsed": [
+          "kyc-compliance"
+        ],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 25,
+          "business": 60
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "actorAllocations": {
+          "kyc-compliance": 0.5
+        },
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "synthesis",
+      "type": "process",
+      "position": {
+        "x": 13617,
+        "y": -173
+      },
+      "data": {
+        "label": "AI · Synthèse de preuves",
+        "subtype": "ai",
+        "executionMode": "step",
+        "description": "Synthèse sourcée ; aucune décision automatique",
+        "toolsUsed": [
+          "kyc-case"
+        ],
+        "actorsUsed": [],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 2,
+          "business": 5
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "technicalCapacity": 480,
+        "actorAllocations": {},
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "decision",
+      "type": "process",
+      "position": {
+        "x": 14557,
+        "y": -173
+      },
+      "data": {
+        "label": "Décision de conformité",
+        "subtype": "standard",
+        "executionMode": "step",
+        "description": "Décision humaine : accepter ou refuser",
+        "toolsUsed": [
+          "kyc-case"
+        ],
+        "actorsUsed": [
+          "kyc-analyst"
+        ],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 4,
+          "business": 10
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "actorAllocations": {
+          "kyc-analyst": 0.1
+        },
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "activate",
+      "type": "process",
+      "position": {
+        "x": 16038,
+        "y": -173
+      },
+      "data": {
+        "label": "Activer la relation",
+        "subtype": "standard",
+        "executionMode": "step",
+        "description": "Enregistrement du dossier accepté et plan de revue",
+        "toolsUsed": [
+          "kyc-case"
+        ],
+        "actorsUsed": [
+          "kyc-analyst"
+        ],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 3,
+          "business": 8
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "actorAllocations": {
+          "kyc-analyst": 0.1
+        },
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "notify",
+      "type": "process",
+      "position": {
+        "x": 16038,
+        "y": 717
+      },
+      "data": {
+        "label": "Notifier & clôturer",
+        "subtype": "standard",
+        "executionMode": "step",
+        "description": "Traitement du refus selon la procédure interne",
+        "toolsUsed": [
+          "kyc-case"
+        ],
+        "actorsUsed": [
+          "kyc-analyst"
+        ],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 3,
+          "business": 5
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "actorAllocations": {
+          "kyc-analyst": 0.1
+        },
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "archive",
+      "type": "process",
+      "position": {
+        "x": 17918,
+        "y": -178
+      },
+      "data": {
+        "label": "Constituer la piste d’audit",
+        "subtype": "standard",
+        "executionMode": "step",
+        "description": "Décision, justificatifs et échéance de revue",
+        "toolsUsed": [
+          "kyc-docs",
+          "kyc-auto"
+        ],
+        "actorsUsed": [
+          "kyc-analyst"
+        ],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 2,
+          "business": 4
+        },
+        "availableTime": 480,
+        "wait_time": 0,
+        "actorAllocations": {
+          "kyc-analyst": 0.1
+        },
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "end",
+      "type": "startEnd",
+      "position": {
+        "x": 18858,
+        "y": -65
+      },
+      "data": {
+        "type": "end",
+        "label": "Relation activée",
+        "description": "Dossier archivé · Revue planifiée"
+      }
+    },
+    {
+      "id": "rejected",
+      "type": "startEnd",
+      "position": {
+        "x": 18858,
+        "y": 825
+      },
+      "data": {
+        "type": "end",
+        "label": "Relation refusée",
+        "description": "Décision documentée"
+      }
+    },
+    {
+      "id": "portal",
+      "type": "process",
+      "position": {
+        "x": 1944,
+        "y": -197
+      },
+      "data": {
+        "label": "Portail documentaire",
+        "subtype": "it",
+        "executionMode": "step",
+        "description": "Dépôt et contrôle technique des pièces",
+        "toolsUsed": [
+          "kyc-ocr"
+        ],
+        "actorsUsed": [],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 0.2,
+          "business": 0.5
+        },
+        "availableTime": 480,
+        "wait_time": 2,
+        "technicalCapacity": 480,
+        "actorAllocations": {},
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "provider",
+      "type": "process",
+      "position": {
+        "x": 9316,
+        "y": -173
+      },
+      "data": {
+        "label": "Connecteur de screening",
+        "subtype": "it",
+        "executionMode": "step",
+        "description": "Requêtes vers les référentiels et journalisation",
+        "toolsUsed": [
+          "kyc-screening"
+        ],
+        "actorsUsed": [],
+        "knowledgeUsed": [
+          "kyc-risk"
+        ],
+        "cycleTimes": {
+          "retail": 0.3,
+          "business": 0.6
+        },
+        "availableTime": 480,
+        "wait_time": 3,
+        "technicalCapacity": 480,
+        "actorAllocations": {},
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "core",
+      "type": "process",
+      "position": {
+        "x": 16978,
+        "y": -173
+      },
+      "data": {
+        "label": "API Core Banking",
+        "subtype": "it",
+        "executionMode": "step",
+        "description": "Synchronisation du référentiel client",
+        "toolsUsed": [
+          "kyc-core"
+        ],
+        "actorsUsed": [],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 0.2,
+          "business": 0.4
+        },
+        "availableTime": 480,
+        "wait_time": 1,
+        "technicalCapacity": 480,
+        "actorAllocations": {},
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    },
+    {
+      "id": "officer",
+      "type": "process",
+      "position": {
+        "x": 12677,
+        "y": -173
+      },
+      "data": {
+        "label": "Arbitrer le dossier sensible",
+        "subtype": "actor",
+        "executionMode": "step",
+        "description": "Appui humain aux dossiers sensibles",
+        "toolsUsed": [
+          "kyc-case"
+        ],
+        "actorsUsed": [
+          "kyc-compliance"
+        ],
+        "knowledgeUsed": [
+          "kyc-policy"
+        ],
+        "cycleTimes": {
+          "retail": 5,
+          "business": 15
+        },
+        "availableTime": 480,
+        "wait_time": 30,
+        "actorAllocations": {
+          "kyc-compliance": 0.5
+        },
+        "measurements": {
+          "cycle:retail": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "cycle:business": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "wait": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          },
+          "capacity": {
+            "unit": "min",
+            "status": "estimated",
+            "scope": "Par dossier, période : jour ouvré",
+            "source": "Exemple fictif KYC",
+            "date": "2026-10-15",
+            "owner": "Démonstration"
+          }
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "start-intake",
+      "source": "start",
+      "target": "intake",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "intake-portal",
+      "source": "intake",
+      "target": "portal",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "portal-extract",
+      "source": "portal",
+      "target": "extract",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "extract-complete",
+      "source": "extract",
+      "target": "complete",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "complete-screen",
+      "source": "complete",
+      "target": "screen",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "item",
+        "percentage": 100,
+        "itemRouting": {
+          "retail": 85,
+          "business": 70
+        },
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "complete-request",
+      "source": "complete",
+      "target": "request",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "item",
+        "percentage": 100,
+        "itemRouting": {
+          "retail": 15,
+          "business": 30
+        },
+        "itemData": {
+          "retail": {
+            "wait": 120,
+            "painPoint": "Justificatif illisible"
+          },
+          "business": {
+            "wait": 480,
+            "painPoint": "Pièces de bénéficiaires effectifs manquantes"
+          }
+        },
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "request-recheck",
+      "source": "request",
+      "target": "recheck",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "recheck-screen",
+      "source": "recheck",
+      "target": "screen",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "screen-provider",
+      "source": "screen",
+      "target": "provider",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "provider-risk",
+      "source": "provider",
+      "target": "risk",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "risk-standard",
+      "source": "risk",
+      "target": "standard",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "item",
+        "percentage": 100,
+        "itemRouting": {
+          "retail": 90,
+          "business": 60
+        },
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "risk-enhanced",
+      "source": "risk",
+      "target": "enhanced",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "item",
+        "percentage": 100,
+        "itemRouting": {
+          "retail": 10,
+          "business": 40
+        },
+        "itemData": {
+          "business": {
+            "wait": 240,
+            "inventory": "Dossiers en revue renforcée",
+            "painPoint": "Structure de détention complexe"
+          }
+        },
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "enhanced-officer",
+      "source": "enhanced",
+      "target": "officer",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "officer-synthesis",
+      "source": "officer",
+      "target": "synthesis",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "synthesis-decision",
+      "source": "synthesis",
+      "target": "decision",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "standard-decision",
+      "source": "standard",
+      "target": "decision",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "decision-activate",
+      "source": "decision",
+      "target": "activate",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "item",
+        "percentage": 100,
+        "itemRouting": {
+          "retail": 98,
+          "business": 95
+        },
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "decision-notify",
+      "source": "decision",
+      "target": "notify",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "item",
+        "percentage": 100,
+        "itemRouting": {
+          "retail": 2,
+          "business": 5
+        },
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "activate-core",
+      "source": "activate",
+      "target": "core",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "core-archive",
+      "source": "core",
+      "target": "archive",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "archive-end",
+      "source": "archive",
+      "target": "end",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    },
+    {
+      "id": "notify-rejected",
+      "source": "notify",
+      "target": "rejected",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#67818f"
+      },
+      "data": {
+        "routingType": "global",
+        "percentage": 100,
+        "itemData": {},
+        "wait_time": 0
+      }
+    }
+  ],
+  "groups": [
+    {
+      "id": "kyc-documents",
+      "name": "Collecte documentaire",
+      "members": [
+        "intake",
+        "portal",
+        "extract"
+      ]
+    },
+    {
+      "id": "kyc-completeness",
+      "name": "Complétude et compléments",
+      "members": [
+        "complete",
+        "request",
+        "recheck"
+      ]
+    },
+    {
+      "id": "kyc-admission",
+      "name": "Constituer le dossier KYC",
+      "members": [
+        "kyc-documents",
+        "kyc-completeness"
+      ]
+    }
+  ],
+  "id": "b1732c36-a6c8-406c-adc9-877f04a90c2f",
+  "meta": {
+    "version": "3.1",
+    "engine": "legacy-2"
+  },
+  "scenarios": [
+    {
+      "id": "5cb2fed0-10e0-4471-b445-f622ae40cee2",
+      "name": "Baseline",
+      "revision": 0,
+      "engine": "legacy-2",
+      "groups": [
+        {
+          "id": "kyc-documents",
+          "name": "Collecte documentaire",
+          "members": [
+            "intake",
+            "portal",
+            "extract"
+          ]
+        },
+        {
+          "id": "kyc-completeness",
+          "name": "Complétude et compléments",
+          "members": [
+            "complete",
+            "request",
+            "recheck"
+          ]
+        },
+        {
+          "id": "kyc-admission",
+          "name": "Constituer le dossier KYC",
+          "members": [
+            "kyc-documents",
+            "kyc-completeness"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "id": "start",
+          "type": "startEnd",
+          "position": {
+            "x": 0,
+            "y": -65
+          },
+          "data": {
+            "type": "start",
+            "label": "Dossiers KYC entrants",
+            "description": "100 dossiers/jour · Données fictives",
+            "volumeItems": [
+              {
+                "id": "retail",
+                "name": "Particuliers",
+                "value": 70,
+                "color": "#8fbfd1"
+              },
+              {
+                "id": "business",
+                "name": "Entreprises",
+                "value": 30,
+                "color": "#d5b375"
+              }
+            ]
+          }
+        },
+        {
+          "id": "intake",
+          "type": "process",
+          "position": {
+            "x": 1004,
+            "y": -197
+          },
+          "data": {
+            "label": "Collecter les pièces",
+            "subtype": "standard",
+            "executionMode": "step",
+            "description": "Identité, adresse, activité et pièces société",
+            "toolsUsed": [
+              "kyc-docs"
+            ],
+            "actorsUsed": [
+              "kyc-analyst"
+            ],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 4,
+              "business": 8
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "actorAllocations": {
+              "kyc-analyst": 0.1
+            },
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "extract",
+          "type": "process",
+          "position": {
+            "x": 2884,
+            "y": -197
+          },
+          "data": {
+            "label": "AI · Extraire & rapprocher",
+            "subtype": "ai",
+            "executionMode": "step",
+            "description": "Extraction documentaire et incohérences à vérifier",
+            "toolsUsed": [
+              "kyc-ocr"
+            ],
+            "actorsUsed": [],
+            "knowledgeUsed": [
+              "kyc-evidence"
+            ],
+            "cycleTimes": {
+              "retail": 0.5,
+              "business": 1.5
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "technicalCapacity": 480,
+            "actorAllocations": {},
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "complete",
+          "type": "process",
+          "position": {
+            "x": 3888,
+            "y": -197
+          },
+          "data": {
+            "label": "Contrôler la complétude",
+            "subtype": "standard",
+            "executionMode": "step",
+            "description": "Séparer les dossiers complets et incomplets",
+            "toolsUsed": [
+              "kyc-case"
+            ],
+            "actorsUsed": [
+              "kyc-analyst"
+            ],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 2,
+              "business": 4
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "actorAllocations": {
+              "kyc-analyst": 0.1
+            },
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "request",
+          "type": "process",
+          "position": {
+            "x": 4828,
+            "y": -197
+          },
+          "data": {
+            "label": "Demander les compléments",
+            "subtype": "standard",
+            "executionMode": "step",
+            "description": "Demande ciblée de pièces manquantes",
+            "toolsUsed": [
+              "kyc-mail"
+            ],
+            "actorsUsed": [
+              "kyc-analyst"
+            ],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 5,
+              "business": 10
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "actorAllocations": {
+              "kyc-analyst": 0.1
+            },
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "recheck",
+          "type": "process",
+          "position": {
+            "x": 5768,
+            "y": -197
+          },
+          "data": {
+            "label": "Vérifier les compléments",
+            "subtype": "standard",
+            "executionMode": "step",
+            "description": "Réintégration après contrôle documentaire",
+            "toolsUsed": [
+              "kyc-case"
+            ],
+            "actorsUsed": [
+              "kyc-analyst"
+            ],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 3,
+              "business": 6
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "actorAllocations": {
+              "kyc-analyst": 0.1
+            },
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "screen",
+          "type": "process",
+          "position": {
+            "x": 8376,
+            "y": -173
+          },
+          "data": {
+            "label": "AI · Préparer le screening",
+            "subtype": "ai",
+            "executionMode": "step",
+            "description": "Rapprochements PEP, sanctions et homonymes à examiner",
+            "toolsUsed": [
+              "kyc-case"
+            ],
+            "actorsUsed": [],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 1,
+              "business": 3
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "technicalCapacity": 480,
+            "actorAllocations": {},
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "risk",
+          "type": "process",
+          "position": {
+            "x": 10256,
+            "y": -178
+          },
+          "data": {
+            "label": "Qualifier le risque",
+            "subtype": "standard",
+            "executionMode": "step",
+            "description": "Routage illustratif validé par un analyste",
+            "toolsUsed": [
+              "kyc-case",
+              "kyc-web"
+            ],
+            "actorsUsed": [
+              "kyc-analyst"
+            ],
+            "knowledgeUsed": [
+              "kyc-risk"
+            ],
+            "cycleTimes": {
+              "retail": 5,
+              "business": 12
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "actorAllocations": {
+              "kyc-analyst": 0.1
+            },
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "standard",
+          "type": "process",
+          "position": {
+            "x": 11737,
+            "y": 717
+          },
+          "data": {
+            "label": "Vigilance standard",
+            "subtype": "standard",
+            "executionMode": "step",
+            "description": "Revue proportionnée au profil de risque",
+            "toolsUsed": [
+              "kyc-case"
+            ],
+            "actorsUsed": [
+              "kyc-analyst"
+            ],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 6,
+              "business": 15
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "actorAllocations": {
+              "kyc-analyst": 0.1
+            },
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "enhanced",
+          "type": "process",
+          "position": {
+            "x": 11737,
+            "y": -178
+          },
+          "data": {
+            "label": "Vigilance renforcée",
+            "subtype": "actor",
+            "executionMode": "step",
+            "description": "Origine des fonds, structure et bénéficiaires effectifs",
+            "toolsUsed": [
+              "kyc-web",
+              "kyc-case"
+            ],
+            "actorsUsed": [
+              "kyc-compliance"
+            ],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 25,
+              "business": 60
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "actorAllocations": {
+              "kyc-compliance": 0.5
+            },
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "synthesis",
+          "type": "process",
+          "position": {
+            "x": 13617,
+            "y": -173
+          },
+          "data": {
+            "label": "AI · Synthèse de preuves",
+            "subtype": "ai",
+            "executionMode": "step",
+            "description": "Synthèse sourcée ; aucune décision automatique",
+            "toolsUsed": [
+              "kyc-case"
+            ],
+            "actorsUsed": [],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 2,
+              "business": 5
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "technicalCapacity": 480,
+            "actorAllocations": {},
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "decision",
+          "type": "process",
+          "position": {
+            "x": 14557,
+            "y": -173
+          },
+          "data": {
+            "label": "Décision de conformité",
+            "subtype": "standard",
+            "executionMode": "step",
+            "description": "Décision humaine : accepter ou refuser",
+            "toolsUsed": [
+              "kyc-case"
+            ],
+            "actorsUsed": [
+              "kyc-analyst"
+            ],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 4,
+              "business": 10
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "actorAllocations": {
+              "kyc-analyst": 0.1
+            },
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "activate",
+          "type": "process",
+          "position": {
+            "x": 16038,
+            "y": -173
+          },
+          "data": {
+            "label": "Activer la relation",
+            "subtype": "standard",
+            "executionMode": "step",
+            "description": "Enregistrement du dossier accepté et plan de revue",
+            "toolsUsed": [
+              "kyc-case"
+            ],
+            "actorsUsed": [
+              "kyc-analyst"
+            ],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 3,
+              "business": 8
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "actorAllocations": {
+              "kyc-analyst": 0.1
+            },
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "notify",
+          "type": "process",
+          "position": {
+            "x": 16038,
+            "y": 717
+          },
+          "data": {
+            "label": "Notifier & clôturer",
+            "subtype": "standard",
+            "executionMode": "step",
+            "description": "Traitement du refus selon la procédure interne",
+            "toolsUsed": [
+              "kyc-case"
+            ],
+            "actorsUsed": [
+              "kyc-analyst"
+            ],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 3,
+              "business": 5
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "actorAllocations": {
+              "kyc-analyst": 0.1
+            },
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "archive",
+          "type": "process",
+          "position": {
+            "x": 17918,
+            "y": -178
+          },
+          "data": {
+            "label": "Constituer la piste d’audit",
+            "subtype": "standard",
+            "executionMode": "step",
+            "description": "Décision, justificatifs et échéance de revue",
+            "toolsUsed": [
+              "kyc-docs",
+              "kyc-auto"
+            ],
+            "actorsUsed": [
+              "kyc-analyst"
+            ],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 2,
+              "business": 4
+            },
+            "availableTime": 480,
+            "wait_time": 0,
+            "actorAllocations": {
+              "kyc-analyst": 0.1
+            },
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "end",
+          "type": "startEnd",
+          "position": {
+            "x": 18858,
+            "y": -65
+          },
+          "data": {
+            "type": "end",
+            "label": "Relation activée",
+            "description": "Dossier archivé · Revue planifiée"
+          }
+        },
+        {
+          "id": "rejected",
+          "type": "startEnd",
+          "position": {
+            "x": 18858,
+            "y": 825
+          },
+          "data": {
+            "type": "end",
+            "label": "Relation refusée",
+            "description": "Décision documentée"
+          }
+        },
+        {
+          "id": "portal",
+          "type": "process",
+          "position": {
+            "x": 1944,
+            "y": -197
+          },
+          "data": {
+            "label": "Portail documentaire",
+            "subtype": "it",
+            "executionMode": "step",
+            "description": "Dépôt et contrôle technique des pièces",
+            "toolsUsed": [
+              "kyc-ocr"
+            ],
+            "actorsUsed": [],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 0.2,
+              "business": 0.5
+            },
+            "availableTime": 480,
+            "wait_time": 2,
+            "technicalCapacity": 480,
+            "actorAllocations": {},
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "provider",
+          "type": "process",
+          "position": {
+            "x": 9316,
+            "y": -173
+          },
+          "data": {
+            "label": "Connecteur de screening",
+            "subtype": "it",
+            "executionMode": "step",
+            "description": "Requêtes vers les référentiels et journalisation",
+            "toolsUsed": [
+              "kyc-screening"
+            ],
+            "actorsUsed": [],
+            "knowledgeUsed": [
+              "kyc-risk"
+            ],
+            "cycleTimes": {
+              "retail": 0.3,
+              "business": 0.6
+            },
+            "availableTime": 480,
+            "wait_time": 3,
+            "technicalCapacity": 480,
+            "actorAllocations": {},
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "core",
+          "type": "process",
+          "position": {
+            "x": 16978,
+            "y": -173
+          },
+          "data": {
+            "label": "API Core Banking",
+            "subtype": "it",
+            "executionMode": "step",
+            "description": "Synchronisation du référentiel client",
+            "toolsUsed": [
+              "kyc-core"
+            ],
+            "actorsUsed": [],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 0.2,
+              "business": 0.4
+            },
+            "availableTime": 480,
+            "wait_time": 1,
+            "technicalCapacity": 480,
+            "actorAllocations": {},
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        },
+        {
+          "id": "officer",
+          "type": "process",
+          "position": {
+            "x": 12677,
+            "y": -173
+          },
+          "data": {
+            "label": "Arbitrer le dossier sensible",
+            "subtype": "actor",
+            "executionMode": "step",
+            "description": "Appui humain aux dossiers sensibles",
+            "toolsUsed": [
+              "kyc-case"
+            ],
+            "actorsUsed": [
+              "kyc-compliance"
+            ],
+            "knowledgeUsed": [
+              "kyc-policy"
+            ],
+            "cycleTimes": {
+              "retail": 5,
+              "business": 15
+            },
+            "availableTime": 480,
+            "wait_time": 30,
+            "actorAllocations": {
+              "kyc-compliance": 0.5
+            },
+            "measurements": {
+              "cycle:retail": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "cycle:business": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "wait": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              },
+              "capacity": {
+                "unit": "min",
+                "status": "estimated",
+                "scope": "Par dossier, période : jour ouvré",
+                "source": "Exemple fictif KYC",
+                "date": "2026-10-15",
+                "owner": "Démonstration"
+              }
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "start-intake",
+          "source": "start",
+          "target": "intake",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "intake-portal",
+          "source": "intake",
+          "target": "portal",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "portal-extract",
+          "source": "portal",
+          "target": "extract",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "extract-complete",
+          "source": "extract",
+          "target": "complete",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "complete-screen",
+          "source": "complete",
+          "target": "screen",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "item",
+            "percentage": 100,
+            "itemRouting": {
+              "retail": 85,
+              "business": 70
+            },
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "complete-request",
+          "source": "complete",
+          "target": "request",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "item",
+            "percentage": 100,
+            "itemRouting": {
+              "retail": 15,
+              "business": 30
+            },
+            "itemData": {
+              "retail": {
+                "wait": 120,
+                "painPoint": "Justificatif illisible"
+              },
+              "business": {
+                "wait": 480,
+                "painPoint": "Pièces de bénéficiaires effectifs manquantes"
+              }
+            },
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "request-recheck",
+          "source": "request",
+          "target": "recheck",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "recheck-screen",
+          "source": "recheck",
+          "target": "screen",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "screen-provider",
+          "source": "screen",
+          "target": "provider",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "provider-risk",
+          "source": "provider",
+          "target": "risk",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "risk-standard",
+          "source": "risk",
+          "target": "standard",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "item",
+            "percentage": 100,
+            "itemRouting": {
+              "retail": 90,
+              "business": 60
+            },
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "risk-enhanced",
+          "source": "risk",
+          "target": "enhanced",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "item",
+            "percentage": 100,
+            "itemRouting": {
+              "retail": 10,
+              "business": 40
+            },
+            "itemData": {
+              "business": {
+                "wait": 240,
+                "inventory": "Dossiers en revue renforcée",
+                "painPoint": "Structure de détention complexe"
+              }
+            },
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "enhanced-officer",
+          "source": "enhanced",
+          "target": "officer",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "officer-synthesis",
+          "source": "officer",
+          "target": "synthesis",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "synthesis-decision",
+          "source": "synthesis",
+          "target": "decision",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "standard-decision",
+          "source": "standard",
+          "target": "decision",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "decision-activate",
+          "source": "decision",
+          "target": "activate",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "item",
+            "percentage": 100,
+            "itemRouting": {
+              "retail": 98,
+              "business": 95
+            },
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "decision-notify",
+          "source": "decision",
+          "target": "notify",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "item",
+            "percentage": 100,
+            "itemRouting": {
+              "retail": 2,
+              "business": 5
+            },
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "activate-core",
+          "source": "activate",
+          "target": "core",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "core-archive",
+          "source": "core",
+          "target": "archive",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "archive-end",
+          "source": "archive",
+          "target": "end",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        },
+        {
+          "id": "notify-rejected",
+          "source": "notify",
+          "target": "rejected",
+          "type": "flow",
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "#67818f"
+          },
+          "data": {
+            "routingType": "global",
+            "percentage": 100,
+            "itemData": {},
+            "wait_time": 0
+          }
+        }
+      ],
+      "tools": [
+        {
+          "id": "kyc-web",
+          "name": "Internet",
+          "icon": "globe",
+          "description": "Recherche de sociétés, registres publics et sources ouvertes"
+        },
+        {
+          "id": "kyc-mail",
+          "name": "Outlook",
+          "icon": "brand-outlook",
+          "description": "Échanges client et demandes de justificatifs"
+        },
+        {
+          "id": "kyc-docs",
+          "name": "SharePoint",
+          "icon": "brand-sharepoint",
+          "description": "Dossier documentaire et archivage des preuves"
+        },
+        {
+          "id": "kyc-auto",
+          "name": "Power Automate",
+          "icon": "brand-power-automate",
+          "description": "Notifications et orchestration des tâches"
+        },
+        {
+          "id": "kyc-case",
+          "name": "Excel",
+          "icon": "brand-excel",
+          "description": "Rapprochements, grille de contrôle et suivi des dossiers"
+        },
+        {
+          "id": "kyc-ocr",
+          "name": "OCR documentaire",
+          "icon": "scan",
+          "description": "Extraction et rapprochement des pièces"
+        },
+        {
+          "id": "kyc-screening",
+          "name": "World-Check · screening",
+          "icon": "shield",
+          "description": "Recherche PEP et sanctions"
+        },
+        {
+          "id": "kyc-core",
+          "name": "Core Banking",
+          "icon": "database",
+          "description": "Référentiel client"
+        }
+      ],
+      "actors": [
+        {
+          "id": "kyc-analyst",
+          "name": "Analyste KYC",
+          "team": "Entrée en relation",
+          "scope": "internal",
+          "description": "Collecte et vérification du dossier",
+          "headcount": 5,
+          "availableTime": 480
+        },
+        {
+          "id": "kyc-compliance",
+          "name": "Responsable conformité",
+          "team": "Conformité",
+          "scope": "external",
+          "description": "Revue et arbitrage des dossiers sensibles",
+          "headcount": 2,
+          "availableTime": 480
+        }
+      ],
+      "knowledge": [
+        {
+          "id": "kyc-policy",
+          "name": "Politique KYC",
+          "description": "Procédure illustrative d’entrée en relation"
+        },
+        {
+          "id": "kyc-risk",
+          "name": "Matrice des risques",
+          "description": "Critères illustratifs de vigilance renforcée"
+        },
+        {
+          "id": "kyc-evidence",
+          "name": "Référentiel des pièces",
+          "description": "Pièces attendues et contrôles de cohérence"
+        }
+      ],
+      "comments": [],
+      "presentation": [],
+      "title": ""
+    }
+  ],
+  "activeScenarioId": "5cb2fed0-10e0-4471-b445-f622ae40cee2",
+  "actualScenarioId": "5cb2fed0-10e0-4471-b445-f622ae40cee2"
+}

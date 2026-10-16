@@ -4,6 +4,7 @@ export const uid = () => crypto.randomUUID();
 export const libraries = ["tools", "actors", "knowledge"];
 export function graphSnapshot(state) {
   return {
+    ...Object.fromEntries(["groups", "decompositionDrafts", "retiredGroups"].filter(k => k in state).map(k => [k, clone(state[k])])),
     ...clone(state.scenarioExtra || {}),
     nodes: clone(state.nodes),
     edges: clone(state.edges),
@@ -45,7 +46,7 @@ export function migrateProject(raw) {
   project.id ||= uid();
   project.meta = {
     ...project.meta,
-    version: "3.0",
+    version: "3.1",
     engine: project.meta?.engine || "legacy-2",
   };
   if (!project.scenarios?.length) {
@@ -97,7 +98,7 @@ export function updateActive(project, snapshot, title) {
   Object.assign(
     next,
     Object.fromEntries(
-      ["nodes", "edges", ...libraries].map((k) => [k, snapshot[k]]),
+      ["nodes", "edges", ...libraries, "groups", "decompositionDrafts", "retiredGroups"].map((k) => [k, snapshot[k]]),
     ),
     { title },
   );
@@ -124,7 +125,7 @@ export function duplicateScenario(
 }
 export function compareScenarios(a, b) {
   const changes = [];
-  for (const kind of ["nodes", "edges", ...libraries]) {
+  for (const kind of ["nodes", "edges", ...libraries, "groups", "decompositionDrafts"]) {
     const left = new Map((a[kind] || []).map((x) => [x.id, x]));
     const right = new Map((b[kind] || []).map((x) => [x.id, x]));
     for (const id of new Set([...left.keys(), ...right.keys()])) {
@@ -138,6 +139,7 @@ export function compareScenarios(a, b) {
       if (signature(comparable(left.get(id))) !== signature(comparable(right.get(id))))
         changes.push({
           kind,
+          structural: ["groups", "decompositionDrafts"].includes(kind) || (kind === "nodes" && left.has(id) && right.has(id) && left.get(id).type === right.get(id).type && signature(left.get(id).data) === signature(right.get(id).data)),
           id,
           label:
             right.get(id)?.data?.label ||

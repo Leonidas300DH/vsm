@@ -1,7 +1,9 @@
+import { groupLeaves } from './groups.js';
 import { compareScenarios } from './project.js';
 import { analyze } from './analysis.js';
 
 export function affectedNodes(change, scenario) {
+  if (change.kind === 'groups') return scenario.groups?.some(g => g.id === change.id) ? groupLeaves(scenario, change.id) : [];
   if (change.kind === 'nodes') return scenario.nodes.some(n => n.id === change.id) ? [change.id] : [];
   if (change.kind === 'edges') {
     const edge = scenario.edges.find(e => e.id === change.id);

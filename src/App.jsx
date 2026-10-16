@@ -1,3 +1,4 @@
+import { layoutGroups } from './services/groupProjection';
 import { useState, useEffect, useCallback } from 'react';
 import { ReactFlowProvider, useReactFlow } from 'reactflow';
 import { PanelLeft, PanelRight, ChartNoAxesCombined, AlignHorizontalSpaceAround, AlignVerticalSpaceAround, Columns3, Scan, Settings2, ArrowRight, X } from 'lucide-react';
@@ -42,7 +43,7 @@ function Workspace() {
   useModalKeyboard(Boolean(layoutPreview),()=>setLayoutPreview(null));
   const { nodes, setFileHandle, selectedNodeId, orientation, setOrientation, lastDeletion, undoDeletion, dismissDeletion, tools, actors, focus, setFocus } = useStore();
   const { fitView, getNodes, getZoom } = useReactFlow();
-  const frame = () => requestAnimationFrame(() => requestAnimationFrame(() => fitView({ padding: 0.15, duration: 0, minZoom: 0.1, maxZoom: 1 })));
+  const frame = () => requestAnimationFrame(() => requestAnimationFrame(() => fitView({ padding: 0.15, duration: 0, minZoom: 0.02, maxZoom: 1 })));
 
   const deletionLabel = lastDeletion
     ? (lastDeletion.nodes.length
@@ -64,6 +65,15 @@ function Workspace() {
 
   // One entry point for every re-layout: measured nodes + current orientation.
   const applyLayout = (nextOrientation, preview=false) => {
+    if (useStore.getState().scenarioExtra.groups?.length) {
+      try {
+        const state = useStore.getState(), scenario = state.getWorkspaceProject().scenarios.find(s => s.id === state.workspaceProject.activeScenarioId);
+        const started = performance.now(), result = layoutGroups(scenario);
+        if (preview) setLayoutPreview({ nodes: result.nodes, elapsedMs: performance.now() - started });
+        else { useStore.setState({nodes: result.nodes}); frame(); }
+      } catch (error) { setNotice(error.message); }
+      return;
+    }
     const zoom=getZoom();
     const graphNodes = getNodes().map(n=>{
       const element=document.querySelector(`.react-flow__node[data-id="${CSS.escape(n.id)}"]`);

@@ -1,3 +1,4 @@
+import { groupLeaves } from './groups.js';
 import { clone, uid, libraries } from "./project.js";
 import { measurementRows, applySimulation } from "./simulation.js";
 const fields = {
@@ -6,8 +7,11 @@ const fields = {
   knowledge: "knowledgeUsed",
 };
 export function createTemplate(scenario, selected, name) {
-  const ids = new Set(selected),
+  const ids = new Set(selected.flatMap(id => groupLeaves(scenario, id))),
     nodes = scenario.nodes.filter((n) => ids.has(n.id));
+  const drafts = (scenario.decompositionDrafts || []).filter(d => ids.has(d.nodeId));
+  const groups = (scenario.groups || []).filter(g => groupLeaves(scenario,g.id).every(id => ids.has(id)));
+  const resourceNodes = [...nodes, ...drafts.flatMap(d=>[...d.nodes, d.reference].filter(Boolean)), ...groups.flatMap(g=>[g.reference,g.draftReference].filter(Boolean))];
   if (!nodes.length) throw new Error("Sélectionnez au moins une étape.");
   const internal = scenario.edges.filter(
     (e) => ids.has(e.source) && ids.has(e.target),
@@ -22,6 +26,8 @@ export function createTemplate(scenario, selected, name) {
   return {
     id: uid(),
     name,
+    groups: clone((scenario.groups || []).filter(g => groupLeaves(scenario,g.id).every(id => ids.has(id)))),
+    decompositionDrafts: clone((scenario.decompositionDrafts || []).filter(d => ids.has(d.nodeId))),
     nodes: clone(nodes),
     edges: clone(internal),
     boundary,
@@ -44,8 +50,8 @@ export function createTemplate(scenario, selected, name) {
       libraries.map((k) => [
         k,
         clone(
-          (scenario[k] || []).filter((r) =>
-            nodes.some((n) => n.data[fields[k]]?.includes(r.id)),
+          [...new Map([...(scenario[k] || []), ...drafts.flatMap(d=>d[k]||[])].map(r=>[r.id,r])).values()].filter((r) =>
+            resourceNodes.some((n) => n.data[fields[k]]?.includes(r.id) || (k === "actors" && Object.hasOwn(n.data.actorAllocations || {},r.id))),
           ),
         ),
       ]),
@@ -151,6 +157,26 @@ export function insertTemplate(
       measurements: remapMeasurements(e.data.measurements),
     },
   }));
+  const extraIds = new Map((template.groups || []).map(g => [g.id, uid()]));
+  for (const draft of template.decompositionDrafts || []) for (const item of [...(draft.nodes || []), ...(draft.edges || [])]) extraIds.set(item.id, uid());
+  const allIds = new Map([...ids, ...edgeIds, ...extraIds]);
+  const remapTree = (value, key = '') => {
+    if (Array.isArray(value)) return value.map(v => remapTree(v, key));
+    if (key === 'actorAllocations' && value) return Object.fromEntries(Object.entries(value).map(([id,v])=>[resources.actors.get(id)||id,clone(v)]));
+    if (key === 'measurements' && value) return remapMeasurements(value);
+    if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k,v]) => [allIds.get(k) || categoryMap[k] || k, remapTree(v,k)]));
+    if (typeof value !== 'string') return value;
+    if (['id','source','target','nodeId','members'].includes(key)) return allIds.get(value) || categoryMap[value] || value;
+    for (const [kind, field] of Object.entries(fields)) if (key === field) return resources[kind].get(value) || value;
+    return value;
+  };
+  result.groups = [...(result.groups || []), ...(template.groups || []).map(g => remapTree(g))];
+  result.decompositionDrafts = [...(result.decompositionDrafts || []), ...(template.decompositionDrafts || []).map(d => {
+    const mapped = remapTree(d);
+    for (const kind of libraries) mapped[kind] = (template[kind] || []).map(r=>({...clone(r),id:resources[kind].get(r.id)}));
+    for (const side of ['inputs','outputs']) mapped[side] = Object.fromEntries(Object.entries(d[side] || {}).filter(([edge]) => edgeIds.has(edge)).map(([edge,node]) => [edgeIds.get(edge), allIds.get(node)]));
+    return mapped;
+  })];
   result.nodes.push(...nodes);
   result.edges.push(...edges);
   for (const parameter of template.parameters || []) {

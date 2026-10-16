@@ -60,6 +60,7 @@ export function analyze(scenario) {
     results = [],
     terminals = [];
   const actorUsage = new Map();
+  const edgeResults = new Map(edges.map(e => [e.id, { id: e.id, categories: [] }]));
   for (const node of nodes)
     for (const [actor, share] of Object.entries(
       node.data.actorAllocations || {},
@@ -256,6 +257,7 @@ export function analyze(scenario) {
           pct === null || state.volume === null
             ? null
             : (state.volume * pct) / 100;
+        edgeResults.get(edge.id).categories.push({ category, name: state.name, volume: v, percentage: pct });
         if (v === 0) return;
         const edgeWait = measure(
           edge.data || {},
@@ -344,6 +346,7 @@ export function analyze(scenario) {
       .filter((c) => c.maxLead !== null)
       .sort((a, b) => b.maxLead - a.maxLead)[0] || null;
   return {
+    edges: [...edgeResults.values()],
     engine: ANALYTIC_ENGINE,
     workload,
     knownWorkload: results.reduce((sum, r) => sum + r.knownWorkload, 0),

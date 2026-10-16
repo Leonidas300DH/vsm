@@ -1,6 +1,7 @@
+import { validateGroups } from '../services/groups.js';
 // Validation and normalisation of .vsm project files.
 // Accepts legacy files (no meta, version '1.0') and files written by this version.
-export const FILE_VERSION = '3.0';
+export const FILE_VERSION = '3.1';
 const NODE_TYPES = new Set(['process', 'startEnd']);
 
 const isObject = v => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -50,6 +51,7 @@ export function validateProject(data) {
   const title = typeof data.title === 'string' && data.title.trim() ? data.title
     : typeof data.projectTitle === 'string' && data.projectTitle.trim() ? data.projectTitle : '';
 
+  try { validateGroups({ ...data, nodes, edges }); } catch (e) { return { ok: false, errors: [e.message] }; }
   return {
     ok: true,
     errors: warnings,

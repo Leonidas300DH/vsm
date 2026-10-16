@@ -1,3 +1,4 @@
+import { cleanGroups } from '../services/groups';
 import { installWorkspace } from '../services/workspace.js';
 import { create } from 'zustand';
 import { addEdge, applyNodeChanges, applyEdgeChanges } from 'reactflow';
@@ -180,7 +181,8 @@ const useStore = create((set, get) => ({
       const { selectedNodeId, selectedStepId, pendingRemovedEdges } = get();
       set({
         nodes, edges, metrics,
-        lastDeletion: removedNodes.length ? { nodes: removedNodes, edges: pendingRemovedEdges } : get().lastDeletion,
+        scenarioExtra: cleanHierarchyExtras(get().scenarioExtra, nodes, edges),
+        lastDeletion: removedNodes.length ? { nodes: removedNodes, edges: pendingRemovedEdges, groups: get().scenarioExtra?.groups, decompositionDrafts: get().scenarioExtra?.decompositionDrafts } : get().lastDeletion,
         pendingRemovedEdges: [],
         selectedNodeId: removed.has(selectedNodeId) ? null : selectedNodeId,
         selectedStepId: removed.has(selectedStepId) ? null : selectedStepId,
@@ -206,7 +208,8 @@ const useStore = create((set, get) => ({
     const { selectedNodeId, selectedStepId } = get();
     set({
       nodes, edges, metrics,
-      lastDeletion: result.removed,
+      scenarioExtra: cleanHierarchyExtras(get().scenarioExtra, nodes, edges),
+      lastDeletion: { ...result.removed, groups: get().scenarioExtra?.groups, decompositionDrafts: get().scenarioExtra?.decompositionDrafts },
       pendingRemovedEdges: [],
       selectedNodeId: selectedNodeId === id ? null : selectedNodeId,
       selectedStepId: selectedStepId === id ? null : selectedStepId,
@@ -218,7 +221,7 @@ const useStore = create((set, get) => ({
     if (!removed) return;
     const restored = restoreRemoved(get().nodes, get().edges, removed);
     const { nodes, edges, metrics } = calculateMetrics(restored.nodes, restored.edges);
-    set({ nodes, edges, metrics, lastDeletion: null, pendingRemovedEdges: [] });
+    set({ nodes, edges, metrics, scenarioExtra: {...get().scenarioExtra, ...(removed.groups ? {groups:removed.groups}:{}), ...(removed.decompositionDrafts ? {decompositionDrafts:removed.decompositionDrafts}:{})}, lastDeletion: null, pendingRemovedEdges: [] });
   },
 
   dismissDeletion: () => set({ lastDeletion: null, pendingRemovedEdges: [] }),
@@ -341,3 +344,5 @@ const useStore = create((set, get) => ({
 
 installWorkspace(useStore);
 export default useStore;
+
+function cleanHierarchyExtras(extra, nodes, edges) { const next = cleanGroups({...extra,nodes,edges}); delete next.nodes; delete next.edges; return next; }

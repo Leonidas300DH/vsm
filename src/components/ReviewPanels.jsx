@@ -66,7 +66,7 @@ export function Templates({ project, scenario, onChange }) {
       </div>
       <details>
         <summary>Sélection ({selected.length})</summary>
-        {scenario.nodes.map((n) => (
+        {[...scenario.nodes, ...(scenario.groups || []).map(g=>({...g,data:{label:g.name}}))].map((n) => (
           <label key={n.id}>
             <input
               type="checkbox"
@@ -185,7 +185,7 @@ export function Review({ project, scenario, onSave, onPresent }) {
     [author, setAuthor] = useState(""),
     [error, setError] = useState(""),
     [report, setReport] = useState(null);
-  const objects = [...scenario.nodes, ...scenario.edges],
+  const objects = [...scenario.nodes, ...scenario.edges, ...(scenario.groups || []).map(g => ({...g,data:{label:g.name}}))],
     comments = scenario.comments || [],
     presentation = scenario.presentation || [];
   const changeComment = (id, updates) =>
@@ -295,14 +295,14 @@ export function Review({ project, scenario, onSave, onPresent }) {
           value={target}
           onChange={(e) => setTarget(e.target.value)}
         >
-          {scenario.nodes.map((n) => (
+          {[...scenario.nodes, ...(scenario.groups || []).map(g=>({...g,data:{label:g.name}}))].map((n) => (
             <option key={n.id} value={n.id}>
               {n.data.label || n.id}
             </option>
           ))}
         </select>
         <button
-          disabled={!scenario.nodes.some((n) => n.id === target)}
+          disabled={!scenario.nodes.some((n) => n.id === target) && !scenario.groups?.some(g=>g.id===target)}
           onClick={() =>
             onSave({
               ...scenario,
@@ -323,7 +323,7 @@ export function Review({ project, scenario, onSave, onPresent }) {
         <div className="studio-row" key={p.id}>
           <span>
             {index + 1}.{" "}
-            {scenario.nodes.find((n) => n.id === p.nodeId)?.data.label ||
+            {scenario.nodes.find((n) => n.id === p.nodeId)?.data.label || scenario.groups?.find(g=>g.id===p.nodeId)?.name ||
               "Référence supprimée"}
           </span>
           <button

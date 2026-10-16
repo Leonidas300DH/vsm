@@ -27,7 +27,7 @@ export default function WorkspaceTools({ onInspect, onArrange, onExample, childr
   const changeDetail=mode=>{
     useStore.getState().setDetailMode(mode);
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      const boxes=[...document.querySelectorAll('.react-flow__node,.react-flow__edgelabel-renderer>.nodrag')].map(el=>el.getBoundingClientRect()).filter(r=>r.width&&r.height);
+      const boxes=[...document.querySelectorAll('.react-flow__node:not(.react-flow__node-subprocess),.react-flow__edgelabel-renderer>.nodrag')].map(el=>el.getBoundingClientRect()).filter(r=>r.width&&r.height);
       setLayoutWarning(boxes.some((a,i)=>boxes.slice(i+1).some(b=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top)));
     }));
   };
@@ -35,6 +35,7 @@ export default function WorkspaceTools({ onInspect, onArrange, onExample, childr
     const id = items[index]?.nodeId;
     if (!id) return;
     setPresentation({ items, index });
+    window.dispatchEvent(new CustomEvent('vsm:reveal', {detail:id}));
     fitView({ nodes: [{ id }], padding: 0.5, maxZoom: 1, duration: 200 });
   };
   const s = useStore();

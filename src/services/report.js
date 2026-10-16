@@ -1,3 +1,4 @@
+import { summarizeGroup, groupParents } from './groups.js';
 import { jsPDF } from "jspdf";
 import { analyze, displayNumber } from "./analysis.js";
 import { activeScenario, compareScenarios } from "./project.js";
@@ -172,6 +173,19 @@ export function createReport(
       ]),[20,110,48]);
     });
   }
+  if (current.groups?.length) {
+    title("Sous-processus : hiérarchie et synthèses");
+    const parents = groupParents(current);
+    for (const group of current.groups) {
+      const summary = summarizeGroup(current, group.id, result);
+      paragraph(`${group.name} | ${summary.count} étapes | Parent : ${current.groups.find(g => g.id === parents.get(group.id))?.name || 'Carte'}`, 12, true);
+      table(['Indicateur', 'Valeur'], [['Charge / période', displayNumber(summary.workload)], ['Processing / dossier', displayNumber(summary.processing)], ['Attente / dossier', displayNumber(summary.waiting)], ['Lead time / dossier', displayNumber(summary.lead)]], [120,58]);
+      paragraph('Membres : ' + group.members.map(id => current.nodes.find(n => n.id === id)?.data.label || current.groups.find(g => g.id === id)?.name || id).join(', '));
+      for (const [kind, resources] of Object.entries(summary.resources)) paragraph(({tools:'Outils',actors:'Acteurs',knowledge:'Connaissances'})[kind] + ' : ' + resources.map(r => r.name + ' (' + r.usedBy.map(n=>n.name).join(', ') + ')').join('; '));
+      if (!summary.complete) paragraph('Synthèse incomplète. Les valeurs inconnues restent inconnues.');
+    }
+  }
+  for (const draft of current.decompositionDrafts || []) paragraph(`Détail en construction : ${draft.reference?.data.label || draft.nodeId}. ${draft.nodes.length} sous-étapes exclues des calculs actifs.`);
   current.nodes.forEach((n, index) => {
     page();
     title(`${index + 1}. ${n.data.label || n.id}`);
@@ -258,7 +272,7 @@ export function createReport(
   });
   page();
   title("Commentaires sélectionnés");
-  const ids = new Set([...current.nodes, ...current.edges].map((x) => x.id));
+  const ids = new Set([...current.nodes, ...current.edges, ...(current.groups || [])].map((x) => x.id));
   for (const c of current.comments || []) {
     if (c.includeInReport === false) continue;
     paragraph(

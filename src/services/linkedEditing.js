@@ -1,3 +1,5 @@
+import { layoutGroups } from './groupProjection.js';
+import { applyGroupCommand, cleanGroups, validateGroups, groupParents } from './groups.js';
 import { clone, libraries, signature, compareScenarios } from './project.js';
 import { calculateMetrics } from '../utils/calculations.js';
 import { resourceKinds } from '../utils/resources.js';
@@ -83,16 +85,16 @@ function newCollisions(before, after, geometry) {
   const existing = new Set(hits(before));
   return hits(after).filter(hit => !existing.has(hit));
 }
-export const needsLinkedPreview = command => ['insert', 'remove', 'realign'].includes(command.type);
+export const needsLinkedPreview = command => ['insert', 'remove', 'realign', 'hierarchy'].includes(command.type);
 
 // Pure transaction: all targets are prepared and validated before the store changes.
 export function prepareLinkedEdit(project, session, originId, command, geometry = {}) {
   const next = clone(project), source = project.scenarios.find(s => s.id === originId && !s.archived);
   if (!source) throw new Error('Scénario source indisponible.');
-  if (!['patch', 'move', 'insert', 'remove', 'realign', 'resource'].includes(command.type)) throw new Error('Commande inconnue.');
+  if (!['patch', 'move', 'insert', 'remove', 'realign', 'resource', 'hierarchy'].includes(command.type)) throw new Error('Commande inconnue.');
   if (command.kind && !kinds.includes(command.kind)) throw new Error('Collection inconnue.');
   const targets = originId === session.masterId && session.active ? session.linkedIds.filter(id => session.childIds.includes(id) && id !== originId) : [];
-  const targetIds = command.type === 'realign' ? command.childIds : [originId, ...(command.type === 'move' && !session.positions ? [] : targets)];
+  const targetIds = command.type === 'realign' ? command.childIds : [originId, ...((command.type === 'move' || (command.type === 'hierarchy' && ['moveGroup','layoutGroups'].includes(command.operation.type))) && !session.positions ? [] : targets)];
   if (command.type === 'realign' && (originId !== session.masterId || !targetIds?.length || targetIds.some(id => !session.childIds.includes(id)))) throw new Error('Choisissez les enfants à réaligner.');
   const original = command.kind && source[command.kind]?.find(x => x.id === command.id);
   if (['patch', 'remove'].includes(command.type) && !original) throw new Error('Élément source introuvable.');
@@ -105,7 +107,17 @@ export function prepareLinkedEdit(project, session, originId, command, geometry 
     if (!target) throw new Error('Un scénario destinataire est indisponible.');
     const before = clone(target);
     let description = '', touchedNodes = [];
-    if (command.type === 'resource') {
+    if (command.type === 'hierarchy') {
+      if (id !== originId) {
+        const a = groupParents(source), b = groupParents(target);
+        const involved = command.operation.ids || [command.operation.id || command.operation.nodeId];
+        if (involved.some(key => a.get(key) !== b.get(key))) throw new Error(`${target.name} : hiérarchie incompatible.`);
+        if (command.operation.id && source.groups?.some(g => g.id === command.operation.id) && signature(source.groups.find(g => g.id === command.operation.id)?.members) !== signature(target.groups?.find(g => g.id === command.operation.id)?.members)) throw new Error(`${target.name} : membres du groupe incompatibles.`);
+      }
+      const updated = command.operation.type === 'layoutGroups' ? layoutGroups(target) : applyGroupCommand(target, command.operation);
+      Object.assign(target, command.operation.arrange ? layoutGroups(updated) : updated);
+      description = 'Sous-processus · ' + command.operation.type;
+    } else if (command.type === 'resource') {
       if (!libraries.includes(command.kind) || !command.entry?.id || !command.entry.name?.trim()) throw new Error('Ressource invalide.');
       target[command.kind] ||= [];
       const entry = target[command.kind].find(x => x.id === command.entry.id);
@@ -170,6 +182,8 @@ export function prepareLinkedEdit(project, session, originId, command, geometry 
       description = 'Réaligner les éléments communs : leurs champs seront remplacés par ceux du maître. Les éléments propres à l’enfant restent conservés.';
     }
     ensureResources(target, source, touchedNodes);
+    if (target.groups) Object.assign(target, cleanGroups(target));
+    validateGroups(target);
     validateGraph(target);
     if (['move', 'insert'].includes(command.type) || (command.type === 'realign' && session.positions)) {
       const overlaps = newCollisions(before, target, geometry[id]);

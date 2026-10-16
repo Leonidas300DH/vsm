@@ -1,5 +1,6 @@
+import GroupedFlow from './GroupedFlow';
 import React, { useCallback, useRef, useMemo, useState } from 'react';
-import ReactFlow, {
+import {
     Background,
     Controls,
     MiniMap,
@@ -200,7 +201,7 @@ const VSMCanvas = ({ onInspect, readOnly = false }) => {
                 '--lineage-color': focus ? 'var(--c-8bb8cb)' : (lineageData?.itemColor || 'var(--c-7a3e9d)')
             }}
         >
-            <ReactFlow
+            <GroupedFlow
                 nodes={displayNodes}
                 edges={displayEdges}
                 deleteKeyCode={readOnly ? null : "Backspace"}
@@ -213,7 +214,7 @@ const VSMCanvas = ({ onInspect, readOnly = false }) => {
                 onNodeMouseLeave={onNodeMouseLeave}
                 onNodeClick={onNodeClick}
                 onEdgeClick={onInspect}
-                minZoom={0.15}
+                minZoom={0.02}
                 maxZoom={2}
                 fitViewOptions={{ padding: 0.15 }}
                 onPaneClick={onPaneClick}
@@ -227,7 +228,7 @@ const VSMCanvas = ({ onInspect, readOnly = false }) => {
                 <Background color={light ? '#c4d1da' : '#2b404d'} gap={24} size={1} />
                 <Controls />
                 <MiniMap pannable zoomable nodeColor={light ? '#8fa9b8' : '#496877'} maskColor={light ? 'rgba(236, 241, 245, 0.7)' : 'rgba(9, 16, 22, 0.65)'} />
-            </ReactFlow>
+            </GroupedFlow>
         </div>
     );
 };

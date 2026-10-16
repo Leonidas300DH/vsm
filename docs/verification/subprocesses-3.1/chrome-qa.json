@@ -1,0 +1,14 @@
+{
+  "url": "http://127.0.0.1:4174/",
+  "checks": [
+    "Connected selection creates a visible frame",
+    "Collapsed summary preserves charge and hides only its descendants",
+    "Rename group",
+    "Focus and breadcrumb return",
+    "Dissociate, undo and redo",
+    "Draft survives reload without replacing original",
+    "Explicit incomplete activation and whole transaction undo redo",
+    "No runtime errors"
+  ],
+  "errors": []
+}
