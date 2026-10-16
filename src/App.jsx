@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { ReactFlowProvider, useReactFlow } from 'reactflow';
-import { PanelLeft, PanelRight, ChartNoAxesCombined, AlignHorizontalSpaceAround, AlignVerticalSpaceAround, Columns3, Scan, FlaskConical, ArrowRight, X, Sun, Moon } from 'lucide-react';
+import { PanelLeft, PanelRight, ChartNoAxesCombined, AlignHorizontalSpaceAround, AlignVerticalSpaceAround, Columns3, Scan, Settings2, ArrowRight, X, Sun, Moon } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import PropertiesPanel from './components/PropertiesPanel';
 import Timeline from './components/Timeline';
 import VSMCanvas from './components/VSMCanvas';
-import Header from './components/Header';
+import ToolbarPopover from './components/ToolbarPopover';
 import useModalKeyboard from './components/useModalKeyboard.js';
 import WorkspaceTools from './components/WorkspaceTools';
 import useStore from './store/useStore';
@@ -91,32 +91,34 @@ function Workspace() {
   };
   return <div className="workspace" data-detail={useStore.getState().detailMode}>
     {useStore.getState().saveStatus==='loading'&&<div className="studio-backdrop" role="status">Récupération de votre projet local…</div>}
-    <Header>
-    <div className="workspace-toolbar">
-      <div className="toolbar-group">
-        <button onClick={loadExample}><FlaskConical size={14} /> Exemple</button>
-        <button onClick={arrange} disabled={!nodes.length}><Columns3 size={14} /> Aligner</button>
-        <button onClick={toggleOrientation} disabled={!nodes.length} aria-label="Basculer l’orientation" title="Basculer entre lecture horizontale et verticale">
-          {orientation === 'vertical' ? <AlignVerticalSpaceAround size={14} /> : <AlignHorizontalSpaceAround size={14} />} {orientation === 'vertical' ? 'Vertical' : 'Horizontal'}
-        </button>
-        <select className="toolbar-select" aria-label="Focus" title="Mettre en évidence les étapes qui utilisent un outil, un acteur ou une équipe" value={focusValue} onChange={e => changeFocus(e.target.value)} disabled={!nodes.length}>
-          <option value="">Focus : aucun</option>
-          {options.tools.length > 0 && <optgroup label="Outils">{options.tools.map(o => <option key={`tool:${o.id}`} value={`tool:${o.id}`}>{o.label}</option>)}</optgroup>}
-          {options.actors.length > 0 && <optgroup label="Acteurs">{options.actors.map(o => <option key={`actor:${o.id}`} value={`actor:${o.id}`}>{o.label}</option>)}</optgroup>}
-          {options.teams.length > 0 && <optgroup label="Équipes">{options.teams.map(o => <option key={`team:${o.id}`} value={`team:${o.id}`}>{o.label}</option>)}</optgroup>}
-        </select>
-        <button onClick={frame}><Scan size={14} /> Vue globale</button>
-        {selectedNodeId && <button onClick={() => fitView({ nodes:[{id:selectedNodeId}], padding:0.5, maxZoom:1, duration:200 })}>Centrer l’étape</button>}
-        <span className="toolbar-divider" />
-        <button aria-label="Palette" aria-pressed={sidebar} onClick={() => setSidebar(!sidebar)}><PanelLeft size={16} /></button>
-        <button aria-label="Analyse" aria-pressed={analysis} onClick={() => setAnalysis(!analysis)}><ChartNoAxesCombined size={16} /></button>
-        <button aria-label="Inspecteur" aria-pressed={properties} onClick={() => setProperties(!properties)}><PanelRight size={16} /></button>
-        <span className="toolbar-divider" />
-        <button aria-label={theme === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair'} title={theme === 'light' ? 'Mode sombre' : 'Mode clair'} onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>{theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}</button>
+    <WorkspaceTools onExample={loadExample} onArrange={arrange} onInspect={(id,diagnostic)=>{const state=useStore.getState();useStore.setState({selectedNodeId:state.nodes.some(n=>n.id===id)?id:null,selectedStepId:id,selectedItemId:null,nodes:state.nodes.map(n=>({...n,selected:n.id===id})),edges:state.edges.map(e=>({...e,selected:e.id===id})),inspectionDiagnostic:diagnostic});setProperties(true);}}>
+      <button onClick={arrange} disabled={!nodes.length}><Columns3 size={15} /> Aligner</button>
+      <button onClick={frame} title="Afficher toute la carte"><Scan size={15} /> Vue globale</button>
+      {selectedNodeId && <button onClick={() => fitView({ nodes:[{id:selectedNodeId}], padding:0.5, maxZoom:1, duration:200 })}>Centrer l’étape</button>}
+      <div className="view-controls">
+        <ToolbarPopover label="Affichage" icon={<Settings2 size={15} />} align="right" active={Boolean(focus)}>
+          <span className="menu-section-label">Disposition</span>
+          <button onClick={toggleOrientation} disabled={!nodes.length} aria-label="Basculer l’orientation">
+            {orientation === 'vertical' ? <AlignVerticalSpaceAround size={16} /> : <AlignHorizontalSpaceAround size={16} />} Lecture {orientation === 'vertical' ? 'verticale' : 'horizontale'}
+          </button>
+          <label className="view-focus">Mettre en évidence
+            <select aria-label="Focus" value={focusValue} onChange={e => changeFocus(e.target.value)} disabled={!nodes.length}>
+              <option value="">Aucun focus</option>
+              {options.tools.length > 0 && <optgroup label="Outils">{options.tools.map(o => <option key={`tool:${o.id}`} value={`tool:${o.id}`}>{o.label}</option>)}</optgroup>}
+              {options.actors.length > 0 && <optgroup label="Acteurs">{options.actors.map(o => <option key={`actor:${o.id}`} value={`actor:${o.id}`}>{o.label}</option>)}</optgroup>}
+              {options.teams.length > 0 && <optgroup label="Équipes">{options.teams.map(o => <option key={`team:${o.id}`} value={`team:${o.id}`}>{o.label}</option>)}</optgroup>}
+            </select>
+          </label>
+          <div className="menu-separator" />
+          <span className="menu-section-label">Panneaux</span>
+          <button aria-label="Palette" aria-pressed={sidebar} onClick={() => setSidebar(!sidebar)}><PanelLeft size={16} />Palette<span className="panel-state">{sidebar ? 'Visible' : 'Repliée'}</span></button>
+          <button aria-label="Analyse" aria-pressed={analysis} onClick={() => setAnalysis(!analysis)}><ChartNoAxesCombined size={16} />Analyse<span className="panel-state">{analysis ? 'Visible' : 'Repliée'}</span></button>
+          <button aria-label="Inspecteur" aria-pressed={properties} onClick={() => setProperties(!properties)}><PanelRight size={16} />Inspecteur<span className="panel-state">{properties ? 'Visible' : 'Replié'}</span></button>
+          <div className="menu-separator" />
+          <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>{theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}{theme === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair'}</button>
+        </ToolbarPopover>
       </div>
-    </div>
-    </Header>
-    <WorkspaceTools onArrange={arrange} onInspect={(id,diagnostic)=>{const state=useStore.getState();useStore.setState({selectedNodeId:state.nodes.some(n=>n.id===id)?id:null,selectedStepId:id,selectedItemId:null,nodes:state.nodes.map(n=>({...n,selected:n.id===id})),edges:state.edges.map(e=>({...e,selected:e.id===id})),inspectionDiagnostic:diagnostic});setProperties(true);}} />
+    </WorkspaceTools>
     {layoutPreview&&<div className="studio-backdrop"><section className="studio-dialog" role="dialog" aria-label="Aperçu du placement"><h2>Proposition de placement</h2><p>{layoutPreview.nodes.length} étapes · aucun chevauchement détecté · {Math.round(layoutPreview.elapsedMs)} ms. Appliquer reste annulable.</p><svg viewBox={`${Math.min(...layoutPreview.nodes.map(n=>n.position.x))-30} ${Math.min(...layoutPreview.nodes.map(n=>n.position.y))-30} ${Math.max(...layoutPreview.nodes.map(n=>n.position.x))-Math.min(...layoutPreview.nodes.map(n=>n.position.x))+400} ${Math.max(...layoutPreview.nodes.map(n=>n.position.y))-Math.min(...layoutPreview.nodes.map(n=>n.position.y))+550}`} style={{width:'100%',height:250}}>{layoutPreview.nodes.map(n=><g key={n.id}><rect x={n.position.x} y={n.position.y} width={n.width||300} height={n.height||300} fill="none" stroke="#8fbfd1" strokeWidth="8"/><text x={n.position.x} y={n.position.y+40} fill="currentColor" fontSize="30">{n.data.label}</text></g>)}</svg><div className="studio-row"><button onClick={()=>{useStore.setState({nodes:layoutPreview.nodes});setLayoutPreview(null);frame();}}>Appliquer le placement</button><button onClick={()=>setLayoutPreview(null)}>Conserver la carte</button></div></section></div>}
     {lastDeletion && <div className="workspace-notice is-undo" role="status">{deletionLabel}<button className="notice-action" onClick={undoDeletion}>Annuler</button><button aria-label="Fermer le message" onClick={dismissDeletion}><X size={13} /></button></div>}
     {focus && !lastDeletion && <div className="workspace-notice is-focus" role="status">{FOCUS_KIND_LABEL[focus.kind]} « {focus.label} » · {focusCount} étape{focusCount > 1 ? 's' : ''} concernée{focusCount > 1 ? 's' : ''} · le reste est estompé<button className="notice-action" onClick={() => setFocus(null)}>Retirer le focus</button></div>}

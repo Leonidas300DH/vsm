@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Undo2, Redo2, SlidersHorizontal, LockKeyhole, UnlockKeyhole } from "lucide-react";
+import Header from "./Header";
 import useModalKeyboard from "./useModalKeyboard.js";
 import useStore from "../store/useStore";
 import {migrateProject} from "../services/project.js";
@@ -14,7 +16,7 @@ const labels = {
   error: "Erreur de sauvegarde",
   conflict: "Conflit entre onglets",
 };
-export default function WorkspaceTools({ onInspect, onArrange }) {
+export default function WorkspaceTools({ onInspect, onArrange, onExample, children }) {
   const { fitView } = useReactFlow();
   const [presentation, setPresentation] = useState(null);
   const [layoutWarning,setLayoutWarning]=useState(false);
@@ -54,8 +56,16 @@ export default function WorkspaceTools({ onInspect, onArrange }) {
   };
   return (
     <>
-      <div className="workspace-tools">
-        <button onClick={() => setAtelier(true)}>Atelier</button>
+      <Header onExample={onExample} onHistory={() => run(async () => { await refresh(); setOpen(true); })}>
+        <span role="status" className={`save-state ${s.saveStatus}`}><span className="save-dot" />{labels[s.saveStatus]}</span>
+        <button className="atelier-trigger" onClick={() => setAtelier(true)}><SlidersHorizontal size={15} />Atelier</button>
+      </Header>
+      <div className="workspace-tools" role="group" aria-label="Commandes de la carte">
+        <div className="history-actions">
+          <button className="icon-command" aria-label="Annuler" title="Annuler" onClick={() => s.undoBusiness()} disabled={!s.canUndo}><Undo2 size={16} /></button>
+          <button className="icon-command" aria-label="Rétablir" title="Rétablir" onClick={() => s.redoBusiness()} disabled={!s.canRedo}><Redo2 size={16} /></button>
+        </div>
+        <span className="toolbar-divider" />
         {presentation && (
           <>
             <button
@@ -91,10 +101,11 @@ export default function WorkspaceTools({ onInspect, onArrange }) {
           <option value="operations">Opérations</option>
           <option value="detailed">Données détaillées</option>
         </select>
+        {children}
         {layoutWarning && <button onClick={()=>{setLayoutWarning(false);onArrange();}}>Chevauchement détecté · Réagencer</button>}
         {s.comparisonIds.length>0 && <button onClick={()=>useStore.setState({comparisonIds:[]})}>Quitter la comparaison</button>}
         {s.selectedNodeId && s.nodes.some((n) => n.id === s.selectedNodeId) && (
-          <button
+          <button className="icon-command" aria-label={s.nodes.find(n=>n.id===s.selectedNodeId).data.positionLocked ? "Déverrouiller la position" : "Verrouiller la position"} title="Verrouiller ou déverrouiller la position"
             onClick={() =>
               s.updateNodeData(s.selectedNodeId, {
                 positionLocked: !s.nodes.find((n) => n.id === s.selectedNodeId)
@@ -103,29 +114,10 @@ export default function WorkspaceTools({ onInspect, onArrange }) {
             }
           >
             {s.nodes.find((n) => n.id === s.selectedNodeId).data.positionLocked
-              ? "Déverrouiller la position"
-              : "Verrouiller la position"}
+              ? <UnlockKeyhole size={16} />
+              : <LockKeyhole size={16} />}
           </button>
         )}
-        <button onClick={() => s.undoBusiness()} disabled={!s.canUndo}>
-          ↶ Annuler
-        </button>
-        <button onClick={() => s.redoBusiness()} disabled={!s.canRedo}>
-          ↷ Rétablir
-        </button>
-        <button
-          onClick={() =>
-            run(async () => {
-              await refresh();
-              setOpen(true);
-            })
-          }
-        >
-          Projets & historique
-        </button>
-        <span role="status" className={`save-state ${s.saveStatus}`}>
-          {labels[s.saveStatus]}
-        </span>
         {s.saveError && <span role="alert">{s.saveError}</span>}
         {s.saveStatus === "conflict" ? (
           <button onClick={() => run(s.recoverCopy)}>

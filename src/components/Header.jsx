@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { Play, Zap, LayoutTemplate, FileText, Save, FolderOpen, Printer, LogOut, ChevronDown, FilePlus, Clock, File, X, Trash2 } from 'lucide-react';
+import { LayoutTemplate, FileText, Save, FolderOpen, FilePlus, History, X, FlaskConical } from 'lucide-react';
+import ToolbarPopover from './ToolbarPopover';
 import useStore from '../store/useStore';
 import { hasFileSystemAccess, openFile, saveFile, saveFileAs } from '../utils/fileSystem';
 import { migrateProject } from '../services/project.js';
 import { makePortable, importEmbedded } from '../services/portable.js';
 
-const Header = ({ children }) => {
+const Header = ({ children, onExample, onHistory }) => {
     const {
         projectTitle,
         setProjectTitle,
@@ -14,7 +15,6 @@ const Header = ({ children }) => {
         addToRecentFiles
     } = useStore();
 
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [report,setReport]=useState(null);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const fileInputRef = useRef(null);
@@ -25,7 +25,6 @@ const Header = ({ children }) => {
             await useStore.getState().replaceWorkspace({title:"Untitled VSM",nodes:[],edges:[],tools:useStore.getState().tools,actors:useStore.getState().actors,knowledge:useStore.getState().knowledge});
             setFileHandle(null);
         } catch(error) { alert(error.message); }
-        setIsMenuOpen(false);
     };
 
     const getProjectData = async () => {
@@ -52,7 +51,6 @@ const Header = ({ children }) => {
         } else {
             handleSaveAs();
         }
-        setIsMenuOpen(false);
     };
 
     const handleSaveAs = async () => {
@@ -78,7 +76,6 @@ const Header = ({ children }) => {
             setTimeout(()=>URL.revokeObjectURL(url),1000);
             addToRecentFiles({ title: projectTitle, content: JSON.parse(content) });
         }
-        setIsMenuOpen(false);
     };
 
     const handleOpenClick = async () => {
@@ -95,7 +92,6 @@ const Header = ({ children }) => {
         } else {
             fileInputRef.current.click();
         }
-        setIsMenuOpen(false);
     };
 
     const handleFileChange = (e) => {
@@ -125,7 +121,6 @@ const Header = ({ children }) => {
     };
 
     const handleExportPDF = async () => {
-        setIsMenuOpen(false);
         try { const {exportReport}=await import('../services/report.js'); if(report)URL.revokeObjectURL(report.url);setReport(await exportReport(useStore.getState().getWorkspaceProject())); }
         catch(error){alert(error.message);}
     };
@@ -151,157 +146,37 @@ const Header = ({ children }) => {
     };
 
     return (
-        <header style={{
-            height: 'var(--header-height)',
-            background: 'var(--color-surface)',
-            borderBottom: '1px solid var(--color-border)',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 1rem',
-            justifyContent: 'space-between',
-            position: 'relative',
-            zIndex: 100
-        }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <LayoutTemplate size={20} color="var(--color-primary)" /><span className="workspace-label">VSM STUDIO</span>
-
-                    {/* File Menu */}
-                    <div style={{ position: 'relative' }}>
-                        <button
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.25rem',
-                                padding: '0.5rem 0.75rem',
-                                background: isMenuOpen ? 'var(--color-bg)' : 'transparent',
-                                border: '1px solid transparent',
-                                borderRadius: '4px',
-                                fontSize: '0.875rem',
-                                fontWeight: 500,
-                                cursor: 'pointer',
-                                color: 'var(--color-text)'
-                            }}
-                        >
-                            File <ChevronDown size={14} />
-                        </button>
-
-                        {isMenuOpen && (
-                            <div style={{
-                                position: 'absolute',
-                                top: '100%',
-                                left: 0,
-                                marginTop: '0.25rem',
-                                background: 'var(--c-14212a)',
-                                border: '1px solid var(--color-border)',
-                                borderRadius: '4px',
-                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                                minWidth: '220px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                padding: '0.25rem 0',
-                                zIndex: 1000
-                            }}>
-                                <MenuItem icon={<FilePlus size={14} />} label="New" onClick={handleNew} />
-                                <MenuItem icon={<FolderOpen size={14} />} label="Open..." onClick={handleOpenClick} />
-                                <MenuItem icon={<Save size={14} />} label="Save" onClick={handleSave} />
-                                <MenuItem icon={<Save size={14} />} label="Save As..." onClick={handleSaveAs} />
-                                <div style={{ height: '1px', background: 'var(--color-border)', margin: '0.25rem 0' }} />
-                                <MenuItem icon={<FileText size={14} />} label="Export PDF" onClick={handleExportPDF} />
-                                <MenuItem icon={<X size={14} />} label="Close" onClick={handleClose} />
-                            </div>
-                        )}
-
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                            style={{ display: 'none' }}
-                            accept=".json,.vsm"
-                        />
-                    </div>
-
-                    {/* VSM Name */}
-                    {isEditingTitle ? (
-                        <input
-                            ref={titleInputRef}
-                            type="text"
-                            value={projectTitle}
-                            onChange={(e) => setProjectTitle(e.target.value)}
-                            onBlur={handleTitleBlur}
-                            onKeyDown={handleTitleKeyDown}
-                            style={{
-                                fontSize: '1.25rem',
-                                fontWeight: 700,
-                                border: '1px solid var(--color-primary)',
-                                borderRadius: '4px',
-                                padding: '0 0.25rem',
-                                outline: 'none',
-                                width: '300px'
-                            }}
-                        />
-                    ) : (
-                        <h1
-                            onClick={handleTitleClick}
-                            style={{
-                                fontSize: '1.25rem',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                border: '1px solid transparent',
-                                padding: '0 0.25rem',
-                                borderRadius: '4px'
-                            }}
-                            title="Click to edit title"
-                            onMouseEnter={(e) => e.currentTarget.style.border = '1px dashed var(--c-cccccc)'}
-                            onMouseLeave={(e) => e.currentTarget.style.border = '1px solid transparent'}
-                        >
-                            {projectTitle}
-                        </h1>
-                    )}
-                </div>
+        <header className="project-header">
+            <div className="project-identity">
+                <div className="studio-brand" title="VSM Studio"><LayoutTemplate size={18} /><span>VSM STUDIO</span></div>
+                <ToolbarPopover label="Projet">
+                    {close => <>
+                        <span className="menu-section-label">Espace de travail</span>
+                        <MenuItem icon={<History size={16} />} label="Projets & historique" onClick={() => {close();onHistory();}} />
+                        <MenuItem icon={<FilePlus size={16} />} label="Nouveau projet" onClick={() => {close();handleNew();}} />
+                        <MenuItem icon={<FolderOpen size={16} />} label="Ouvrir un fichier…" onClick={() => {close();handleOpenClick();}} />
+                        <MenuItem icon={<FlaskConical size={16} />} label="Charger l’exemple KYC" onClick={() => {close();onExample();}} />
+                        <div className="menu-separator" />
+                        <span className="menu-section-label">Exporter et partager</span>
+                        <MenuItem icon={<Save size={16} />} label="Enregistrer le fichier" onClick={() => {close();handleSave();}} />
+                        <MenuItem icon={<Save size={16} />} label="Enregistrer sous…" onClick={() => {close();handleSaveAs();}} />
+                        <MenuItem icon={<FileText size={16} />} label="Exporter le rapport PDF" onClick={() => {close();handleExportPDF();}} />
+                        <div className="menu-separator" />
+                        <MenuItem icon={<X size={16} />} label="Fermer le projet" onClick={() => {close();handleClose();}} />
+                    </>}
+                </ToolbarPopover>
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} hidden accept=".json,.vsm" />
+                {isEditingTitle ? <input className="project-title-input" aria-label="Nom du projet" ref={titleInputRef}
+                    value={projectTitle} onChange={e=>setProjectTitle(e.target.value)} onBlur={handleTitleBlur} onKeyDown={handleTitleKeyDown} />
+                    : <h1 className="project-title"><button title="Renommer le projet" onClick={handleTitleClick}>{projectTitle}</button></h1>}
             </div>
-
-            {report&&<a href={report.url} download={report.name}>Télécharger PDF</a>}
-            {children}
-
-            {/* Overlay to close menu when clicking outside */}
-            {isMenuOpen && (
-                <div
-                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99 }}
-                    onClick={() => setIsMenuOpen(false)}
-                />
-            )}
+            <div className="project-actions">
+                {report && <a className="report-download" href={report.url} download={report.name}>Télécharger PDF</a>}
+                {children}
+            </div>
         </header>
     );
 };
 
-const MenuItem = ({ icon, label, onClick, danger, small, hasSubmenu }) => (
-    <button
-        type="button"
-        onClick={onClick}
-        style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: small ? '0.25rem 1rem' : '0.5rem 1rem',
-            background: 'transparent',
-            border: 'none',
-            width: '100%',
-            textAlign: 'left',
-            fontSize: small ? '0.8rem' : '0.875rem',
-            cursor: 'pointer',
-            color: danger ? 'var(--c-df9296)' : 'var(--color-text)',
-            transition: 'background 0.1s',
-            paddingLeft: small ? '1.5rem' : '1rem'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.background = 'var(--c-0d171e)'}
-        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-    >
-        {icon}
-        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
-        {hasSubmenu && <ChevronDown size={12} style={{ transform: 'rotate(-90deg)' }} />}
-    </button>
-);
-
+const MenuItem = ({ icon, label, onClick }) => <button className="project-menu-item" type="button" onClick={onClick}>{icon}<span>{label}</span></button>;
 export default Header;
