@@ -6,6 +6,7 @@ import {
   signature,
   clone,
   uid,
+  duplicateScenario,
 } from "./project.js";
 import {
   openWorkspaceDB,
@@ -62,6 +63,10 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
       selectedItemId: null,
       edgeLabelSizes: {},
       comparisonIds: [],
+      focus: null,
+      lastDeletion: null,
+      inspectionDiagnostic: null,
+      detailMode: store.getState().scenarioViews?.[`${project.id}:${scenario.id}`]?.detailMode || "detailed",
     });
     applying = false;
     previous = capture();
@@ -123,8 +128,39 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
     canUndo: false,
     canRedo: false,
     detailMode: "detailed",
+    scenarioViews: (() => { try { const views = JSON.parse(localStorage.getItem('vsm.scenarioViews') || '{}'); return views && typeof views === 'object' && !Array.isArray(views) ? views : {}; } catch { return {}; } })(),
+    rememberScenarioView: (view) => {
+      const state = store.getState(), p = state.workspaceProject;
+      const key = `${p.id}:${p.activeScenarioId}`;
+      const scenarioViews = { ...state.scenarioViews, [key]: { ...state.scenarioViews[key], ...view } };
+      store.setState({ scenarioViews });
+      try { localStorage.setItem('vsm.scenarioViews', JSON.stringify(scenarioViews)); } catch { /* Session view remains available. */ }
+    },
+    switchScenario: (id) => {
+      const project = capture(), target = project.scenarios.find(s => s.id === id && !s.archived);
+      if (!target) throw new Error("Scénario introuvable ou archivé.");
+      if (id === project.activeScenarioId) return;
+      project.activeScenarioId = id;
+      hydrate(project);
+      schedule();
+    },
+    copyScenario: async (sourceId, name, snapshot) => {
+      if (!name.trim()) throw new Error("Donnez un nom à l’onglet.");
+      let project = capture();
+      if (!project.scenarios.some(s => s.id === sourceId)) throw new Error("Scénario source introuvable.");
+      if (!project.scenarioStartingPointSaved) {
+        await flush("Point de départ · " + project.scenarios.find(s => s.id === project.actualScenarioId).name);
+        project = capture();
+      }
+      const source = snapshot || project.scenarios.find(s => s.id === sourceId);
+      const next = duplicateScenario(project, name.trim(), source);
+      next.scenarioStartingPointSaved = true;
+      store.getState().editWorkspace(next);
+      await flush();
+      return next.activeScenarioId;
+    },
     comparisonIds: [],
-    setDetailMode: (detailMode) => store.setState({ detailMode }),
+    setDetailMode: (detailMode) => { store.setState({ detailMode }); store.getState().rememberScenarioView({ detailMode }); },
     flushWorkspace: flush,
     getWorkspaceProject: capture,
     listVersions: async () =>
@@ -137,7 +173,7 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
       const record = await readRecord(db, "projects", id);
       if (record) {
         revision = record.revision;
-        hydrate(record.project);
+        hydrate(migrateProject(record.project));
         past = [];
         future = [];
         store.setState({ canUndo: false, canRedo: false });
@@ -251,7 +287,7 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
       const record = last && (await readRecord(db, "projects", last.projectId));
       if (record) {
         revision = record.revision;
-        hydrate(record.project);
+        hydrate(migrateProject(record.project));
       }
       previous = capture();
       lastKey = signature(previous);
@@ -272,6 +308,7 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
     window.addEventListener("pagehide", () => flush().catch(() => {}));
     window.addEventListener("keydown", (e) => {
       if (
+        !document.querySelector(".scenario-comparison") &&
         (e.metaKey || e.ctrlKey) &&
         e.key.toLowerCase() === "z" &&
         !["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)

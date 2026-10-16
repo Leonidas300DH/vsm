@@ -8,15 +8,12 @@ import ReactFlow, {
 
 import useStore from '../store/useStore';
 import { v4 as uuidv4 } from 'uuid';
-import ProcessNode from '../nodes/ProcessNode';
-import StartEndNode from '../nodes/StartEndNode';
-
-import FlowEdge from '../edges/FlowEdge';
+import { nodeTypes, edgeTypes } from './graphTypes';
 
 import { computeLineage } from '../utils/lineageUtils';
 import { focusedNodeIds } from '../utils/focus';
 
-const VSMCanvas = ({ onInspect }) => {
+const VSMCanvas = ({ onInspect, readOnly = false }) => {
     const { screenToFlowPosition } = useReactFlow();
     const reactFlowWrapper = useRef(null);
     const {
@@ -34,17 +31,10 @@ const VSMCanvas = ({ onInspect }) => {
         actors,
         theme
     } = useStore();
+    const project = useStore(s => s.workspaceProject);
+    const savedView = useStore(s => s.scenarioViews[`${project.id}:${project.activeScenarioId}`]?.viewport);
     const light = theme === 'light';
     const [hoveredNodeId, setHoveredNodeId] = useState(null);
-
-    const nodeTypes = useMemo(() => ({
-        process: ProcessNode,
-        startEnd: StartEndNode,
-    }), []);
-
-    const edgeTypes = useMemo(() => ({
-        flow: FlowEdge,
-    }), []);
 
     const onDragOver = useCallback((event) => {
         event.preventDefault();
@@ -213,8 +203,9 @@ const VSMCanvas = ({ onInspect }) => {
             <ReactFlow
                 nodes={displayNodes}
                 edges={displayEdges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
+                deleteKeyCode={readOnly ? null : "Backspace"}
+                onNodesChange={readOnly ? undefined : onNodesChange}
+                onEdgesChange={readOnly ? undefined : onEdgesChange}
                 onConnect={onConnect}
                 onDragOver={onDragOver}
                 onDrop={onDrop}
@@ -229,7 +220,9 @@ const VSMCanvas = ({ onInspect }) => {
                 nodeTypes={nodeTypes}
                 edgeTypes={edgeTypes}
                 defaultEdgeOptions={{ type: 'flow', markerEnd: { type: 'arrowclosed' } }}
-                fitView
+                defaultViewport={savedView}
+                onMoveEnd={(_, viewport) => useStore.getState().rememberScenarioView({ viewport })}
+                fitView={!savedView}
             >
                 <Background color={light ? '#c4d1da' : '#2b404d'} gap={24} size={1} />
                 <Controls />

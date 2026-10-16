@@ -53,7 +53,7 @@ export function migrateProject(raw) {
     project.scenarios = [
       {
         id,
-        name: "Actuel",
+        name: "Baseline",
         revision: 0,
         engine: "legacy-2",
         ...graphSnapshot(project),
@@ -128,7 +128,14 @@ export function compareScenarios(a, b) {
     const left = new Map((a[kind] || []).map((x) => [x.id, x]));
     const right = new Map((b[kind] || []).map((x) => [x.id, x]));
     for (const id of new Set([...left.keys(), ...right.keys()])) {
-      if (signature(left.get(id)) !== signature(right.get(id)))
+      const comparable = value => {
+        if (!value || kind !== 'edges') return value;
+        const copy = clone(value);
+        // These three label fields are computed from routing and incoming volumes.
+        if (copy.data) for (const key of ['label', 'labelItems', 'volume']) delete copy.data[key];
+        return copy;
+      };
+      if (signature(comparable(left.get(id))) !== signature(comparable(right.get(id))))
         changes.push({
           kind,
           id,
@@ -148,4 +155,21 @@ export function compareScenarios(a, b) {
     }
   }
   return changes;
+}
+
+// Scenario names are labels; identity and reference status are independent.
+export function renameScenario(project, id, name) {
+  if (!name.trim()) throw new Error("Donnez un nom à l’onglet.");
+  if (!project.scenarios.some(s => s.id === id)) throw new Error("Scénario introuvable.");
+  const next = clone(project);
+  next.scenarios.find(s => s.id === id).name = name.trim();
+  return next;
+}
+export function archiveScenario(project, id, archived = true) {
+  if (id === project.actualScenarioId && archived) throw new Error("Choisissez une autre référence avant d’archiver cet onglet.");
+  const next = clone(project), scenario = next.scenarios.find(s => s.id === id);
+  if (!scenario) throw new Error("Scénario introuvable.");
+  scenario.archived = archived;
+  if (archived && next.activeScenarioId === id) next.activeScenarioId = next.actualScenarioId;
+  return next;
 }

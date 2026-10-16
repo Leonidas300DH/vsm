@@ -19,7 +19,7 @@ const labels = {
   error: "Erreur de sauvegarde",
   conflict: "Conflit entre onglets",
 };
-export default function WorkspaceTools({ onInspect, onArrange, onExample, children }) {
+export default function WorkspaceTools({ onInspect, onArrange, onExample, children, inert }) {
   const t = useMenuLanguage();
   const { fitView } = useReactFlow();
   const [presentation, setPresentation] = useState(null);
@@ -38,7 +38,8 @@ export default function WorkspaceTools({ onInspect, onArrange, onExample, childr
     fitView({ nodes: [{ id }], padding: 0.5, maxZoom: 1, duration: 200 });
   };
   const s = useStore();
-  const [atelier, setAtelier] = useState(false);
+  const atelier = s.atelierTab;
+  const setAtelier = value => useStore.setState({ atelierTab: value === true ? "results" : value || null });
   const [portable,setPortable]=useState("");
   const [open, setOpen] = useState(false),
     [versions, setVersions] = useState([]),
@@ -60,7 +61,7 @@ export default function WorkspaceTools({ onInspect, onArrange, onExample, childr
   };
   return (
     <>
-      <Header onExample={onExample} onHistory={() => run(async () => { await refresh(); setOpen(true); })}>
+      <Header inert={inert} onExample={onExample} onHistory={() => run(async () => { await refresh(); setOpen(true); })}>
       <div className="workspace-tools" role="group" aria-label={t('Commandes de la carte')}>
         <div className="history-actions">
           <button className="icon-command" aria-label={t("Annuler")} title={t("Annuler")} onClick={() => s.undoBusiness()} disabled={!s.canUndo}><Undo2 size={16} /></button>
@@ -138,6 +139,7 @@ export default function WorkspaceTools({ onInspect, onArrange, onExample, childr
       </Header>
       {atelier && (
         <AnalysisPanel
+          initialTab={atelier}
           onPresent={(items) => {
             setAtelier(false);
             present(items, 0);

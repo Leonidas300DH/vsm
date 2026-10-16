@@ -417,7 +417,7 @@ export function Scenarios({ project, onChange, onCompare }) {
     </>
   );
 }
-export function Simulation({ scenario, onSave, onInspect }) {
+export function Simulation({ scenario, onSave, onApply, onInspect }) {
   const [changes, setChanges] = useState([]),
     [filter, setFilter] = useState(""),
     [name, setName] = useState("Simulation");
@@ -460,8 +460,9 @@ export function Simulation({ scenario, onSave, onInspect }) {
           disabled={!changes.length || !name.trim()}
           onClick={() => onSave(simulated, name)}
         >
-          Enregistrer en scénario
+          Créer un onglet
         </button>
+        <button disabled={!changes.length} onClick={() => { onApply(simulated); setChanges([]); }}>Appliquer à cet onglet</button>
       </div>
       <details open>
         <summary>{changes.length} hypothèses modifiées</summary>
@@ -496,10 +497,10 @@ export function Simulation({ scenario, onSave, onInspect }) {
     </>
   );
 }
-export default function AnalysisPanel({ onClose, onInspect, onPresent }) {
+export default function AnalysisPanel({ onClose, onInspect, onPresent, initialTab = "results" }) {
   useModalKeyboard(true,onClose);
   const s = useStore(),
-    [tab, setTab] = useState("results");
+    [tab, setTab] = useState(initialTab);
   const project = s.getWorkspaceProject(),
     scenario = activeScenario(project);
   const saveScenario = (next) =>
@@ -563,9 +564,10 @@ export default function AnalysisPanel({ onClose, onInspect, onPresent }) {
             key={scenario.id}
             scenario={scenario}
             onInspect={onInspect}
-            onSave={(next, name) => {
-              s.editWorkspace(duplicateScenario(project, name, next));
-              setTab("scenarios");
+            onApply={saveScenario}
+            onSave={async (next, name) => {
+              try { await s.copyScenario(scenario.id, name, next); setTab("scenarios"); }
+              catch (error) { alert(error.message); }
             }}
           />
         )}

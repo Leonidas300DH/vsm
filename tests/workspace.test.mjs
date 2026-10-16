@@ -199,3 +199,45 @@ test("v3 migration refuses silent edge or library losses",()=>{
  assert.throws(()=>migrateProject(project));
  assert.throws(()=>migrateProject({nodes:[],edges:[],tools:[{id:"bad"}]}));
 });
+
+test('scenario tabs preserve live edits, independent resources, views and named starting point', async () => {
+  const factory = new IDBFactory(), store = createStore(() => state());
+  const controller = installWorkspace(store, {factory, listen:false});
+  await controller.initialized;
+  try {
+    const baseline = store.getState().workspaceProject.actualScenarioId;
+    assert.equal(store.getState().scenarioExtra.name, 'Baseline');
+    store.setState({tools:[{id:'excel',name:'Excel',logo:'embedded-original',metadata:{source:'custom'}}]});
+    const original = structuredClone(store.getState().getWorkspaceProject().scenarios[0]);
+    const future = await store.getState().copyScenario(baseline, 'Future State');
+    assert.equal(store.getState().workspaceProject.activeScenarioId, future);
+    assert.deepEqual(compareScenarios(original, activeScenario(store.getState().getWorkspaceProject())), []);
+    store.setState({tools:[{id:'excel',name:'Changed',logo:'embedded-future',metadata:{source:'future'}}]});
+    store.getState().rememberScenarioView({viewport:{x:50,y:90,zoom:.6},detailMode:'operations'});
+    const revision = store.getState().scenarioExtra.revision;
+    store.getState().switchScenario(baseline);
+    assert.equal(store.getState().tools[0].name, 'Excel');
+    assert.equal(store.getState().tools[0].logo, 'embedded-original');
+    assert.equal(store.getState().scenarioExtra.revision, original.revision);
+    store.getState().switchScenario(future);
+    assert.equal(store.getState().tools[0].name, 'Changed');
+    assert.equal(store.getState().scenarioExtra.revision, revision);
+    assert.equal(store.getState().detailMode, 'operations');
+    // A second copy still defaults to an explicit baseline source, not the edited active tab.
+    const third = await store.getState().copyScenario(baseline, 'Today');
+    assert.equal(store.getState().tools[0].name, 'Excel');
+    assert.equal((await store.getState().listVersions()).filter(v=>v.name.startsWith('Point de départ')).length,1);
+    const exported = migrateProject(JSON.parse(JSON.stringify(store.getState().getWorkspaceProject())));
+    assert.equal(exported.scenarios.length, 3);
+    assert.equal(exported.actualScenarioId, baseline);
+    assert.equal(exported.activeScenarioId, third);
+    assert.equal(exported.scenarios.find(s=>s.id===future).tools[0].logo,'embedded-future');
+    await store.getState().flushWorkspace();
+    const reopened = createStore(() => state()), next = installWorkspace(reopened,{factory,listen:false});
+    await next.initialized;
+    assert.equal(reopened.getState().workspaceProject.activeScenarioId,third);
+    reopened.getState().switchScenario(future);
+    assert.equal(reopened.getState().tools[0].metadata.source,'future');
+    next.close();
+  } finally { controller.close(); }
+});

@@ -7,7 +7,7 @@ import { hasFileSystemAccess, openFile, saveFile, saveFileAs } from '../utils/fi
 import { migrateProject } from '../services/project.js';
 import { makePortable, importEmbedded } from '../services/portable.js';
 
-const Header = ({ children, onExample, onHistory }) => {
+const Header = ({ children, onExample, onHistory, inert }) => {
     const t = useMenuLanguage();
     const {
         projectTitle,
@@ -148,7 +148,7 @@ const Header = ({ children, onExample, onHistory }) => {
     };
 
     return (
-        <header className="project-header">
+        <header className="project-header" inert={inert}>
             <div className="project-identity">
                 <div className="studio-brand" title="VSM Studio"><LayoutTemplate size={18} /><span>VSM STUDIO</span></div>
                 <ToolbarPopover label={t("Projet")}>

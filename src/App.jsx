@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ReactFlowProvider, useReactFlow } from 'reactflow';
 import { PanelLeft, PanelRight, ChartNoAxesCombined, AlignHorizontalSpaceAround, AlignVerticalSpaceAround, Columns3, Scan, Settings2, ArrowRight, X } from 'lucide-react';
+import ScenarioTabs from './components/ScenarioTabs';
+import ScenarioComparison from './components/ScenarioComparison';
 import Sidebar from './components/Sidebar';
 import PropertiesPanel from './components/PropertiesPanel';
 import Timeline from './components/Timeline';
@@ -28,6 +30,8 @@ const FOCUS_KIND_LABEL = { tool: 'Outil', actor: 'Acteur', team: 'Équipe' };
 
 function Workspace() {
   const t = useMenuLanguage();
+  const [comparison, setComparison] = useState(null);
+  const closeComparison = useCallback(() => setComparison(null), []);
   const [sidebar, setSidebar] = usePanelPreference('sidebar', false);
   const [properties, setProperties] = usePanelPreference('properties', false);
   const [analysis, setAnalysis] = usePanelPreference('analysis', false);
@@ -93,7 +97,7 @@ function Workspace() {
   };
   return <div className="workspace" data-detail={useStore.getState().detailMode}>
     {useStore.getState().saveStatus==='loading'&&<div className="studio-backdrop" role="status">Récupération de votre projet local…</div>}
-    <WorkspaceTools onExample={loadExample} onArrange={arrange} onInspect={(id,diagnostic)=>{const state=useStore.getState();useStore.setState({selectedNodeId:state.nodes.some(n=>n.id===id)?id:null,selectedStepId:id,selectedItemId:null,nodes:state.nodes.map(n=>({...n,selected:n.id===id})),edges:state.edges.map(e=>({...e,selected:e.id===id})),inspectionDiagnostic:diagnostic});setProperties(true);}}>
+    <WorkspaceTools inert={Boolean(comparison)} onExample={loadExample} onArrange={arrange} onInspect={(id,diagnostic)=>{const state=useStore.getState();useStore.setState({selectedNodeId:state.nodes.some(n=>n.id===id)?id:null,selectedStepId:id,selectedItemId:null,nodes:state.nodes.map(n=>({...n,selected:n.id===id})),edges:state.edges.map(e=>({...e,selected:e.id===id})),inspectionDiagnostic:diagnostic});setProperties(true);}}>
       {detailControl => <>
       <button className="canvas-command" aria-label={t("Aligner")} title={t("Aligner")} onClick={arrange} disabled={!nodes.length}><Columns3 size={15} /><span>{t("Aligner")}</span></button>
       <button className="canvas-command" aria-label={t("Vue globale")} onClick={frame} title={t("Afficher toute la carte")}><Scan size={15} /><span>{t("Vue globale")}</span></button>
@@ -127,10 +131,10 @@ function Workspace() {
     {lastDeletion && <div className="workspace-notice is-undo" role="status">{deletionLabel}<button className="notice-action" onClick={undoDeletion}>Annuler</button><button aria-label="Fermer le message" onClick={dismissDeletion}><X size={13} /></button></div>}
     {focus && !lastDeletion && <div className="workspace-notice is-focus" role="status">{FOCUS_KIND_LABEL[focus.kind]} « {focus.label} » · {focusCount} étape{focusCount > 1 ? 's' : ''} concernée{focusCount > 1 ? 's' : ''} · le reste est estompé<button className="notice-action" onClick={() => setFocus(null)}>Retirer le focus</button></div>}
     {notice && !lastDeletion && !focus && <div className="workspace-notice" role="status">{notice}<button aria-label="Fermer le message" onClick={() => setNotice('')}><X size={13} /></button></div>}
-    <main className="workspace-main">
+    <main className="workspace-main" inert={Boolean(comparison)}>
       <Sidebar collapsed={!sidebar} onToggle={() => setSidebar(!sidebar)} onExpand={() => setSidebar(true)} />
       <section className="canvas-column" aria-label="Carte de processus">
-        <div className="canvas-stage"><VSMCanvas onInspect={() => {setProperties(true);useStore.setState({inspectionDiagnostic:null});}} />
+        <div className="canvas-stage"><VSMCanvas readOnly={Boolean(comparison)} key={`${useStore.getState().workspaceProject.id}:${useStore.getState().workspaceProject.activeScenarioId}`} onInspect={() => {setProperties(true);useStore.setState({inspectionDiagnostic:null});}} />
           {!nodes.length && <div className="empty-canvas"><span className="empty-symbol">◇</span><h2>Dessinez votre flux.</h2><p>Glissez une étape depuis la palette<br />ou explorez un parcours KYC complet.</p><button onClick={loadExample}>Explorer l’exemple <ArrowRight size={15} /></button></div>}
           <div className="canvas-caption">{orientation === 'vertical' ? 'HAUT → BAS' : 'GAUCHE → DROITE'} <span>Glisser pour explorer · Molette pour zoomer</span></div>
         </div>
@@ -139,7 +143,9 @@ function Workspace() {
       <div className="inspector-shell" hidden={!properties}><>{useStore.getState().inspectionDiagnostic&&<div className="inspection-diagnostic"><strong>{useStore.getState().inspectionDiagnostic.message}</strong><p>{useStore.getState().inspectionDiagnostic.formula}</p></div>}<PropertiesPanel onClose={() => setProperties(false)} /></></div>
       {!properties && <button className="inspector-tab" aria-label="Ouvrir l’inspecteur" onClick={() => setProperties(true)}><PanelRight size={16} /><span>{t("Inspecteur")}</span></button>}
     </main>
-    <footer className="statusbar"><span><i /> ESPACE LOCAL</span><span>{selectedNodeId ? 'Étape sélectionnée' : 'Sélectionnez une étape ou une connexion pour la modifier'}</span><span>VSM / PROCESS STUDIO</span></footer>
+    <ScenarioTabs onSwitch={() => { setComparison(null); setNotice(''); }} onCompare={() => setComparison(useStore.getState().getWorkspaceProject())}/>
+    {comparison && <ScenarioComparison project={comparison} onClose={closeComparison}/>}
+
   </div>;
 }
 export default function App() { return <ReactFlowProvider><Workspace /></ReactFlowProvider>; }

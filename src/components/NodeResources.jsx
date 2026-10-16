@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus, X } from 'lucide-react';
-import useStore from '../store/useStore';
+import { useGraphState } from '../store/graphContext';
 import { resourceKinds } from '../utils/resources';
 import ToolIcon from './ToolIcon';
 import ResourceLibrary from './ResourceLibrary';
@@ -9,10 +9,11 @@ import { resourceIcons } from '../utils/resourceIcons';
 import { resourceMatchesFocus } from '../utils/focus';
 
 export default function NodeResources({ id, data }) {
-  const store = useStore();
+  const readOnly = useGraphState(s => s.readOnly);
+  const store = useGraphState();
   // Vertical reading: resources sit beside the card, ports on its right edge, satellites running rightwards.
-  const side = useStore(s => s.orientation === 'vertical');
-  const focus = useStore(s => s.focus);
+  const side = useGraphState(s => s.orientation === 'vertical');
+  const focus = useGraphState(s => s.focus);
   const [picker, setPicker] = useState(null);
   const modalRef = useRef(null);
   useEffect(() => {
@@ -45,14 +46,14 @@ export default function NodeResources({ id, data }) {
             : <svg className="resource-wires" viewBox={`0 0 100 ${32 + ids.length * 100}`} preserveAspectRatio="none" aria-hidden="true">
                 {ids.map((resourceId, index) => <path key={resourceId} d={index === 0 ? 'M50 4 L50 55' : `M50 4 C2 35 2 ${index * 100 + 35} 50 ${index * 100 + 55}`} />)}
               </svg>)}
-          <button className="resource-port" title={`Rattacher : ${config.label}`} onClick={() => setPicker(kind)}><span className="resource-diamond"/><span className="resource-port-label">{config.label}</span><Plus size={12}/></button>
+          <button className="resource-port" title={`Rattacher : ${config.label}`} disabled={readOnly} onClick={() => setPicker(kind)}><span className="resource-diamond"/><span className="resource-port-label">{config.label}</span>{!readOnly && <Plus size={12}/>}</button>
           {(data[config.field] || []).map(resourceId => {
             const entry = store[kind].find(r => r.id === resourceId);
             const focused = resourceMatchesFocus(kind, resourceId, focus, { actors: store.actors });
             return <div className={`resource-satellite ${focused ? 'is-focused' : ''}`} key={resourceId}>
-              <button className={`resource-orb ${focused ? 'is-focused' : ''}`} onClick={() => setPicker(kind)} title={entry?.description || entry?.name || resourceId}>{kind === 'tools' ? <ToolIcon name={entry?.icon} toolName={entry?.name} logo={entry?.logo} size={23}/> : <Icon size={21}/>}</button>
+              <button className={`resource-orb ${focused ? 'is-focused' : ''}`} disabled={readOnly} onClick={() => setPicker(kind)} title={entry?.description || entry?.name || resourceId}>{kind === 'tools' ? <ToolIcon name={entry?.icon} toolName={entry?.name} logo={entry?.logo} size={23}/> : <Icon size={21}/>}</button>
               <span>{entry?.name || `Référence : ${resourceId}`}</span>
-              <button className="resource-detach" title={`Détacher ${entry?.name || resourceId}`} onClick={() => store.detachResource(id, kind, resourceId)}><X size={10}/></button>
+              {!readOnly && <button className="resource-detach" title={`Détacher ${entry?.name || resourceId}`} onClick={() => store.detachResource(id, kind, resourceId)}><X size={10}/></button>}
             </div>;
           })}
         </div>;

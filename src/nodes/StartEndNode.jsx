@@ -1,14 +1,15 @@
 import React, { memo, useEffect } from 'react';
 import { Handle, Position, useUpdateNodeInternals } from 'reactflow';
 import { ArrowRightToLine, ArrowRightFromLine, ArrowDownToLine, ArrowDownFromLine, Paperclip, Trash2 } from 'lucide-react';
-import useStore from '../store/useStore';
+import { useGraphState } from '../store/graphContext';
 
 const StartEndNode = ({ id, data, selected }) => {
     const isStart = data.type === 'start';
+    const readOnly = useGraphState(s => s.readOnly);
     const hasAttachments = data.attachments && data.attachments.length > 0;
     const nodeBorder = 'var(--c-f36f79)';
     const nodeBg = 'var(--c-381c26)';
-    const vertical = useStore(s => s.orientation === 'vertical');
+    const vertical = useGraphState(s => s.orientation === 'vertical');
     const updateNodeInternals = useUpdateNodeInternals();
     // Handles move between left/right and top/bottom: React Flow must re-measure them.
     useEffect(() => { updateNodeInternals(id); }, [vertical, id, updateNodeInternals]);
@@ -16,7 +17,7 @@ const StartEndNode = ({ id, data, selected }) => {
         ? { background: 'var(--c-7e99a8)', width: '12px', height: '12px', left: '50%', transform: 'translateX(-50%)' }
         : { background: 'var(--c-7e99a8)', width: '12px', height: '12px' };
     const Icon = isStart ? (vertical ? ArrowDownToLine : ArrowRightToLine) : (vertical ? ArrowDownFromLine : ArrowRightFromLine);
-    const deleteNode = useStore(s => s.deleteNode);
+    const deleteNode = useGraphState(s => s.deleteNode);
     const confirmDelete = (e) => {
         e.stopPropagation();
         if (window.confirm(`Supprimer « ${data.label || (isStart ? 'Entrée' : 'Sortie')} » et ses connexions ? Vous pourrez annuler juste après.`)) deleteNode(id);
@@ -38,14 +39,15 @@ const StartEndNode = ({ id, data, selected }) => {
             justifyContent: 'center',
             position: 'relative'
         }}>
+            {data.comparisonBadge && <span className="node-comparison-badge">{data.comparisonBadge}</span>}
             {!isStart && <Handle type="target" position={vertical ? Position.Top : Position.Left} style={vertical ? { ...port, top: '-6px' } : { ...port, left: '-6px' }} />}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Icon size={20} aria-label={isStart ? "Entrée (Input)" : "Sortie (Output)"} color={nodeBorder} />
                 <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{data.label}</span>
-                <button type="button" className="node-delete nodrag" title="Supprimer" aria-label={`Supprimer ${data.label || ''}`} onClick={confirmDelete}>
+                {!readOnly && <button type="button" className="node-delete nodrag" title="Supprimer" aria-label={`Supprimer ${data.label || ''}`} onClick={confirmDelete}>
                     <Trash2 size={12} />
-                </button>
+                </button>}
             </div>
 
             {data.description && (

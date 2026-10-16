@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import useStore from '../store/useStore';
+import { useGraphState } from '../store/graphContext';
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from 'reactflow';
 
 const FlowEdge = ({
@@ -15,8 +16,10 @@ const FlowEdge = ({
     data,
 }) => {
     const [edgePath, anchorX, anchorY] = getBezierPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition });
+    const readOnly = useGraphState(s => s.readOnly);
     const labelRef = useRef(null);
     useLayoutEffect(() => {
+        if (readOnly) return;
         const element = labelRef.current;
         const observer = new ResizeObserver(() => {
             const width = element.offsetWidth, height = element.offsetHeight;
@@ -25,7 +28,7 @@ const FlowEdge = ({
         });
         observer.observe(element);
         return () => observer.disconnect();
-    }, [id,anchorX,anchorY]);
+    }, [id,anchorX,anchorY,readOnly]);
 
     const edgeStyle = {
         ...style,

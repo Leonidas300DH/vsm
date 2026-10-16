@@ -62,3 +62,25 @@ Dans **Analyse Codex**, saisir les contraintes, vérifier le dossier exact et l�
 Demander à Codex d’analyser ce dossier et de produire un JSON conforme à `proposalTemplate`. Réimporter le JSON, puis **Valider et prévisualiser**. Le contrat exige la référence de scénario/révision, les objets concernés, une comparaison humain/IT/agent, les hypothèses, coûts, supervision et exceptions. Les propositions ne sont jamais exécutées comme code. Après validation explicite, l’application crée une nouvelle cible et recalcule ses gains.
 
 Les connecteurs OpenAI, Claude et Gemini utilisent ce même contrat dans l’installation locale ; voir INSTALLATION-LOCALE.md. Aucun appel ne se lance automatiquement.
+
+## Onglets de scénarios
+
+Le pied de page contient les scénarios du projet. Un nouveau projet commence avec **Baseline**. Les noms des scénarios existants sont conservés. L’étoile indique la référence, indépendamment de son nom : vous pouvez renommer Baseline en Current State.
+
+- Cliquez sur un onglet pour travailler sur sa carte. Double-cliquez, utilisez F2 ou le menu **… → Renommer** pour changer son nom. Les flèches gauche/droite du clavier parcourent les onglets.
+- **+** crée une copie indépendante. La source proposée est la référence ; vous pouvez choisir un autre scénario. Le menu **… → Dupliquer cet onglet** présélectionne l’onglet actif.
+- Les cartes, mesures, catégories, routages, acteurs, outils, connaissances et références documentaires sont copiés. Le contenu des pièces jointes est conservé par le stockage documentaire existant. Modifier une bibliothèque dans une copie ne modifie pas les autres scénarios.
+- La première copie créée depuis les onglets ou la simulation conserve une version nommée **Point de départ** dans l’historique. Les sauvegardes et les fichiers VSM incluent tous les scénarios, y compris les onglets archivés. Le zoom et le niveau de détail sont des préférences locales par onglet.
+- Le menu **…** permet aussi de définir la référence, d’archiver et de restaurer un onglet. Archiver l’onglet actif revient à la référence ; la référence ne peut pas être archivée.
+
+### Comparer
+
+**Comparer** ouvre deux cartes en lecture seule, superposées par défaut. Les sélecteurs **A** et **B** choisissent les scénarios ; les boutons du haut permettent la disposition côte à côte et le zoom/déplacement lié ou libre. La séparation entre les cartes est ajustable à la souris ou au clavier.
+
+Cliquer sur une étape centre et sélectionne son équivalent dans les deux cartes, lorsqu’il existe. Les badges Ajouté, Modifié et Retiré conservent les couleurs métier des étapes. Les ressources affichées proviennent de leur propre scénario.
+
+Le panneau **Indicateurs et détails**, repliable, affiche les différences et les écarts **B − A** pour la charge par période, le processing time, l’attente et le lead time par dossier. Un clic sur une différence centre les étapes concernées. Les étiquettes de flux recalculées ne sont pas comptées comme des changements métier. Une donnée inconnue ne devient pas zéro ; un pourcentage relatif à zéro n’est pas calculé.
+
+### Simuler depuis un onglet
+
+**Simuler** ouvre directement la simulation du scénario actif. L’exploration ne modifie pas la source tant que vous n’avez pas choisi **Appliquer à cet onglet** ou **Créer un onglet**. Les changements appliqués restent annulables avec l’historique métier.

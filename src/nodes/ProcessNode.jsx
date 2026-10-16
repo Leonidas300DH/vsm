@@ -4,18 +4,20 @@ import { Paperclip, AlertTriangle, Plus, User, Workflow, Bot, Box, Trash2 } from
 import { getFile } from '../utils/db';
 import NodeResources from '../components/NodeResources';
 import useStore from '../store/useStore';
+import { useGraphState } from '../store/graphContext';
 
 const ProcessNode = ({ id, data, selected }) => {
-    const { addNextNode, deleteNode } = useStore();
+    const { addNextNode, deleteNode } = useGraphState();
     const confirmDelete = (e) => {
         e.stopPropagation();
         if (window.confirm(`Supprimer l’étape « ${data.label || 'Étape'} » et ses connexions ? Vous pourrez annuler juste après.`)) deleteNode(id);
     };
-    const vertical = useStore(s => s.orientation === 'vertical');
-    const detailMode=useStore(s=>s.detailMode);
+    const vertical = useGraphState(s => s.orientation === 'vertical');
+    const detailMode=useGraphState(s=>s.detailMode);
     const updateNodeInternals = useUpdateNodeInternals();
     // Handles move between left/right and top/bottom: React Flow must re-measure them.
     useEffect(() => { updateNodeInternals(id); }, [vertical, detailMode, id, updateNodeInternals]);
+    const readOnly = useGraphState(s => s.readOnly);
     const hasAttachments = data.attachments && data.attachments.length > 0;
     const subtype = data.subtype || 'standard';
 
@@ -78,8 +80,8 @@ const ProcessNode = ({ id, data, selected }) => {
 
     return (
         <div className="step-with-resources" data-layout={vertical ? 'side' : 'below'}><div className="process-card" data-kind={subtype}
-            onDragOver={e => { if (e.dataTransfer.types.includes("application/vsm-resource")) { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "link"; } }}
-            onDrop={e => { const raw = e.dataTransfer.getData("application/vsm-resource"); if (raw) { e.preventDefault(); e.stopPropagation(); try { const resource = JSON.parse(raw); useStore.getState().attachResource(id, resource.kind, resource.id); } catch { /* Ignore foreign drag data. */ } } }}
+            onDragOver={e => { if (readOnly) return; if (e.dataTransfer.types.includes("application/vsm-resource")) { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "link"; } }}
+            onDrop={e => { if (readOnly) return; const raw = e.dataTransfer.getData("application/vsm-resource"); if (raw) { e.preventDefault(); e.stopPropagation(); try { const resource = JSON.parse(raw); useStore.getState().attachResource(id, resource.kind, resource.id); } catch { /* Ignore foreign drag data. */ } } }}
             style={{
                 minWidth: '220px',
                 maxWidth: '400px',
@@ -103,6 +105,7 @@ const ProcessNode = ({ id, data, selected }) => {
                     : { background: 'var(--c-7e99a8)', width: '12px', height: '12px', left: '-6px', top: '50%', transform: 'translateY(-50%)' }}
             />
 
+            {data.comparisonBadge && <span className="node-comparison-badge">{data.comparisonBadge}</span>}
             {/* Header */}
             <div style={{
                 padding: '0.5rem',
@@ -120,10 +123,10 @@ const ProcessNode = ({ id, data, selected }) => {
                 <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {data.label}
                 </div>
-                <button className="nodrag node-delete" aria-label={data.positionLocked?'Déverrouiller la position':'Verrouiller la position'} title="Position verrouillée" onClick={e=>{e.stopPropagation();useStore.getState().updateNodeData(id,{positionLocked:!data.positionLocked});}}>{data.positionLocked?'◆':'◇'}</button>
-                <button type="button" className="node-delete nodrag" title="Supprimer l’étape" aria-label={`Supprimer l’étape ${data.label || ''}`} onClick={confirmDelete}>
+                {!readOnly && <button className="nodrag node-delete" aria-label={data.positionLocked?'Déverrouiller la position':'Verrouiller la position'} title="Position verrouillée" onClick={e=>{e.stopPropagation();useStore.getState().updateNodeData(id,{positionLocked:!data.positionLocked});}}>{data.positionLocked?'◆':'◇'}</button>}
+                {!readOnly && <button type="button" className="node-delete nodrag" title="Supprimer l’étape" aria-label={`Supprimer l’étape ${data.label || ''}`} onClick={confirmDelete}>
                     <Trash2 size={12} />
-                </button>
+                </button>}
             </div>
 
             {/* Body */}
@@ -302,7 +305,7 @@ const ProcessNode = ({ id, data, selected }) => {
             )}
 
             {/* Quick Add Button */}
-            <button
+            {!readOnly && <button
                 onClick={(e) => {
                     e.stopPropagation();
                     addNextNode(id);
@@ -337,7 +340,7 @@ const ProcessNode = ({ id, data, selected }) => {
                 }}
             >
                 <Plus size={12} />
-            </button>
+            </button>}
 
             <Handle
                 type="source"
