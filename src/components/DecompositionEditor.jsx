@@ -14,7 +14,7 @@ import PropertiesPanel from "./PropertiesPanel";
 import useModalKeyboard from "./useModalKeyboard";
 import { uid } from "../services/project";
 import { groupCollisions, layoutGroups } from "../services/groupProjection";
-import { applyGroupCommand } from "../services/groups";
+import { applyGroupCommand, summarizeGroup } from "../services/groups";
 import { analyze, displayNumber as fmt } from "../services/analysis";
 import { calculateMetrics } from "../utils/calculations";
 import { resourceKinds } from "../utils/resources";
@@ -25,6 +25,7 @@ export default function DecompositionEditor({
   onClose,
 }) {
   const live = useGraphState();
+  const [referenceScenario] = useState(() => structuredClone(scenario));
   const [original] = useState(() =>
     structuredClone(scenario.nodes.find((n) => n.id === nodeId)),
   );
@@ -116,6 +117,18 @@ export default function DecompositionEditor({
     candidate = null;
   }
   const result = candidate && analyze(candidate);
+  const referenceSummary = summarizeGroup(referenceScenario, nodeId);
+  const detailSummary = candidate && summarizeGroup(candidate, nodeId, result);
+  const resourceNames = (summary, kind) =>
+    summary?.resources[kind].map((r) => r.name).join(", ") || "Aucun";
+  const documentNames = (nodes) =>
+    [
+      ...new Map(
+        nodes
+          .flatMap((n) => n.data.attachments || [])
+          .map((a) => [a.id || a.name, a.name || a.id]),
+      ).values(),
+    ].join(", ") || "Aucun";
   const computed = candidate
     ? calculateMetrics(candidate.nodes, candidate.edges)
     : { nodes: draft.nodes, edges: draft.edges };
@@ -333,6 +346,24 @@ export default function DecompositionEditor({
       {selectedNode && (
         <small className="draft-notice">
           Les ressources existantes sont accessibles sous la carte sélectionnée.
+          {!!original.data.attachments?.length && (
+            <button
+              onClick={() =>
+                patch(selectedNode.id, {
+                  attachments: [
+                    ...new Map(
+                      [
+                        ...(selectedNode.data.attachments || []),
+                        ...structuredClone(original.data.attachments),
+                      ].map((a) => [a.id || a.name, a]),
+                    ).values(),
+                  ],
+                })
+              }
+            >
+              Réutiliser les pièces jointes de référence
+            </button>
+          )}
         </small>
       )}
       {error && (
@@ -371,7 +402,7 @@ export default function DecompositionEditor({
               <table>
                 <thead>
                   <tr>
-                    <th>Projet · indicateur</th>
+                    <th>Étape · indicateur</th>
                     <th>Référence actuelle</th>
                     <th>Avec le détail</th>
                   </tr>
@@ -382,14 +413,63 @@ export default function DecompositionEditor({
                     ["processing", "Processing / dossier"],
                     ["waiting", "Attente / dossier"],
                     ["lead", "Lead time / dossier"],
-                    ["completedVolume", "Volume de sortie"],
                   ].map(([k, label]) => (
                     <tr key={k}>
                       <th>{label}</th>
-                      <td>{fmt(analysis[k])}</td>
-                      <td>{fmt(result[k])}</td>
+                      <td>{fmt(referenceSummary[k])}</td>
+                      <td>{fmt(detailSummary[k])}</td>
                     </tr>
                   ))}
+                  {["inputs", "outputs"].flatMap((side) =>
+                    [
+                      ...new Set(
+                        [...referenceSummary[side], ...detailSummary[side]].map(
+                          (c) => c.category,
+                        ),
+                      ),
+                    ].map((id) => (
+                      <tr key={`${side}:${id}`}>
+                        <th>
+                          {side === "inputs" ? "Entrées" : "Sorties"} ·{" "}
+                          {
+                            [
+                              ...referenceSummary[side],
+                              ...detailSummary[side],
+                            ].find((c) => c.category === id)?.name
+                          }
+                        </th>
+                        <td>
+                          {fmt(
+                            referenceSummary[side].find(
+                              (c) => c.category === id,
+                            )?.volume,
+                          )}
+                        </td>
+                        <td>
+                          {fmt(
+                            detailSummary[side].find((c) => c.category === id)
+                              ?.volume,
+                          )}
+                        </td>
+                      </tr>
+                    )),
+                  )}
+                  {Object.entries({
+                    tools: "Outils",
+                    actors: "Acteurs",
+                    knowledge: "Connaissances",
+                  }).map(([kind, label]) => (
+                    <tr key={kind}>
+                      <th>{label}</th>
+                      <td>{resourceNames(referenceSummary, kind)}</td>
+                      <td>{resourceNames(detailSummary, kind)}</td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <th>Documents</th>
+                    <td>{documentNames([original])}</td>
+                    <td>{documentNames(draft.nodes)}</td>
+                  </tr>
                 </tbody>
               </table>
               <p>

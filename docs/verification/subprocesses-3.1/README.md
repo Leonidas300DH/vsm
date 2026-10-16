@@ -4,14 +4,15 @@
 
 Hiérarchie indépendante du graphe métier, cadres imbriqués, sélection multiple connectée, dissociation, suppression avec aperçu, déplacement collectif, repli avec ports de frontière distincts, navigation par niveau et inspecteur. Les cartes existantes, couleurs, ressources satellites et courbes sont conservées.
 
-Brouillons de décomposition explicites, sauvegarde confirmée par IndexedDB, correspondance des frontières, acceptation des indicateurs inconnus et activation atomique avec référence conservée. Annuler/rétablir restaure le graphe et la hiérarchie. Les brouillons restent locaux au scénario ; l'activation structurelle suit l'aperçu de l'édition liée.
+Brouillons de décomposition explicites, sauvegarde confirmée par IndexedDB, réutilisation des documents de référence, comparaison des ressources et volumes aux frontières, acceptation des indicateurs inconnus et activation atomique avec référence conservée. Annuler/rétablir restaure le graphe et la hiérarchie. Les brouillons restent locaux au scénario ; l'activation structurelle suit l'aperçu de l'édition liée.
 
 Les fichiers VSM 3.1 incluent le graphe détaillé, les groupes, les références et les brouillons. Les modèles réutilisables remappent leurs identifiants et ressources. Comparaisons, commentaires, présentation, PDF et dossier d'analyse connaissent les groupes.
 
 ## Vérifications locales
 
-- 118 tests, dont 19 nouveaux tests de hiérarchie : cinq niveaux, branches/convergence, frontières multiples, boucles et données inconnues, intégrité du modèle, ressources partagées, portabilité, modèles, scénarios liés et indépendants, transactions annuler/rétablir.
+- 119 tests, dont 20 nouveaux tests de hiérarchie : cinq niveaux, branches/convergence, frontières multiples, boucles et données inconnues, intégrité du modèle, ressources partagées, portabilité, modèles, scénarios liés et indépendants, transactions annuler/rétablir.
 - Lint et compilation réussis. Avertissement Vite conservé : chunk principal supérieur à 500 kB.
+- Pièces jointes : stockage des octets compatible avec WebKit, lecture rétrocompatible des anciens enregistrements Blob ; import, rattachement explicite au détail, sauvegarde et réouverture vérifiés.
 - Google Chrome et WebKit : regroupement, repli/dépli, renommage, navigation, dissociation, sauvegarde/réouverture du brouillon, activation et annulation/rétablissement. Aucun message d'erreur d'exécution.
 - Chrome et WebKit : KYC imbriqué, export PDF, export VSM 3.1, propagation vers deux enfants, modification locale d'un enfant délié, annulation/rétablissement.
 - Chrome : suppression avec aperçu et restauration ; déplacement collectif ; thèmes sombre/clair. Les 17 contrôles préexistants de l'édition liée passent aussi, sans erreur ni avertissement de console.

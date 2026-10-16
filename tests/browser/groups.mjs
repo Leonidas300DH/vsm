@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 const { chromium, webkit } = await import(
   process.env.PLAYWRIGHT_MODULE || "playwright"
 );
@@ -20,7 +21,10 @@ page.on("pageerror", (e) => errors.push(e.message));
 page.on("console", (m) => {
   if (m.type() === "error") errors.push(m.text());
 });
-page.on("dialog", (d) => d.accept());
+page.on("dialog", (d) => {
+  console.log("DIALOG", d.message());
+  return d.accept();
+});
 const check = (s) => {
   checks.push(s);
   console.log("PASS", s);
@@ -34,9 +38,15 @@ const persist = () =>
   );
 try {
   await page.goto(url);
+  await page.getByRole("button", { name: "Projet", exact: true }).waitFor();
+  await page
+    .locator('.studio-backdrop[role="status"]')
+    .waitFor({ state: "hidden" });
   await page
     .locator('input[type=file][accept=".json,.vsm"]')
-    .setInputFiles(new URL("../fixtures/groups.vsm", import.meta.url).pathname);
+    .setInputFiles(
+      fileURLToPath(new URL("../fixtures/groups.vsm", import.meta.url)),
+    );
   await n("p0").waitFor();
   await n("p0").click();
   await n("p1").click({ modifiers: ["Shift"] });
@@ -91,6 +101,12 @@ try {
   });
   await draft.getByRole("button", { name: "Ajouter une sous-étape" }).click();
   await draft.getByRole("button", { name: "Ajouter une sous-étape" }).click();
+  await draft.locator(".react-flow__node").first().click();
+  await draft
+    .getByRole("button", { name: "Réutiliser les pièces jointes de référence" })
+    .click();
+  await draft.getByText("Procedure.txt", { exact: true }).first().waitFor();
+  check("Reference document explicitly attached to a chosen substep");
   await draft.getByRole("button", { name: "Enregistrer le brouillon" }).click();
   await draft.getByText("Brouillon enregistré.", { exact: false }).waitFor();
   await draft.getByLabel("Fermer le détail").click();

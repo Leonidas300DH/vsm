@@ -147,3 +147,5 @@ Pour détailler une étape, la sélectionner puis choisir **Détailler en sous-�
 Dans l’édition liée, un changement de structure présente les scénarios concernés avant application. Un enfant incompatible bloque la transaction entière. Les brouillons sont préparés localement dans leur scénario ; seule leur activation proposée est répliquée. Modifier un enfant le délie. Les copies de scénarios, modèles réutilisables, fichiers VSM, commentaires, présentations et rapports conservent la hiérarchie. Le dossier d’analyse contient les groupes actifs, sans transmettre les brouillons ni les documents de référence.
 
 Le format 3.1 contient toujours le graphe détaillé à plat. Les anciennes cartes n’acquièrent aucun groupe à l’ouverture. Le nouvel exemple KYC contient un groupe de constitution du dossier et deux sous-groupes.
+
+Dans un brouillon, sélectionnez une sous-étape puis « Réutiliser les pièces jointes de référence » pour y rattacher les documents initiaux. Le tableau avant/après compare les volumes aux frontières, les délais et les ressources de l’étape détaillée.

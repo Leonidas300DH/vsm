@@ -52,14 +52,12 @@ function fixture(count = 3) {
     })),
   );
   s.nodes.at(-1).position.x = 900 * (count + 1);
-  s.edges = s.nodes
-    .slice(1)
-    .map((n, i) => ({
-      id: `e${i}`,
-      source: s.nodes[i].id,
-      target: n.id,
-      data: { percentage: 100, wait_time: 1 },
-    }));
+  s.edges = s.nodes.slice(1).map((n, i) => ({
+    id: `e${i}`,
+    source: s.nodes[i].id,
+    target: n.id,
+    data: { percentage: 100, wait_time: 1 },
+  }));
   s.tools = [{ id: "excel", name: "Excel", logo: "data:image/png;base64,x" }];
   s.actors = [
     { id: "person", name: "Analyste", headcount: 1, availableTime: 480 },
@@ -410,14 +408,12 @@ test("workspace undo redo restores complete hierarchy and activation after reloa
     api = installWorkspace(store, { factory: new IDBFactory(), listen: false });
   await api.initialized;
   try {
-    store
-      .getState()
-      .applyGroupCommand({
-        type: "group",
-        id: "g",
-        ids: ["p0", "p1"],
-        name: "G",
-      });
+    store.getState().applyGroupCommand({
+      type: "group",
+      id: "g",
+      ids: ["p0", "p1"],
+      name: "G",
+    });
     assert.equal(
       store.getState().getWorkspaceProject().scenarios[0].groups.length,
       1,
@@ -427,13 +423,11 @@ test("workspace undo redo restores complete hierarchy and activation after reloa
     store.getState().redoBusiness();
     assert.equal(store.getState().scenarioExtra.groups.length, 1);
     const before = metrics(store.getState().getWorkspaceProject().scenarios[0]);
-    store
-      .getState()
-      .applyGroupCommand({
-        type: "activateDraft",
-        nodeId: "p0",
-        draft: draft(fixture()),
-      });
+    store.getState().applyGroupCommand({
+      type: "activateDraft",
+      nodeId: "p0",
+      draft: draft(fixture()),
+    });
     assert.equal(
       store.getState().nodes.some((n) => n.id === "d1"),
       true,
@@ -528,24 +522,20 @@ test("linked grouping and ungrouping undo/redo affect only explicitly linked sce
     store.getState().editWorkspace(p);
     const [master, a, b] = p.scenarios.map((s) => s.id);
     store.getState().beginLinkedEditing();
-    store
-      .getState()
-      .configureLinkedEditing({
-        masterId: master,
-        childIds: [a, b],
-        linkedIds: [a],
-        active: true,
-      });
-    store
-      .getState()
-      .applyLinkedEdit(
-        master,
-        {
-          type: "hierarchy",
-          operation: { type: "group", id: "g", ids: ["p0", "p1"], name: "G" },
-        },
-        { confirmed: true },
-      );
+    store.getState().configureLinkedEditing({
+      masterId: master,
+      childIds: [a, b],
+      linkedIds: [a],
+      active: true,
+    });
+    store.getState().applyLinkedEdit(
+      master,
+      {
+        type: "hierarchy",
+        operation: { type: "group", id: "g", ids: ["p0", "p1"], name: "G" },
+      },
+      { confirmed: true },
+    );
     assert.equal(
       store.getState().getWorkspaceProject().scenarios[1].groups.length,
       1,
@@ -601,4 +591,34 @@ test("templates retain draft-only logos, allocations and category measurements u
     "estimated",
   );
   validateGroups(next);
+});
+
+test("attachment vault stores portable bytes and reads legacy blobs without loss", async () => {
+  const previous = globalThis.indexedDB;
+  globalThis.indexedDB = new IDBFactory();
+  try {
+    const { saveFile, getFile, initDB } = await import("../src/utils/db.js");
+    await saveFile({
+      id: "doc",
+      name: "Pièce.txt",
+      content: new Blob(["Référence conservée"], { type: "text/plain" }),
+    });
+    const file = await getFile("doc");
+    assert.equal(await file.content.text(), "Référence conservée");
+    assert.equal(file.content.type, "text/plain");
+    const db = await initDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction("files", "readwrite");
+      tx.objectStore("files").put({
+        id: "legacy",
+        content: new Blob(["Ancien"]),
+      });
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+    db.close();
+    assert.equal(await (await getFile("legacy")).content.text(), "Ancien");
+  } finally {
+    globalThis.indexedDB = previous;
+  }
 });
