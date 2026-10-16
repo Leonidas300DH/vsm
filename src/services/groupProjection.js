@@ -125,19 +125,23 @@ export function projectGroups(
             24);
       }
     }
+    const cardHeight = Math.max(340, 70 + Math.max(0, ...Object.values(portOffsets)));
+    for (const [side, list] of [["in", inputs], ["out", outputs]]) {
+      if (list.length === 1) portOffsets[`${side}:${list[0].id}`] = cardHeight / 2;
+    }
+    const members = scenario.nodes.filter(n => leaves.get(id).has(n.id));
+    const resourceCount = Math.max(0, ...["toolsUsed", "actorsUsed", "knowledgeUsed"].map(field =>
+      new Set(members.flatMap(n => [...(n.data[field] || []), ...(field === "actorsUsed" ? Object.keys(n.data.actorAllocations || {}) : [])])).size));
     const size = isClosed
       ? {
-          width: 320,
-          height: Math.max(
-            340,
-            70 + Math.max(0, ...Object.values(portOffsets)),
-          ),
+          width: 300,
+          height: cardHeight + 40 + resourceCount * 100,
         }
       : { width: b.width, height: b.height };
     nodes.push({
       id,
       type: "subprocess",
-      position: { x: b.x, y: b.y },
+      position: { x: b.x + (isClosed ? 32 : 0), y: b.y + (isClosed ? 58 : 0) },
       style: size,
       width: size.width,
       height: size.height,
@@ -152,9 +156,20 @@ export function projectGroups(
         inputs,
         outputs,
         portOffsets,
+        cardHeight,
         leafIds: [...leaves.get(id)],
       },
     });
+  }
+  // A collapsed child can have more satellites than any individual leaf.
+  // Extend its open ancestors to contain the projected card and resources.
+  for (const frame of nodes.filter(n => n.type === "subprocess" && !n.data.collapsed).sort((a,b) => depth(b.id)-depth(a.id))) {
+    const children = nodes.filter(n => parents.get(n.id) === frame.id);
+    const right = Math.max(frame.position.x + frame.width, ...children.map(n => n.position.x + nodeSize(n).width + 32));
+    const bottom = Math.max(frame.position.y + frame.height, ...children.map(n => n.position.y + nodeSize(n).height + 32));
+    frame.width = right - frame.position.x;
+    frame.height = bottom - frame.position.y;
+    frame.style = {width:frame.width, height:frame.height};
   }
   const edges = scenario.edges.flatMap((e) => {
     const source = owner.get(e.source),

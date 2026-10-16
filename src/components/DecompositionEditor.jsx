@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactFlow, {
   ReactFlowProvider,
   Background,
-  Controls,
   applyNodeChanges,
   applyEdgeChanges,
+  useReactFlow,
+  useNodesInitialized,
 } from "reactflow";
-import { X, Plus, Save } from "lucide-react";
+import { X, Plus, Minus, Maximize2, Save } from "lucide-react";
 import { GraphContext } from "../store/graphContext";
 import { useGraphState } from "../store/graphContext";
 import { nodeTypes, edgeTypes } from "./graphTypes";
@@ -18,6 +19,22 @@ import { applyGroupCommand, summarizeGroup } from "../services/groups";
 import { analyze, displayNumber as fmt } from "../services/analysis";
 import { calculateMetrics } from "../utils/calculations";
 import { resourceKinds } from "../utils/resources";
+function FrameDraft({ count }) {
+  const ready = useNodesInitialized();
+  const { fitView } = useReactFlow();
+  useEffect(() => {
+    if (ready && count) fitView({padding:.2, maxZoom:1, duration:150});
+  }, [ready, count, fitView]);
+  return null;
+}
+function DraftControls() {
+  const {zoomIn, zoomOut, fitView} = useReactFlow();
+  return <div className="canvas-selection-tool nodrag" role="toolbar" aria-label="Navigation des sous-étapes">
+    <button aria-label="Zoom avant" onClick={() => zoomIn()}><Plus size={16}/></button>
+    <button aria-label="Zoom arrière" onClick={() => zoomOut()}><Minus size={16}/></button>
+    <button aria-label="Cadrer les sous-étapes" onClick={() => fitView({padding:.2,maxZoom:1})}><Maximize2 size={16}/></button>
+  </div>;
+}
 export default function DecompositionEditor({
   scenario,
   nodeId,
@@ -145,6 +162,7 @@ export default function DecompositionEditor({
     ...live,
     ...draft,
     scenarioScoped: true,
+    isDecomposition: true,
     readOnly: false,
     orientation: "horizontal",
     selectedItemId: null,
@@ -152,9 +170,9 @@ export default function DecompositionEditor({
     nodes: draft.nodes.map((n) => ({
       ...computed.nodes.find((c) => c.id === n.id),
       ...n,
-      data: { ...computed.nodes.find((c) => c.id === n.id)?.data, ...n.data },
+      data: { ...computed.nodes.find((c) => c.id === n.id)?.data, ...n.data, process_time_total: result?.nodes.find(c => c.id === n.id)?.workload ?? null },
     })),
-    edges: draft.edges,
+    edges: draft.edges.map(e => ({...e, data: {...e.data, ...computed.edges.find(c => c.id === e.id)?.data}})),
     beginInteraction: () => {},
     updateNodeData: patch,
     updateEdgeData: (id, data) =>
@@ -256,7 +274,7 @@ export default function DecompositionEditor({
             <ReactFlowProvider>
               <ReactFlow
                 nodes={context.nodes}
-                edges={draft.edges}
+                edges={context.edges}
                 nodeTypes={nodeTypes}
                 edgeTypes={edgeTypes}
                 fitView
@@ -290,14 +308,15 @@ export default function DecompositionEditor({
                   })
                 }
               >
+                <FrameDraft count={draft.nodes.length}/>
                 <Background />
-                <Controls />
+                <DraftControls />
               </ReactFlow>
             </ReactFlowProvider>
           </GraphContext.Provider>
           {!draft.nodes.length && (
             <div className="draft-empty">
-              Construisez le détail avec « Ajouter une sous-étape ».
+              <button onClick={add}><Plus size={16}/>Créer la première sous-étape</button>
               <br />
               Aucun temps n’est réparti automatiquement.
             </div>
@@ -321,7 +340,7 @@ export default function DecompositionEditor({
             field = incoming ? "inputs" : "outputs";
           return (
             <label key={`${field}:${e.id}`}>
-              {incoming ? "Entrée" : "Sortie"} · {e.id}
+              {incoming ? "Depuis" : "Vers"} · {scenario.nodes.find(n => n.id === (incoming ? e.source : e.target))?.data.label || e.id}
               <select
                 aria-label={`${incoming ? "Entrée" : "Sortie"} ${e.id}`}
                 value={draft[field][e.id] || ""}

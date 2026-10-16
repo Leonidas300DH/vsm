@@ -519,10 +519,23 @@ export function summarizeGroup(scenario, id, analysis = analyze(scenario)) {
   const missingBoundary =
     incoming.some((e) => !edgeResults.get(e.id)?.categories.length) &&
     !analysis.complete;
+  const categories = inputs.map((input) => {
+    const terminalRows = local.terminals.filter((c) => c.category === input.category);
+    const volume = terminalRows.reduce((total, c) => total + (c.volume || 0), 0);
+    const loads = rows.flatMap((r) => r.categories.filter((c) => c.category === input.category));
+    const validRouting = !local.issues.some((i) => ["cycle", "routing", "invalid-edge"].includes(i.kind));
+    return {
+      ...input,
+      processing: missingBoundary || !validRouting || !volume || terminalRows.some((c) => c.processing == null || c.volume == null)
+        ? null : terminalRows.reduce((total, c) => total + c.processing * c.volume, 0) / volume,
+      workload: missingBoundary || rows.length !== nodes.length || loads.some((c) => c.workload == null) ? null : loads.reduce((total, c) => total + c.workload, 0),
+    };
+  });
   return {
     count: nodes.length,
     inputs,
     outputs,
+    categories,
     workload,
     processing: missingBoundary ? null : local.processing,
     waiting: missingBoundary ? null : local.waiting,

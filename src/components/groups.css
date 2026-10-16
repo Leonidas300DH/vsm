@@ -113,10 +113,24 @@
 }
 .canvas-selection-tool {
   position: absolute;
-  bottom: 58px;
+  bottom: 14px;
   left: 15px;
   z-index: 36;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--c-30434f);
+  border-radius: 6px;
+  background: var(--c-111e27);
 }
+.canvas-selection-tool button { border: 0 !important; }
+.canvas-control-divider { height: 20px; border-left: 1px solid var(--c-30434f); margin: 0 4px; }
+.grouped-flow > .react-flow .react-flow__controls { display: none; }
+.step-detail-action { padding: 8px 12px; border-top: 1px solid var(--c-30434f); }
+.step-detail-action button { width: 100%; padding: 7px; border: 1px solid var(--c-67818f); border-radius: 4px; background: var(--c-14212a); color: var(--color-text-primary); cursor: pointer; font-size: 12px; }
+.step-detail-action small { display: block; margin-top: 6px; color: var(--c-ff9f43); }
+.aggregate-output { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: .7rem; }
 .canvas-selection-tool button,
 .selection-confirm button {
   min-height: 34px;
@@ -140,7 +154,7 @@
 }
 .grouped-flow .group-selection.selection-confirm {
   top: auto;
-  bottom: 100px;
+  bottom: 64px;
   left: 15px;
   max-width: calc(100% - 30px);
   box-sizing: border-box;
@@ -310,6 +324,9 @@
   color: var(--color-text-secondary);
   font-size: 14px;
   pointer-events: none;
+}
+.draft-empty button {
+  pointer-events: auto;
 }
 .draft-boundaries {
   display: flex;

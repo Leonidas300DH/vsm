@@ -1,12 +1,15 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useContext } from 'react';
 import { Handle, Position, useUpdateNodeInternals } from 'reactflow';
-import { Paperclip, AlertTriangle, Plus, User, Workflow, Bot, Box, Trash2 } from 'lucide-react';
+import { Paperclip, AlertTriangle, Plus, User, Workflow, Bot, Box, Trash2, Layers, ZoomIn } from 'lucide-react';
 import { getFile } from '../utils/db';
+import { GroupUIContext } from '../store/groupContext';
+import { displayNumber as fmt } from '../services/analysis';
 import NodeResources from '../components/NodeResources';
 import { useGraphState } from '../store/graphContext';
 
-const ProcessNode = ({ id, data, selected }) => {
+const ProcessNode = ({ id, data, selected, aggregate, ports, onOpenDetail }) => {
     const scoped = useGraphState();
+    const groupUI = useContext(GroupUIContext);
     const { addNextNode, deleteNode } = scoped;
     const confirmDelete = (e) => {
         e.stopPropagation();
@@ -34,6 +37,7 @@ const ProcessNode = ({ id, data, selected }) => {
     }
 
     if (subtype === 'ai') HeaderIcon = Bot;
+    if (aggregate) HeaderIcon = Layers;
 
     // Global Color Scheme
     let nodeColor = 'var(--c-14212a)'; // Body is always white
@@ -54,7 +58,8 @@ const ProcessNode = ({ id, data, selected }) => {
     }
 
     // Volume Rounding
-    const displayVolume = data.volume_in ? parseFloat(data.volume_in).toFixed(2) : '0.00';
+    const totalVolume = rows => rows?.some(r => r.volume == null) ? null : rows?.reduce((sum, r) => sum + r.volume, 0);
+    const displayVolume = aggregate ? fmt(totalVolume(aggregate.inputs)) : data.volume_in ? parseFloat(data.volume_in).toFixed(2) : '0.00';
 
     // ... (styles remain same)
 
@@ -84,6 +89,7 @@ const ProcessNode = ({ id, data, selected }) => {
             onDrop={e => { if (readOnly) return; const raw = e.dataTransfer.getData("application/vsm-resource"); if (raw) { e.preventDefault(); e.stopPropagation(); try { const resource = JSON.parse(raw); scoped.attachResource(id, resource.kind, resource.id); } catch { /* Ignore foreign drag data. */ } } }}
             style={{
                 minWidth: '220px',
+                minHeight: aggregate ? data.cardHeight : undefined,
                 maxWidth: '400px',
                 width: 'fit-content',
                 background: nodeColor,
@@ -97,17 +103,17 @@ const ProcessNode = ({ id, data, selected }) => {
                 position: 'relative',
             }}
         >
-            <Handle
+            {ports || <Handle
                 type="target"
                 position={vertical ? Position.Top : Position.Left}
                 style={vertical
                     ? { background: 'var(--c-7e99a8)', width: '12px', height: '12px', top: '-6px', left: '50%', transform: 'translateX(-50%)' }
                     : { background: 'var(--c-7e99a8)', width: '12px', height: '12px', left: '-6px', top: '50%', transform: 'translateY(-50%)' }}
-            />
+            />}
 
             {data.comparisonBadge && <span className="node-comparison-badge">{data.comparisonBadge}</span>}
             {/* Header */}
-            <div style={{
+            <div className="process-header" style={{
                 padding: '0.5rem',
                 borderBottom: `1px solid ${borderColor}`,
                 fontWeight: 600,
@@ -123,8 +129,8 @@ const ProcessNode = ({ id, data, selected }) => {
                 <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {data.label}
                 </div>
-                {!readOnly && <button className="nodrag node-delete" aria-label={data.positionLocked?'Déverrouiller la position':'Verrouiller la position'} title="Position verrouillée" onClick={e=>{e.stopPropagation();scoped.updateNodeData(id,{positionLocked:!data.positionLocked});}}>{data.positionLocked?'◆':'◇'}</button>}
-                {!readOnly && <button type="button" className="node-delete nodrag" title="Supprimer l’étape" aria-label={`Supprimer l’étape ${data.label || ''}`} onClick={confirmDelete}>
+                {!readOnly && !aggregate && <button className="nodrag node-delete" aria-label={data.positionLocked?'Déverrouiller la position':'Verrouiller la position'} title="Position verrouillée" onClick={e=>{e.stopPropagation();scoped.updateNodeData(id,{positionLocked:!data.positionLocked});}}>{data.positionLocked?'◆':'◇'}</button>}
+                {!readOnly && !aggregate && <button type="button" className="node-delete nodrag" title="Supprimer l’étape" aria-label={`Supprimer l’étape ${data.label || ''}`} onClick={confirmDelete}>
                     <Trash2 size={12} />
                 </button>}
             </div>
@@ -133,9 +139,10 @@ const ProcessNode = ({ id, data, selected }) => {
             <div className="node-body" style={{ padding: '0.5rem' }}>
                 {/* Volume Display */}
                 <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>Volume In:</span>
+                    <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>{aggregate ? "Volume entrant :" : "Volume In:"}</span>
                     <span style={{ fontWeight: 700 }}>{displayVolume}</span>
                 </div>
+                {aggregate && <div className="aggregate-output"><span>Volume sortant :</span><strong>{fmt(totalVolume(aggregate.outputs))}</strong></div>}
                 {data.description && (
                     <div style={{
                         fontSize: '0.75rem',
@@ -159,10 +166,15 @@ const ProcessNode = ({ id, data, selected }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {data.volumeStreamIn && data.volumeStreamIn.filter(i => i.value > 0).length > 0 ? (
+                        {aggregate ? aggregate.categories.map(item => <tr key={item.category}>
+                            <td style={{...cellStyle, textAlign:'left'}}>{item.name}</td>
+                            <td style={cellStyle} title="Processing moyen du parcours interne, par dossier">{fmt(item.processing)}</td>
+                            <td style={cellStyle}>{fmt(item.volume)}</td>
+                            <td style={cellStyle}>{fmt(item.workload)}</td>
+                        </tr>) : data.volumeStreamIn && data.volumeStreamIn.filter(i => i.value > 0).length > 0 ? (
                             data.volumeStreamIn.filter(i => i.value > 0).map(item => {
-                                const ct = (data.cycleTimes || {})[item.id] || 0;
-                                const procTime = item.value * ct;
+                                const ct = scoped.isDecomposition ? data.cycleTimes?.[item.id] ?? null : (data.cycleTimes || {})[item.id] || 0;
+                                const procTime = ct == null ? null : item.value * ct;
                                 return (
                                     <tr key={item.id}>
                                         <td style={{ ...cellStyle, textAlign: 'left' }}>
@@ -171,9 +183,9 @@ const ProcessNode = ({ id, data, selected }) => {
                                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60px' }} title={item.name}>{item.name}</span>
                                             </div>
                                         </td>
-                                        <td style={{ ...cellStyle, color: ct === 0 ? 'var(--c-df9296)' : 'inherit', fontWeight: ct === 0 ? 'bold' : 'inherit' }}>{ct}</td>
+                                        <td style={{ ...cellStyle, color: ct === 0 ? 'var(--c-df9296)' : 'inherit', fontWeight: ct === 0 ? 'bold' : 'inherit' }}>{fmt(ct)}</td>
                                         <td style={cellStyle}>{parseFloat(item.value).toFixed(2)}</td>
-                                        <td style={cellStyle}>{parseFloat(procTime).toFixed(2)}</td>
+                                        <td style={cellStyle}>{procTime == null ? "Inconnu" : parseFloat(procTime).toFixed(2)}</td>
                                     </tr>
                                 );
                             })
@@ -184,27 +196,30 @@ const ProcessNode = ({ id, data, selected }) => {
                         )}
 
                         <tr style={{ borderTop: '2px solid var(--c-30434f)' }}>
-                            <td colSpan="3" style={{ ...labelCellStyle, fontWeight: 600 }}>Total Proc Time</td>
-                            <td style={{ ...cellStyle, fontWeight: 600 }}>{Number(data.process_time_total || 0).toLocaleString('fr-FR', { maximumFractionDigits: 2 })}</td>
+                            <td colSpan="3" style={{ ...labelCellStyle, fontWeight: 600 }}>{aggregate ? "Charge" : "Total Proc Time"}</td>
+                            <td style={{ ...cellStyle, fontWeight: 600 }}>{aggregate ? fmt(aggregate.workload) : scoped.isDecomposition ? fmt(data.process_time_total) : Number(data.process_time_total || 0).toLocaleString('fr-FR', { maximumFractionDigits: 2 })}</td>
                         </tr>
-                        {(data.executionMode === 'step' || subtype === 'standard' || subtype === 'ai') && (
+                        {!aggregate && (data.executionMode === 'step' || subtype === 'standard' || subtype === 'ai') && (
                             <>
                                 <tr>
                                     <td colSpan="3" style={labelCellStyle}>FTE Req</td>
-                                    <td style={cellStyle}>{data.fte_required || 0}</td>
+                                    <td style={cellStyle}>{scoped.isDecomposition && data.process_time_total == null ? 'Inconnu' : data.fte_required || 0}</td>
                                 </tr>
                                 <tr>
                                     <td colSpan="3" style={labelCellStyle}>Util %</td>
-                                    <td style={cellStyle}>{data.utilization || 0}%</td>
+                                    <td style={cellStyle}>{scoped.isDecomposition && data.process_time_total == null ? 'Inconnu' : `${data.utilization || 0}%`}</td>
                                 </tr>
                             </>
                         )}
+                        {aggregate && [['Processing / dossier', aggregate.processing], ['Attente / dossier', aggregate.waiting], ['Lead time / dossier', aggregate.lead]].map(([label,value]) => <tr key={label}><td colSpan="3" style={labelCellStyle}>{label}</td><td style={cellStyle}>{fmt(value)}</td></tr>)}
                     </tbody>
                 </table>
 
             </div>
 
-            <div className="node-operations">Volume : {displayVolume} · Charge historique : {data.process_time_total} min</div>
+            <div className="node-operations">Volume : {displayVolume} · Charge : {aggregate ? fmt(aggregate.workload) : data.process_time_total} min</div>
+            {aggregate && <div className="step-detail-action"><button className="nodrag" onClick={e => {e.stopPropagation(); onOpenDetail();}}><ZoomIn size={14}/>{aggregate.count} étapes · Ouvrir le détail</button>{!aggregate.complete && <small>Indicateurs incomplets · voir le détail</small>}</div>}
+            {!aggregate && selected && !readOnly && !scoped.isDecomposition && groupUI.decompose && <div className="step-detail-action"><button className="nodrag" onClick={e => {e.stopPropagation(); groupUI.decompose(id);}}><Layers size={14}/>Détailler cette étape</button></div>}
             {/* Attachments */}
             {hasAttachments && (
                 <div style={{
@@ -305,7 +320,7 @@ const ProcessNode = ({ id, data, selected }) => {
             )}
 
             {/* Quick Add Button */}
-            {!readOnly && <button
+            {!readOnly && !aggregate && <button
                 onClick={(e) => {
                     e.stopPropagation();
                     addNextNode(id);
@@ -342,14 +357,14 @@ const ProcessNode = ({ id, data, selected }) => {
                 <Plus size={12} />
             </button>}
 
-            <Handle
+            {!aggregate && <Handle
                 type="source"
                 position={vertical ? Position.Bottom : Position.Right}
                 style={vertical
                     ? { background: 'var(--c-7e99a8)', width: '12px', height: '12px', bottom: '-6px', left: '50%', transform: 'translateX(-50%)', top: 'auto' }
                     : { background: 'var(--c-7e99a8)', width: '12px', height: '12px', right: '-6px' }}
-            />
-        </div><NodeResources id={id} data={data}/></div>
+            />}
+        </div><NodeResources id={id} data={data} provenance={aggregate?.resources} onOpenDetail={onOpenDetail}/></div>
     );
 };
 

@@ -148,7 +148,6 @@ function Workspace() {
       <section className="canvas-column" aria-label="Carte de processus">
         <div className="canvas-stage"><VSMCanvas readOnly={Boolean(comparison)} key={`${useStore.getState().workspaceProject.id}:${useStore.getState().workspaceProject.activeScenarioId}`} onInspect={() => {setProperties(true);useStore.setState({inspectionDiagnostic:null});}} />
           {!nodes.length && <div className="empty-canvas"><span className="empty-symbol">◇</span><h2>Dessinez votre flux.</h2><p>Glissez une étape depuis la palette<br />ou explorez un parcours KYC complet.</p><button onClick={loadExample}>Explorer l’exemple <ArrowRight size={15} /></button></div>}
-          <div className="canvas-caption">{orientation === 'vertical' ? 'HAUT → BAS' : 'GAUCHE → DROITE'} <span>Glisser pour explorer · Molette pour zoomer</span></div>
         </div>
         <Timeline collapsed={!analysis} onToggle={() => setAnalysis(!analysis)} />
       </section>

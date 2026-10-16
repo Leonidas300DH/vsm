@@ -143,6 +143,9 @@ test("aggregate uses boundary passages and route-local times, not sum of repeate
   assert.equal(a.processing, 3);
   assert.equal(a.waiting, 5);
   assert.equal(a.lead, 8);
+  assert.equal(a.categories[0].volume, 10);
+  assert.equal(a.categories[0].processing, 3);
+  assert.equal(a.categories[0].workload, 30);
   assert.equal(a.resources.tools.length, 1);
   assert.equal(a.resources.tools[0].usedBy.length, 2);
 });
@@ -223,6 +226,8 @@ test("multiple inputs outputs remain separate and branch convergence preserves w
   assert.equal(a.inputs[0].volume, 10);
   assert.equal(a.processing, 4.5);
   assert.equal(a.workload, 45);
+  assert.equal(a.categories[0].processing, 4.5);
+  assert.equal(a.categories[0].workload, 45);
   assert.equal(
     projectGroups(g, { collapsed: ["g"] }).edges.filter((e) => e.target === "g")
       .length,
@@ -233,6 +238,8 @@ test("unknown measures and cycles never become a valid aggregate zero", () => {
   let s = fixture();
   s.nodes[1].data.cycleTimes.a = null;
   assert.equal(summarizeGroup(group(s), "g").workload, null);
+  assert.equal(summarizeGroup(group(s), "g").categories[0].processing, null);
+  assert.equal(summarizeGroup(group(s), "g").categories[0].workload, null);
   s = fixture();
   s.edges.push({
     id: "loop",
@@ -244,6 +251,19 @@ test("unknown measures and cycles never become a valid aggregate zero", () => {
   assert.equal(a.workload, null);
   assert.equal(a.processing, null);
   assert.ok(a.issues.some((i) => i.kind === "cycle"));
+});
+test("merged cards keep step width and open ancestors contain all merged satellites", () => {
+  const s = fixture();
+  s.nodes[1].data.toolsUsed = Array.from({length:8}, (_, i) => `tool${i}`);
+  const nested = group(group(s), ["g", "p2"], "outer");
+  const p = projectGroups(nested, {collapsed:["g"]});
+  const card = p.nodes.find(n => n.id === "g");
+  const frame = p.nodes.find(n => n.id === "outer");
+  assert.equal(card.width, 300);
+  assert.ok(frame.position.y + frame.height >= card.position.y + card.height + 32);
+  assert.equal(card.data.portOffsets["in:e0"], card.data.cardHeight / 2);
+  assert.equal(card.data.portOffsets["out:e2"], card.data.cardHeight / 2);
+  assert.deepEqual(metrics(nested), metrics(s));
 });
 function draft(s) {
   return {

@@ -8,6 +8,8 @@ import {
   Trash2,
   Maximize2,
   Scan,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { useGraphState } from "../store/graphContext";
 import { GroupUIContext } from "../store/groupContext";
@@ -155,11 +157,13 @@ export default function GroupedFlow({
         const next = applyGroupCommand(scenario, command),
           old = new Set(groupCollisions(scenario, { collapsed, focusId }));
         if (
-          groupCollisions(next, { collapsed, focusId }).some(
+          groupCollisions(next, { collapsed: [...collapsed, command.id], focusId }).some(
             (hit) => !old.has(hit),
           )
         ) {
           const arranged = layoutGroups(next);
+          if (groupCollisions(arranged, {collapsed:[...collapsed,command.id],focusId}).some(hit => !old.has(hit)))
+            throw new Error("Les ressources ou connexions de la synthèse se chevauchent. Espacez les étapes voisines avant de regrouper.");
           setPending({ ...command, arrange: true, next: arranged });
           return;
         }
@@ -171,18 +175,22 @@ export default function GroupedFlow({
       if (command.type === "group") {
         cancelSelection();
         setInspected(null);
+        setView({collapsed: [...new Set([...collapsed, command.id])]});
+        setTimeout(() => instance.current?.fitView({nodes:[{id:command.id}], padding:.35, maxZoom:1, duration:200}), 100);
       }
       if (command.expandId)
         setView({
           collapsed: collapsed.filter((id) => id !== command.expandId),
         });
       if (command.collapseId)
-        setView({ collapsed: [...collapsed, command.collapseId] });
+        setView({ collapsed: [...new Set([...collapsed, command.collapseId])], ...(command.viewFocusId !== undefined ? {focusId:command.viewFocusId} : {}) });
     } catch (e) {
       setError(e.message);
     }
   };
   const focus = (id) => {
+    cancelSelection();
+    setInspected(null);
     setView({ focusId: id });
     setTimeout(
       () =>
@@ -196,12 +204,13 @@ export default function GroupedFlow({
     );
   };
   const toggle = (id) => {
-    const next = collapsed.includes(id)
+    const nextFocus = id === focusId ? projection.parents.get(id) || null : focusId;
+    const next = collapsed.includes(id) && id !== focusId
       ? collapsed.filter((x) => x !== id)
-      : [...collapsed, id];
+      : [...new Set([...collapsed, id])];
     const old = new Set(groupCollisions(scenario, { collapsed, focusId }));
     if (
-      groupCollisions(scenario, { collapsed: next, focusId }).some(
+      groupCollisions(scenario, { collapsed: next, focusId:nextFocus }).some(
         (hit) => !old.has(hit),
       )
     ) {
@@ -211,22 +220,24 @@ export default function GroupedFlow({
             "Ce niveau nécessite un réagencement dans son onglet éditable.",
           );
         const arranged = layoutGroups(scenario);
-        if (groupCollisions(arranged, { collapsed: next, focusId }).length)
+        if (groupCollisions(arranged, { collapsed: next, focusId:nextFocus }).length)
           throw new Error(
             "Des connexions se superposent à ce niveau. Réagencez les étapes concernées avant de changer la vue.",
           );
         setPending({
           type: "layoutGroups",
           next: arranged,
-          expandId: collapsed.includes(id) ? id : undefined,
-          collapseId: collapsed.includes(id) ? undefined : id,
+          expandId: next.includes(id) ? undefined : id,
+          collapseId: next.includes(id) ? id : undefined,
+          viewFocusId: nextFocus,
         });
       } catch (e) {
         setError(e.message);
       }
       return;
     }
-    setView({ collapsed: next });
+    setView({ collapsed: next, focusId:nextFocus });
+    setInspected(null);
     setTimeout(
       () =>
         instance.current?.fitView({
@@ -283,6 +294,7 @@ export default function GroupedFlow({
   }
   const ui = {
     summaries,
+    decompose: readOnly ? undefined : setDraftId,
     toggle,
     focus,
     inspect: (id) => {
@@ -290,11 +302,6 @@ export default function GroupedFlow({
       setName(scenario.groups.find((g) => g.id === id).name);
     },
   };
-  const single =
-    visibleSelection.length === 1 &&
-    scenario.nodes.find(
-      (n) => n.id === visibleSelection[0] && n.type === "process",
-    );
   const displayNodes = projection.nodes.map((n) => ({
     ...n,
     ...(n.type === "subprocess" && !n.data.collapsed
@@ -429,8 +436,8 @@ export default function GroupedFlow({
             ))}
           </nav>
         )}
-        {!readOnly && (
-          <div className="canvas-selection-tool nodrag">
+        <div className="canvas-selection-tool nodrag" role="toolbar" aria-label="Outils de la carte">
+            {!readOnly && <>
             <button aria-pressed={selecting} onClick={() => {
               if (selecting) cancelSelection();
               else {
@@ -441,9 +448,11 @@ export default function GroupedFlow({
                 setSelecting(true);
                 props.onPaneClick?.();
               }
-            }}><Scan size={17} /> Sélection</button>
+            }}><Scan size={17} /> Sélection</button><span className="canvas-control-divider"/></>}
+            <button title="Zoom avant" aria-label="Zoom avant" onClick={() => instance.current?.zoomIn()}><Plus size={16}/></button>
+            <button title="Zoom arrière" aria-label="Zoom arrière" onClick={() => instance.current?.zoomOut()}><Minus size={16}/></button>
+            <button title="Cadrer la carte" aria-label="Cadrer la carte" onClick={() => instance.current?.fitView({padding:.12, minZoom:.02,maxZoom:1,duration:200})}><Maximize2 size={16}/></button>
           </div>
-        )}
         {!readOnly && selecting && (
           <div className="group-selection selection-confirm nodrag" role="region" aria-label="Regrouper la sélection">
             <span aria-live="polite">{visibleSelection.length ? `${visibleSelection.length} élément${visibleSelection.length > 1 ? "s" : ""} sélectionné${visibleSelection.length > 1 ? "s" : ""}` : "Tracez un rectangle autour des étapes"}</span>
@@ -453,13 +462,12 @@ export default function GroupedFlow({
             {selectionIssue && <small role="status">{selectionIssue}</small>}
           </div>
         )}
-        {!readOnly && !selecting && (visibleSelection.length > 1 || single) && (
+        {!readOnly && !selecting && visibleSelection.length > 1 && (
           <div className="group-selection nodrag">
             <span>
               {visibleSelection.length} sélectionnée
               {visibleSelection.length > 1 ? "s" : ""}
             </span>
-            {visibleSelection.length > 1 ? (
               <button
                 onClick={() => {
                   try {
@@ -478,11 +486,6 @@ export default function GroupedFlow({
               >
                 <Layers size={15} /> Regrouper
               </button>
-            ) : (
-              <button onClick={() => setDraftId(single.id)}>
-                Détailler en sous-étapes
-              </button>
-            )}
           </div>
         )}
         {error && (
@@ -769,6 +772,10 @@ export default function GroupedFlow({
             nodeId={draftId}
             execute={async (command) => {
               await state.applyGroupCommand(command);
+              if (command.type === "activateDraft") {
+                setView({collapsed:[...new Set([...collapsed, command.nodeId])]});
+                setTimeout(() => instance.current?.fitView({nodes:[{id:command.nodeId}],padding:.35,maxZoom:1,duration:200}),100);
+              }
               if (state.flushWorkspace) await state.flushWorkspace();
             }}
             onClose={() => setDraftId(null)}
