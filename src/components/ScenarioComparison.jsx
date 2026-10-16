@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import ReactFlow, { ReactFlowProvider, Background, Controls, useNodesInitialized, getRectOfNodes, getViewportForBounds } from 'reactflow';
+import ReactFlow, { ReactFlowProvider, Background, Controls, useNodesInitialized, getNodesBounds, getViewportForBounds } from 'reactflow';
 import { useEffect } from 'react';
 import { X, Rows2, Columns2, Link, Unlink, Scan, ChevronDown, ChevronUp } from 'lucide-react';
 import useStore from '../store/useStore';
@@ -48,7 +48,7 @@ export default function ScenarioComparison({ project, onClose }) {
     if (!instances.current[0] || !instances.current[1] || !panels.current[0] || !panels.current[1]) return;
     const all = instances.current.flatMap(i => i.getNodes());
     if (!all.length) return;
-    const rect = getRectOfNodes(all);
+    const rect = getNodesBounds(all);
     const size = panels.current.map(p => p.getBoundingClientRect());
     const viewport = getViewportForBounds(rect, Math.min(...size.map(s => s.width)), Math.min(...size.map(s => s.height)), .02, 1, .15);
     instances.current.forEach(i => i.setViewport(viewport));
@@ -66,7 +66,7 @@ export default function ScenarioComparison({ project, onClose }) {
     setSelected(ids);
     const all = instances.current.flatMap(i => i?.getNodes().filter(n => ids.includes(n.id)) || []);
     if (!all.length) return;
-    const bounds = getRectOfNodes(all), size = panels.current.map(p => p.getBoundingClientRect());
+    const bounds = getNodesBounds(all), size = panels.current.map(p => p.getBoundingClientRect());
     const viewport = getViewportForBounds(bounds, Math.min(...size.map(s => s.width)), Math.min(...size.map(s => s.height)), .02, .8, .3);
     instances.current.forEach(i => i.setViewport(viewport));
   };
