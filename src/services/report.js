@@ -7,6 +7,7 @@ const text = (v) =>
     .replace(/[→]/g, " > ")
     .replace(/[–—]/g, "-")
     .replace(/∞/g, "infini")
+    .replace(/Σ/g, "Somme des")
     .replace(/[\u202f\u00a0]/g, " ");
 export function createReport(
   project,
@@ -118,7 +119,7 @@ export function createReport(
     table(
       ["Indicateur", "Actuel", "Scénario", "Écart"],
       ["workload", "processing", "waiting", "lead"].map((k) => [
-        k,
+        { workload: "Charge / période", processing: "Processing / dossier", waiting: "Attente / dossier", lead: "Lead time / dossier" }[k],
         displayNumber(base[k]),
         displayNumber(result[k]),
         displayNumber(
