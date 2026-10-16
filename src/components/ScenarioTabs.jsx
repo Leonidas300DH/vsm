@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { Plus, Copy, Pencil, Star, Archive, MoreHorizontal, Columns2, Play } from 'lucide-react';
+import { Plus, Copy, Pencil, Star, Archive, MoreHorizontal, Columns2, Play, Link } from 'lucide-react';
 import useStore from '../store/useStore';
 import { renameScenario, archiveScenario } from '../services/project';
 import ToolbarPopover from './ToolbarPopover';
 import useModalKeyboard from './useModalKeyboard';
 
-export default function ScenarioTabs({ onCompare, onSwitch }) {
+export default function ScenarioTabs({ onCompare, onSwitch, onLinkedEdit }) {
   const s = useStore(), project = s.workspaceProject;
   const [dialog, setDialog] = useState(null), [name, setName] = useState(''), [source, setSource] = useState('');
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
@@ -50,6 +50,7 @@ export default function ScenarioTabs({ onCompare, onSwitch }) {
 
       <div className="scenario-bar-actions">
         <button onClick={() => { onSwitch(); useStore.setState({ atelierTab: 'simulation' }); }}><Play size={14}/><span>Simuler</span></button>
+        <button onClick={onLinkedEdit} disabled={visible.length < 2} title="Éditer le maître et ses enfants ensemble"><Link size={15}/><span>Édition liée</span></button>
         <button onClick={onCompare} disabled={visible.length < 2} title={visible.length < 2 ? 'Créez un deuxième onglet pour comparer' : 'Comparer deux scénarios'}><Columns2 size={15}/><span>Comparer</span></button>
       </div>
       <ToolbarPopover label="Actions de l’onglet" icon={<MoreHorizontal size={17}/>} iconOnly align="right">

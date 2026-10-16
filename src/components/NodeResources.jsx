@@ -46,12 +46,12 @@ export default function NodeResources({ id, data }) {
             : <svg className="resource-wires" viewBox={`0 0 100 ${32 + ids.length * 100}`} preserveAspectRatio="none" aria-hidden="true">
                 {ids.map((resourceId, index) => <path key={resourceId} d={index === 0 ? 'M50 4 L50 55' : `M50 4 C2 35 2 ${index * 100 + 35} 50 ${index * 100 + 55}`} />)}
               </svg>)}
-          <button className="resource-port" title={`Rattacher : ${config.label}`} disabled={readOnly} onClick={() => setPicker(kind)}><span className="resource-diamond"/><span className="resource-port-label">{config.label}</span>{!readOnly && <Plus size={12}/>}</button>
+          <button className="resource-port" title={`Rattacher : ${config.label}`} disabled={readOnly} onClick={() => { store.beginInteraction?.(); setPicker(kind); }}><span className="resource-diamond"/><span className="resource-port-label">{config.label}</span>{!readOnly && <Plus size={12}/>}</button>
           {(data[config.field] || []).map(resourceId => {
             const entry = store[kind].find(r => r.id === resourceId);
             const focused = resourceMatchesFocus(kind, resourceId, focus, { actors: store.actors });
             return <div className={`resource-satellite ${focused ? 'is-focused' : ''}`} key={resourceId}>
-              <button className={`resource-orb ${focused ? 'is-focused' : ''}`} disabled={readOnly} onClick={() => setPicker(kind)} title={entry?.description || entry?.name || resourceId}>{kind === 'tools' ? <ToolIcon name={entry?.icon} toolName={entry?.name} logo={entry?.logo} size={23}/> : <Icon size={21}/>}</button>
+              <button className={`resource-orb ${focused ? 'is-focused' : ''}`} disabled={readOnly} onClick={() => { store.beginInteraction?.(); setPicker(kind); }} title={entry?.description || entry?.name || resourceId}>{kind === 'tools' ? <ToolIcon name={entry?.icon} toolName={entry?.name} logo={entry?.logo} size={23}/> : <Icon size={21}/>}</button>
               <span>{entry?.name || `Référence : ${resourceId}`}</span>
               {!readOnly && <button className="resource-detach" title={`Détacher ${entry?.name || resourceId}`} onClick={() => store.detachResource(id, kind, resourceId)}><X size={10}/></button>}
             </div>;

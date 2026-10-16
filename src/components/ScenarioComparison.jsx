@@ -33,7 +33,7 @@ function ComparisonMap({ scenario, changes, selected, onSelect, onInit, onMove, 
   </ReactFlow></ReactFlowProvider></GraphContext.Provider>;
 }
 
-export default function ScenarioComparison({ project, onClose }) {
+export default function ScenarioComparison({ project, onClose, onLinkedEdit }) {
   const { orientation, detailMode, theme } = useStore();
   const available = project.scenarios.filter(s => !s.archived || s.id === project.actualScenarioId || s.id === project.activeScenarioId);
   const [leftId, setLeft] = useState(project.actualScenarioId);
@@ -86,7 +86,7 @@ export default function ScenarioComparison({ project, onClose }) {
   }, [onClose]);
   return <section className="scenario-comparison" aria-label="Comparaison des scénarios" data-layout={layout}>
     <header className="comparison-toolbar">
-      <strong>Comparer</strong><span className="comparison-readonly">Lecture seule</span>
+      <strong>Comparer</strong><button onClick={onLinkedEdit}><Link size={15}/>Édition liée</button><span className="comparison-readonly">Lecture seule</span>
       <button title="Cartes superposées" aria-label="Cartes superposées" aria-pressed={layout === 'stacked'} onClick={() => { setLayout('stacked'); requestAnimationFrame(fit); }}><Rows2 size={16}/></button>
       <button title="Cartes côte à côte" aria-label="Cartes côte à côte" aria-pressed={layout === 'side'} onClick={() => { setLayout('side'); requestAnimationFrame(fit); }}><Columns2 size={16}/></button>
       <button aria-pressed={linked} onClick={() => { setLinked(!linked); if (!linked) fit(); }}>{linked ? <Link size={15}/> : <Unlink size={15}/>}<span>{linked ? 'Navigation liée' : 'Navigation libre'}</span></button>

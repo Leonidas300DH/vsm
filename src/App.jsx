@@ -3,6 +3,7 @@ import { ReactFlowProvider, useReactFlow } from 'reactflow';
 import { PanelLeft, PanelRight, ChartNoAxesCombined, AlignHorizontalSpaceAround, AlignVerticalSpaceAround, Columns3, Scan, Settings2, ArrowRight, X } from 'lucide-react';
 import ScenarioTabs from './components/ScenarioTabs';
 import ScenarioComparison from './components/ScenarioComparison';
+import LinkedScenarioEditor from './components/LinkedScenarioEditor';
 import Sidebar from './components/Sidebar';
 import PropertiesPanel from './components/PropertiesPanel';
 import Timeline from './components/Timeline';
@@ -31,7 +32,8 @@ const FOCUS_KIND_LABEL = { tool: 'Outil', actor: 'Acteur', team: 'Équipe' };
 function Workspace() {
   const t = useMenuLanguage();
   const [comparison, setComparison] = useState(null);
-  const closeComparison = useCallback(() => setComparison(null), []);
+  const closeComparison = useCallback(() => { useStore.getState().endLinkedEditing(); setComparison(null); }, []);
+  const openLinked = () => { useStore.getState().beginLinkedEditing(); setComparison('linked'); };
   const [sidebar, setSidebar] = usePanelPreference('sidebar', false);
   const [properties, setProperties] = usePanelPreference('properties', false);
   const [analysis, setAnalysis] = usePanelPreference('analysis', false);
@@ -143,8 +145,8 @@ function Workspace() {
       <div className="inspector-shell" hidden={!properties}><>{useStore.getState().inspectionDiagnostic&&<div className="inspection-diagnostic"><strong>{useStore.getState().inspectionDiagnostic.message}</strong><p>{useStore.getState().inspectionDiagnostic.formula}</p></div>}<PropertiesPanel onClose={() => setProperties(false)} /></></div>
       {!properties && <button className="inspector-tab" aria-label="Ouvrir l’inspecteur" onClick={() => setProperties(true)}><PanelRight size={16} /><span>{t("Inspecteur")}</span></button>}
     </main>
-    <ScenarioTabs onSwitch={() => { setComparison(null); setNotice(''); }} onCompare={() => setComparison(useStore.getState().getWorkspaceProject())}/>
-    {comparison && <ScenarioComparison project={comparison} onClose={closeComparison}/>}
+    <ScenarioTabs onLinkedEdit={openLinked} onSwitch={() => { closeComparison(); setNotice(''); }} onCompare={() => { useStore.getState().endLinkedEditing(); setComparison(useStore.getState().getWorkspaceProject()); }}/>
+    {comparison === 'linked' ? <LinkedScenarioEditor onClose={closeComparison}/> : comparison && <ScenarioComparison project={comparison} onClose={closeComparison} onLinkedEdit={openLinked}/>}
 
   </div>;
 }

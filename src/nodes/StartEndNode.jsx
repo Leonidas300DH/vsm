@@ -6,6 +6,7 @@ import { useGraphState } from '../store/graphContext';
 const StartEndNode = ({ id, data, selected }) => {
     const isStart = data.type === 'start';
     const readOnly = useGraphState(s => s.readOnly);
+    const scenarioScoped = useGraphState(s => s.scenarioScoped);
     const hasAttachments = data.attachments && data.attachments.length > 0;
     const nodeBorder = 'var(--c-f36f79)';
     const nodeBg = 'var(--c-381c26)';
@@ -20,7 +21,7 @@ const StartEndNode = ({ id, data, selected }) => {
     const deleteNode = useGraphState(s => s.deleteNode);
     const confirmDelete = (e) => {
         e.stopPropagation();
-        if (window.confirm(`Supprimer « ${data.label || (isStart ? 'Entrée' : 'Sortie')} » et ses connexions ? Vous pourrez annuler juste après.`)) deleteNode(id);
+        if (scenarioScoped || window.confirm(`Supprimer « ${data.label || (isStart ? 'Entrée' : 'Sortie')} » et ses connexions ? Vous pourrez annuler juste après.`)) deleteNode(id);
     };
 
     return (

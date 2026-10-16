@@ -16,7 +16,7 @@ const FlowEdge = ({
     data,
 }) => {
     const [edgePath, anchorX, anchorY] = getBezierPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition });
-    const readOnly = useGraphState(s => s.readOnly);
+    const readOnly = useGraphState(s => s.readOnly || s.scenarioScoped);
     const labelRef = useRef(null);
     useLayoutEffect(() => {
         if (readOnly) return;

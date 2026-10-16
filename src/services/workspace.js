@@ -1,3 +1,4 @@
+import { linkedSession, prepareLinkedEdit, needsLinkedPreview } from './linkedEditing.js';
 import { calculateMetrics } from "../utils/calculations.js";
 import {
   graphSnapshot,
@@ -27,7 +28,8 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
     future = [],
     previous,
     lastKey,
-    lastState;
+    lastState,
+    historyGroup = null;
   const status = (saveStatus, saveError = "") =>
     store.setState({ saveStatus, saveError });
   const capture = () => {
@@ -103,6 +105,9 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
     timer = setTimeout(() => flush().catch(() => {}), 1000);
   };
   function applyHistory(project) {
+    historyGroup = null;
+    const linkConfig = store.getState().linkedEditSession || capture().linkedEditing;
+    project.linkedEditing = linkConfig ? { ...clone(linkConfig), active: false } : undefined;
     const live = capture();
     project.scenarios = project.scenarios.map((c) => ({
       ...c,
@@ -113,6 +118,11 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
         ) + 1,
     }));
     hydrate(project);
+    const currentSession = store.getState().linkedEditSession;
+    if (currentSession) {
+      const normalized = linkedSession(project, currentSession);
+      store.setState({ linkedEditSession: { ...normalized, active: currentSession.active && normalized.masterId === currentSession.masterId } });
+    }
     store.setState({ canUndo: past.length > 0, canRedo: future.length > 0 });
     schedule();
   }
@@ -159,6 +169,38 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
       await flush();
       return next.activeScenarioId;
     },
+    linkedEditSession: null,
+    endLinkedEditing: () => {
+      if (store.getState().linkedEditSession) store.getState().configureLinkedEditing({ active: false });
+      store.setState({ linkedEditSession: null });
+      historyGroup = null;
+    },
+    beginLinkedEditing: () => {
+      const project = capture();
+      store.setState({ linkedEditSession: linkedSession(project) });
+    },
+    configureLinkedEditing: (updates) => {
+      const project = capture(), current = store.getState().linkedEditSession || linkedSession(project);
+      const session = { ...linkedSession(project, { ...current, ...updates }), active: updates.masterId && updates.masterId !== current.masterId ? false : (updates.active ?? current.active) };
+      project.linkedEditing = { ...session, active: false };
+      historyGroup = null;
+      hydrate(project);
+      store.setState({ linkedEditSession: session });
+      schedule();
+    },
+    previewLinkedEdit: (originId, command, geometry) => prepareLinkedEdit(capture(), store.getState().linkedEditSession || linkedSession(capture()), originId, command, geometry),
+    applyLinkedEdit: (originId, command, { confirmed = false, group, geometry } = {}) => {
+      const state = store.getState(), session = state.linkedEditSession;
+      if (!session) throw new Error('Ouvrez l’édition liée avant de modifier une carte.');
+      if (needsLinkedPreview(command) && !confirmed) throw new Error('Vérifiez l’aperçu avant application.');
+      // A direct child action is local, even if a caller missed the selection event.
+      const effective = originId !== session.masterId ? { ...session, linkedIds: session.linkedIds.filter(id => id !== originId) } : session;
+      const result = prepareLinkedEdit(capture(), effective, originId, command, geometry);
+      if (originId !== session.masterId && session.linkedIds.includes(originId)) store.getState().configureLinkedEditing({ linkedIds: effective.linkedIds });
+      result.project.linkedEditing = { ...effective, active: false };
+      if (result.report.length) store.getState().editWorkspace(result.project, { group });
+      return result;
+    },
     comparisonIds: [],
     setDetailMode: (detailMode) => { store.setState({ detailMode }); store.getState().rememberScenarioView({ detailMode }); },
     flushWorkspace: flush,
@@ -176,7 +218,7 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
         hydrate(migrateProject(record.project));
         past = [];
         future = [];
-        store.setState({ canUndo: false, canRedo: false });
+        store.setState({ canUndo: false, canRedo: false, linkedEditSession: null });
         await flush();
       }
     },
@@ -192,13 +234,15 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
       hydrate(p);
       past = [];
       future = [];
-      store.setState({ canUndo: false, canRedo: false });
+      store.setState({ canUndo: false, canRedo: false, linkedEditSession: null });
       await flush();
       await importNamedVersions(db, p.id, imported);
     },
-    editWorkspace: (project) => {
+    editWorkspace: (project, { group } = {}) => {
       const before = capture();
-      past.push(before);
+      if (!group || group !== historyGroup) past.push(before);
+      past = past.slice(-100);
+      historyGroup = group || null;
       future = [];
       project = clone(project);
       project.scenarios = project.scenarios.map((c) => {
@@ -308,7 +352,7 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
     window.addEventListener("pagehide", () => flush().catch(() => {}));
     window.addEventListener("keydown", (e) => {
       if (
-        !document.querySelector(".scenario-comparison") &&
+        !document.querySelector(".scenario-comparison, .linked-editor") &&
         (e.metaKey || e.ctrlKey) &&
         e.key.toLowerCase() === "z" &&
         !["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)

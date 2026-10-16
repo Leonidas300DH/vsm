@@ -84,3 +84,50 @@ Le panneau **Indicateurs et détails**, repliable, affiche les différences et l
 ### Simuler depuis un onglet
 
 **Simuler** ouvre directement la simulation du scénario actif. L’exploration ne modifie pas la source tant que vous n’avez pas choisi **Appliquer à cet onglet** ou **Créer un onglet**. Les changements appliqués restent annulables avec l’historique métier.
+
+## Éditer plusieurs scénarios ensemble
+
+Le bouton **Édition liée**, dans la barre des onglets ou depuis la comparaison,
+ouvre un atelier avec le **maître en haut** et les enfants en dessous. Les cartes
+restent horizontales ; la navigation liée et la propagation des modifications
+sont deux commandes séparées.
+
+1. Choisissez le **VSM maître**. Ce rôle ne change pas le scénario de référence.
+2. Ouvrez le sélecteur **enfant(s)** et cochez les variantes à afficher.
+3. Activez **Édition liée**. Sélectionner une étape ou une connexion du maître
+   sélectionne ses correspondants chez les enfants liés. L’inspecteur modifie le
+   scénario dont le nom apparaît en tête.
+4. Modifiez une valeur : sa nouvelle valeur est copiée dans les enfants liés.
+   Les champs non modifiés restent propres à chaque enfant. Les résultats sont
+   recalculés selon les volumes de chaque scénario.
+5. **Cliquer une étape ou une connexion dans un enfant le délie immédiatement.**
+   Son badge devient **INDÉPENDANT**. Ses modifications ne remontent pas au maître
+   et ne touchent pas les autres enfants. Les actions sur ses ressources le délient
+   également.
+
+**Pause** conserve le groupe mais arrête la propagation. **Relier** un enfant ne
+remplace pas ses différences existantes : seules les prochaines modifications
+se propagent. **Réaligner…** présente au préalable les scénarios concernés ; il
+remplace les champs des éléments communs, conserve les éléments propres à
+l’enfant et ses commentaires, et ne réactive pas son lien.
+
+La création d’étapes/connexions et la suppression passent par un aperçu. Une
+suppression d’étape retire aussi ses connexions ; les commentaires restent
+conservés et leurs références peuvent être signalées absentes dans la revue.
+Une référence absente ne provoque pas de recréation automatique. Une catégorie
+incompatible, une référence orpheline ou un chevauchement détecté bloque toute
+la transaction, sans modification partielle.
+
+Les positions restent locales sauf si **Lier aussi les positions** est coché.
+Les positions verrouillées sont respectées. La vérification géométrique utilise
+les dimensions observées des cartes et des estimations pour les étiquettes ;
+elle signale les nouvelles collisions plutôt que de déformer les connexions.
+
+**Annuler / Rétablir** dans l’atelier agit en une fois sur tous les scénarios de
+l’opération. La saisie d’un champ est regroupée jusqu’à sa perte de focus. Annuler
+une modification ne relie jamais automatiquement un enfant délié entre-temps.
+Les raccourcis Ctrl/Cmd+Z et Ctrl/Cmd+Maj+Z fonctionnent hors des champs de saisie.
+
+Le projet complet, ses ressources et le choix du groupe sont sauvegardés et
+transportés dans le fichier VSM. À chaque réouverture de l’atelier, **la propagation
+est en pause**. Il n’existe aucune propagation en arrière-plan hors de cet atelier.

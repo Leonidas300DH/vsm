@@ -1,5 +1,5 @@
 import React from 'react';
-import useStore from '../store/useStore';
+import { useGraphState } from '../store/graphContext';
 import { Paperclip, X, Download, FileText, Plus, Trash2, AlertTriangle, Wrench, ChevronRight } from 'lucide-react';
 import { saveFile } from '../utils/db';
 import { computeLineage } from '../utils/lineageUtils';
@@ -12,13 +12,16 @@ const toNumber = (value) => {
 };
 
 const PropertiesPanel = ({ onClose }) => {
-    const nodes = useStore(s => s.nodes);
-    const edges = useStore(s => s.edges);
-    const updateNodeData = useStore(s => s.updateNodeData);
-    const updateEdgeData = useStore(s => s.updateEdgeData);
-    const tools = useStore(s => s.tools);
-    const selectedItemId = useStore(s => s.selectedItemId);
-    const setSelectedItem = useStore(s => s.setSelectedItem);
+    const scoped = useGraphState();
+    const toolInput = React.useRef(null);
+    const uploadId = React.useId();
+    const nodes = useGraphState(s => s.nodes);
+    const edges = useGraphState(s => s.edges);
+    const updateNodeData = useGraphState(s => s.updateNodeData);
+    const updateEdgeData = useGraphState(s => s.updateEdgeData);
+    const tools = useGraphState(s => s.tools);
+    const selectedItemId = useGraphState(s => s.selectedItemId);
+    const setSelectedItem = useGraphState(s => s.setSelectedItem);
 
     // Find selected node or edge
     const selectedNode = nodes.find((n) => n.selected);
@@ -273,6 +276,7 @@ const PropertiesPanel = ({ onClose }) => {
                                 type="number"
                                 min="0"
                                 max="100"
+                                aria-label="Distribution en pourcentage"
                                 value={selectedEdge.data?.percentage !== undefined ? selectedEdge.data.percentage : ''}
                                 placeholder="Auto"
                                 onFocus={(e) => e.target.select()}
@@ -503,7 +507,7 @@ const PropertiesPanel = ({ onClose }) => {
 
                 {selectedNode.type === 'process' && <div style={formGroupStyle}>
                     <label style={labelStyle}>Exécution de l’étape
-                    <select style={inputStyle} value={selectedNode.data.subtype || 'standard'} onChange={e => useStore.getState().updateNodeData(selectedNode.id, { subtype:e.target.value, executionMode:'step' })}>
+                    <select style={inputStyle} value={selectedNode.data.subtype || 'standard'} onChange={e => scoped.updateNodeData(selectedNode.id, { subtype:e.target.value, executionMode:'step' })}>
                       <option value="standard">Notre équipe · gris</option><option value="actor">Autre équipe / acteur · orange</option><option value="it">Système IT · vert</option><option value="ai">AI Agent · bleu</option>
                     </select></label>
                     {['actor','it'].includes(selectedNode.data.subtype) && <label style={labelStyle}>Rôle dans le flux<select style={inputStyle} value={selectedNode.data.executionMode || 'support'} onChange={e => handleNodeChange('executionMode', e.target.value)}><option value="step">Étape exécutée (volume et processing time)</option><option value="support">Support / information (modèle historique)</option></select></label>}
@@ -512,6 +516,7 @@ const PropertiesPanel = ({ onClose }) => {
                     <label style={labelStyle}>Label</label>
                     <input
                         type="text"
+                        aria-label="Nom de l’étape"
                         value={selectedNode.data.label || ''}
                         onChange={(e) => handleNodeChange('label', e.target.value)}
                         style={inputStyle}
@@ -590,7 +595,8 @@ const PropertiesPanel = ({ onClose }) => {
                                         <span style={{ fontSize: '0.8rem', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
                                         <input
                                             type="number"
-                                            value={(selectedNode.data.cycleTimes || {})[item.id] || 0}
+                                            aria-label={`Temps unitaire ${item.name}`}
+                                            value={(selectedNode.data.cycleTimes || {})[item.id] ?? ''}
                                             onFocus={(e) => e.target.select()}
                                             onChange={(e) => {
                                                 const currentCT = selectedNode.data.cycleTimes || {};
@@ -696,17 +702,18 @@ const PropertiesPanel = ({ onClose }) => {
                             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
                                 <input
                                     type="text"
-                                    id="new-tool-prop-input"
+                                    ref={toolInput}
                                     placeholder="Or create new tool..."
                                     style={{ ...inputStyle, flex: 1, fontSize: '0.8rem' }}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
                                             const input = e.target;
                                             if (input.value.trim()) {
-                                                const newTool = { id: useStore.getState().saveResource('tools', { name: input.value.trim() }), name: input.value.trim() };
-                                                
-                                                const currentTools = selectedNode.data.toolsUsed || [];
-                                                handleNodeChange('toolsUsed', [...currentTools, newTool.id]);
+                                                if (scoped.saveAndAttachResource) scoped.saveAndAttachResource('tools', { name: input.value.trim() }, selectedNode.id);
+                                                else {
+                                                    const newId = scoped.saveResource('tools', { name: input.value.trim() });
+                                                    handleNodeChange('toolsUsed', [...(selectedNode.data.toolsUsed || []), newId]);
+                                                }
                                                 input.value = '';
                                             }
                                         }
@@ -714,12 +721,13 @@ const PropertiesPanel = ({ onClose }) => {
                                 />
                                 <button
                                     onClick={() => {
-                                        const input = document.getElementById('new-tool-prop-input');
+                                        const input = toolInput.current;
                                         if (input.value.trim()) {
-                                            const newTool = { id: useStore.getState().saveResource('tools', { name: input.value.trim() }), name: input.value.trim() };
-                                            
-                                            const currentTools = selectedNode.data.toolsUsed || [];
-                                            handleNodeChange('toolsUsed', [...currentTools, newTool.id]);
+                                            if (scoped.saveAndAttachResource) scoped.saveAndAttachResource('tools', { name: input.value.trim() }, selectedNode.id);
+                                            else {
+                                                const newId = scoped.saveResource('tools', { name: input.value.trim() });
+                                                handleNodeChange('toolsUsed', [...(selectedNode.data.toolsUsed || []), newId]);
+                                            }
                                             input.value = '';
                                         }
                                     }}
@@ -790,13 +798,13 @@ const PropertiesPanel = ({ onClose }) => {
                     <div style={{ marginBottom: '0.5rem' }}>
                         <input
                             type="file"
-                            id="file-upload"
+                            id={uploadId}
                             multiple
                             style={{ display: 'none' }}
                             onChange={handleFileUpload}
                         />
                         <label
-                            htmlFor="file-upload"
+                            htmlFor={uploadId}
                             style={{
                                 display: 'flex',
                                 alignItems: 'center',

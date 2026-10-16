@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, X } from 'lucide-react';
-import useStore from '../store/useStore';
+import { useGraphState } from '../store/graphContext';
 import { resourceKinds, referencedResources } from '../utils/resources';
 import { resolveToolBrand } from '../utils/toolBrands';
 import ToolIcon from './ToolIcon';
@@ -9,7 +9,7 @@ import { toolIcons, toolPresets, toolGroups, filterToolPresets, matchesToolQuery
 import { resourceIcons } from '../utils/resourceIcons';
 
 export default function ResourceLibrary({ kind, nodeId, onClose }) {
-  const store = useStore();
+  const store = useGraphState();
   const [query, setQuery] = useState('');
   const [toolGroup, setToolGroup] = useState('');
   const suggestions = filterToolPresets(query, toolGroup);
@@ -35,7 +35,7 @@ export default function ResourceLibrary({ kind, nodeId, onClose }) {
       </button>)}</div>
       {!suggestions.length && <p role="status">Aucun outil proposé ne correspond à cette recherche.</p>}
     </details>}
-    {editing && <form className="resource-form" onSubmit={e => { e.preventDefault(); if (uploadingLogo) return; try { const id = store.saveResource(kind, { ...editing, name: editing.name.trim() }); if (node) store.attachResource(node.id, kind, id); setEditing(null); setMessage(''); } catch { setMessage('Enregistrement impossible : le stockage local est indisponible ou plein. Votre fiche reste ouverte ; retirez le logo ou libérez de l’espace puis réessayez.'); } }}>
+    {editing && <form className="resource-form" onSubmit={e => { e.preventDefault(); if (uploadingLogo) return; try { const entry = { ...editing, name: editing.name.trim() }; if (node && store.saveAndAttachResource) store.saveAndAttachResource(kind, entry, node.id); else { const id = store.saveResource(kind, entry); if (node) store.attachResource(node.id, kind, id); } setEditing(null); setMessage(''); } catch (error) { setMessage(error.message || 'Enregistrement impossible. Votre fiche reste ouverte.'); } }}>
       <label>Nom<input required autoFocus value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })}/></label>
       {kind === 'tools' && <ToolLogoInput key={editing.id || 'new'} tool={editing} onChange={logo => setEditing(current => ({...current, logo}))} onBusyChange={setUploadingLogo}/>}
       {kind === 'tools' && <fieldset className="icon-picker"><legend>Icône</legend>{toolIcons.map(([key,label])=><button type="button" key={key} aria-label={`Icône ${label}`} title={label} disabled={uploadingLogo} aria-pressed={!editing.logo && (resolveToolBrand(editing.icon,editing.name)?.id || editing.icon || 'wrench')===key} onClick={()=>setEditing({...editing,icon:key,logo:null})}><ToolIcon name={key}/><span>{label}</span></button>)}</fieldset>}
