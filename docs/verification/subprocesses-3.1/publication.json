@@ -1,0 +1,40 @@
+{
+  "verifiedAt": "2026-10-16T11:11:02.756810+00:00",
+  "codeCommit": "6f295293caa74da0e3f26d6a5917fce5ac66c400",
+  "ci": {
+    "url": "https://github.com/Leonidas300DH/vsm/actions/runs/38891809641",
+    "conclusion": "success",
+    "tests": 119
+  },
+  "deploymentId": "dpl_J9sqN5vqfgYnuy7C6WkAdgfJBvjm",
+  "deploymentUrl": "https://vsm-9ptl82ctb-herberadaniel-5440s-projects.vercel.app",
+  "publicUrl": "https://vsm-mauve.vercel.app",
+  "publicAssets": [
+    "index-C95uxBaZ.js",
+    "index-Jj1i42o2.css"
+  ],
+  "publicChecks": {
+    "chrome": {
+      "groups": 9,
+      "integration": 6,
+      "errors": 0
+    },
+    "webkit": {
+      "groups": 9,
+      "integration": 6,
+      "errors": 0
+    }
+  },
+  "pdf": {
+    "pages": 52,
+    "downloadedIn": [
+      "Chrome",
+      "WebKit"
+    ],
+    "visuallyReviewedPages": [
+      11,
+      12
+    ]
+  },
+  "rollbackDeploymentId": "dpl_GDcx5x3bBgU9Vm9U7co8gUFuuo9e"
+}

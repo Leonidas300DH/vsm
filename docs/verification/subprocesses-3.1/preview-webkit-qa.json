@@ -1,0 +1,15 @@
+{
+  "url": "https://vsm-9ptl82ctb-herberadaniel-5440s-projects.vercel.app",
+  "checks": [
+    "Connected selection creates a visible frame",
+    "Collapsed summary preserves charge and hides only its descendants",
+    "Rename group",
+    "Focus and breadcrumb return",
+    "Dissociate, undo and redo",
+    "Reference document explicitly attached to a chosen substep",
+    "Draft survives reload without replacing original",
+    "Explicit incomplete activation and whole transaction undo redo",
+    "No runtime errors"
+  ],
+  "errors": []
+}

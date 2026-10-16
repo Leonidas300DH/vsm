@@ -1,0 +1,729 @@
+
+> vsm@0.0.0 test
+> node --test tests/*.test.mjs
+
+TAP version 13
+# Subtest: analytical units separate workload, per-case processing, wait and lead
+ok 1 - analytical units separate workload, per-case processing, wait and lead
+  ---
+  duration_ms: 11.016792
+  type: 'test'
+  ...
+# Subtest: unknowns are not zero and explicit units convert
+ok 2 - unknowns are not zero and explicit units convert
+  ---
+  duration_ms: 1.307542
+  type: 'test'
+  ...
+# Subtest: splits and convergences weight alternate paths without parallel synchronization
+ok 3 - splits and convergences weight alternate paths without parallel synchronization
+  ---
+  duration_ms: 0.727625
+  type: 'test'
+  ...
+# Subtest: invalid routing, cycles, capacity zero and shared actors are diagnosed
+ok 4 - invalid routing, cycles, capacity zero and shared actors are diagnosed
+  ---
+  duration_ms: 0.898375
+  type: 'test'
+  ...
+# Subtest: unknown wait does not conceal known processing per case
+ok 5 - unknown wait does not conceal known processing per case
+  ---
+  duration_ms: 0.136542
+  type: 'test'
+  ...
+# Subtest: explicit unknown waits and staffing override legacy defaults
+ok 6 - explicit unknown waits and staffing override legacy defaults
+  ---
+  duration_ms: 0.103125
+  type: 'test'
+  ...
+# Subtest: calculateMetrics ne modifie ni les nœuds ni les arêtes fournis
+ok 7 - calculateMetrics ne modifie ni les nœuds ni les arêtes fournis
+  ---
+  duration_ms: 5.023458
+  type: 'test'
+  ...
+# Subtest: une arête vers un nœud absent est marquée en erreur sans planter
+ok 8 - une arête vers un nœud absent est marquée en erreur sans planter
+  ---
+  duration_ms: 1.141666
+  type: 'test'
+  ...
+# Subtest: un cycle est signalé sur ses étapes et n’empêche pas le calcul du reste
+ok 9 - un cycle est signalé sur ses étapes et n’empêche pas le calcul du reste
+  ---
+  duration_ms: 0.58325
+  type: 'test'
+  ...
+# Subtest: metrics.cycleNodeIds est vide sur un graphe acyclique
+ok 10 - metrics.cycleNodeIds est vide sur un graphe acyclique
+  ---
+  duration_ms: 0.39525
+  type: 'test'
+  ...
+# Subtest: les valeurs non numériques valent 0 et n’éteignent pas la validation
+ok 11 - les valeurs non numériques valent 0 et n’éteignent pas la validation
+  ---
+  duration_ms: 0.442708
+  type: 'test'
+  ...
+# Subtest: logo upload accepts supported images and rejects empty, oversized or unrelated files
+ok 12 - logo upload accepts supported images and rejects empty, oversized or unrelated files
+  ---
+  duration_ms: 0.827709
+  type: 'test'
+  ...
+# Subtest: logo resizing preserves aspect ratio, does not upscale and bounds decoded size
+ok 13 - logo resizing preserves aspect ratio, does not upscale and bounds decoded size
+  ---
+  duration_ms: 0.600209
+  type: 'test'
+  ...
+# Subtest: custom logos only render embedded PNG data, never remote resources or raw SVG
+ok 14 - custom logos only render embedded PNG data, never remote resources or raw SVG
+  ---
+  duration_ms: 0.385458
+  type: 'test'
+  ...
+# Subtest: custom logos and extra metadata survive VSM validation, library merges, replacement and removal
+ok 15 - custom logos and extra metadata survive VSM validation, library merges, replacement and removal
+  ---
+  duration_ms: 0.548333
+  type: 'test'
+  ...
+# Subtest: large labels avoid tightly packed nodes and one another
+ok 16 - large labels avoid tightly packed nodes and one another
+  ---
+  duration_ms: 8.574042
+  type: 'test'
+  ...
+# Subtest: routes detour around intervening node rectangles
+ok 17 - routes detour around intervening node rectangles
+  ---
+  duration_ms: 0.879791
+  type: 'test'
+  ...
+# Subtest: les options listent les outils, les acteurs internes et les équipes externes
+ok 18 - les options listent les outils, les acteurs internes et les équipes externes
+  ---
+  duration_ms: 2.031625
+  type: 'test'
+  ...
+# Subtest: focus sur un outil : toutes les étapes qui l’utilisent, et seulement elles
+ok 19 - focus sur un outil : toutes les étapes qui l’utilisent, et seulement elles
+  ---
+  duration_ms: 0.435084
+  type: 'test'
+  ...
+# Subtest: focus sur un acteur interne et sur une équipe externe
+ok 20 - focus sur un acteur interne et sur une équipe externe
+  ---
+  duration_ms: 0.756041
+  type: 'test'
+  ...
+# Subtest: un satellite s’allume quand il correspond au focus
+ok 21 - un satellite s’allume quand il correspond au focus
+  ---
+  duration_ms: 0.176667
+  type: 'test'
+  ...
+# Subtest: supprimer une étape retire ses connexions et renvoie de quoi annuler
+ok 22 - supprimer une étape retire ses connexions et renvoie de quoi annuler
+  ---
+  duration_ms: 4.319792
+  type: 'test'
+  ...
+# Subtest: annuler restaure l’étape et ses connexions à l’identique
+ok 23 - annuler restaure l’étape et ses connexions à l’identique
+  ---
+  duration_ms: 10.782583
+  type: 'test'
+  ...
+# Subtest: annuler ignore une connexion dont l’autre extrémité a disparu entre-temps, et ne duplique rien
+ok 24 - annuler ignore une connexion dont l’autre extrémité a disparu entre-temps, et ne duplique rien
+  ---
+  duration_ms: 0.264375
+  type: 'test'
+  ...
+# Subtest: grouping and dissolving preserve every leaf, edge, resources and unknown business fields
+ok 25 - grouping and dissolving preserve every leaf, edge, resources and unknown business fields
+  ---
+  duration_ms: 5.104208
+  type: 'test'
+  ...
+# Subtest: nested groups reach five levels, disallow duplicate parents and parent cycles
+ok 26 - nested groups reach five levels, disallow duplicate parents and parent cycles
+  ---
+  duration_ms: 1.047417
+  type: 'test'
+  ...
+# Subtest: disconnected and partial hierarchy selections identify required correction
+ok 27 - disconnected and partial hierarchy selections identify required correction
+  ---
+  duration_ms: 0.486458
+  type: 'test'
+  ...
+# Subtest: aggregate uses boundary passages and route-local times, not sum of repeated volumes
+ok 28 - aggregate uses boundary passages and route-local times, not sum of repeated volumes
+  ---
+  duration_ms: 1.4655
+  type: 'test'
+  ...
+# Subtest: projection preserves canonical edge IDs, independent ports and never rewrites graph
+ok 29 - projection preserves canonical edge IDs, independent ports and never rewrites graph
+  ---
+  duration_ms: 0.8695
+  type: 'test'
+  ...
+# Subtest: frames include full measured card and satellite extents; collective movement respects locks
+ok 30 - frames include full measured card and satellite extents; collective movement respects locks
+  ---
+  duration_ms: 1.603875
+  type: 'test'
+  ...
+# Subtest: multiple inputs outputs remain separate and branch convergence preserves weighted durations
+ok 31 - multiple inputs outputs remain separate and branch convergence preserves weighted durations
+  ---
+  duration_ms: 0.668958
+  type: 'test'
+  ...
+# Subtest: unknown measures and cycles never become a valid aggregate zero
+ok 32 - unknown measures and cycles never become a valid aggregate zero
+  ---
+  duration_ms: 0.444333
+  type: 'test'
+  ...
+# Subtest: draft is inert, portable, activated atomically and preserves initial reference
+ok 33 - draft is inert, portable, activated atomically and preserves initial reference
+  ---
+  duration_ms: 6.697125
+  type: 'test'
+  ...
+# Subtest: draft invalid mappings, disconnected details, duplicate IDs and unknowns need correction or explicit acceptance
+ok 34 - draft invalid mappings, disconnected details, duplicate IDs and unknowns need correction or explicit acceptance
+  ---
+  duration_ms: 0.954209
+  type: 'test'
+  ...
+# Subtest: delete group removes descendants and incident edges, keeps libraries and comment references
+ok 35 - delete group removes descendants and incident edges, keeps libraries and comment references
+  ---
+  duration_ms: 0.251917
+  type: 'test'
+  ...
+# Subtest: copy comparison and template preserve hierarchy independently and remap members
+ok 36 - copy comparison and template preserve hierarchy independently and remap members
+  ---
+  duration_ms: 7.111125
+  type: 'test'
+  ...
+# Subtest: analysis export includes hierarchy but excludes draft metadata and custom files
+ok 37 - analysis export includes hierarchy but excludes draft metadata and custom files
+  ---
+  duration_ms: 0.822291
+  type: 'test'
+  ...
+# Subtest: linked hierarchy is atomic, independent children stay untouched and incompatibility blocks all
+ok 38 - linked hierarchy is atomic, independent children stay untouched and incompatibility blocks all
+  ---
+  duration_ms: 3.376584
+  type: 'test'
+  ...
+# Subtest: workspace undo redo restores complete hierarchy and activation after reload persistence
+ok 39 - workspace undo redo restores complete hierarchy and activation after reload persistence
+  ---
+  duration_ms: 88.566459
+  type: 'test'
+  ...
+# Subtest: KYC grouped layout clears all non-containment collisions without changing data
+ok 40 - KYC grouped layout clears all non-containment collisions without changing data
+  ---
+  duration_ms: 33.194083
+  type: 'test'
+  ...
+# Subtest: 200 steps / 500 connections / five levels: calculate, project and arrange safely
+ok 41 - 200 steps / 500 connections / five levels: calculate, project and arrange safely
+  ---
+  duration_ms: 253.079333
+  type: 'test'
+  ...
+# Subtest: linked grouping and ungrouping undo/redo affect only explicitly linked scenarios
+ok 42 - linked grouping and ungrouping undo/redo affect only explicitly linked scenarios
+  ---
+  duration_ms: 10.7595
+  type: 'test'
+  ...
+# Subtest: templates retain draft-only logos, allocations and category measurements under fresh IDs
+ok 43 - templates retain draft-only logos, allocations and category measurements under fresh IDs
+  ---
+  duration_ms: 1.388459
+  type: 'test'
+  ...
+# Subtest: attachment vault stores portable bytes and reads legacy blobs without loss
+ok 44 - attachment vault stores portable bytes and reads legacy blobs without loss
+  ---
+  duration_ms: 5.329833
+  type: 'test'
+  ...
+# Subtest: KYC preserves category volumes through branches and merges
+ok 45 - KYC preserves category volumes through branches and merges
+  ---
+  duration_ms: 8.579084
+  type: 'test'
+  ...
+# Subtest: KYC primary route stays on a horizontal spine and supplement steps share a lower lane
+ok 46 - KYC primary route stays on a horizontal spine and supplement steps share a lower lane
+  ---
+  duration_ms: 1.921667
+  type: 'test'
+  ...
+# Subtest: branches and convergence always advance horizontally without changing source data
+ok 47 - branches and convergence always advance horizontally without changing source data
+  ---
+  duration_ms: 5.141125
+  type: 'test'
+  ...
+# Subtest: cycles and invalid connections preserve manual layout by returning an error
+ok 48 - cycles and invalid connections preserve manual layout by returning an error
+  ---
+  duration_ms: 0.756625
+  type: 'test'
+  ...
+# Subtest: empty maps and disconnected components are accepted
+ok 49 - empty maps and disconnected components are accepted
+  ---
+  duration_ms: 0.406209
+  type: 'test'
+  ...
+# Subtest: single input and output align by their ports despite different measured heights
+ok 50 - single input and output align by their ports despite different measured heights
+  ---
+  duration_ms: 0.230375
+  type: 'test'
+  ...
+# Subtest: multiple terminals follow their own branches, independent of array order
+ok 51 - multiple terminals follow their own branches, independent of array order
+  ---
+  duration_ms: 0.178833
+  type: 'test'
+  ...
+# Subtest: en vertical, chaque connexion descend et les branches occupent des colonnes distinctes
+ok 52 - en vertical, chaque connexion descend et les branches occupent des colonnes distinctes
+  ---
+  duration_ms: 0.151083
+  type: 'test'
+  ...
+# Subtest: linked edit uses absolute changed fields and preserves child differences, IDs and unknown data
+ok 53 - linked edit uses absolute changed fields and preserves child differences, IDs and unknown data
+  ---
+  duration_ms: 5.461708
+  type: 'test'
+  ...
+# Subtest: unlinked children and paused sessions remain independent
+ok 54 - unlinked children and paused sessions remain independent
+  ---
+  duration_ms: 2.969333
+  type: 'test'
+  ...
+# Subtest: child edits never travel upstream or sideways
+ok 55 - child edits never travel upstream or sideways
+  ---
+  duration_ms: 0.834333
+  type: 'test'
+  ...
+# Subtest: missing counterpart is reported, not recreated, and renamed counterparts still match
+ok 56 - missing counterpart is reported, not recreated, and renamed counterparts still match
+  ---
+  duration_ms: 0.570042
+  type: 'test'
+  ...
+# Subtest: invalid value or absent category rejects the entire transaction
+ok 57 - invalid value or absent category rejects the entire transaction
+  ---
+  duration_ms: 2.062541
+  type: 'test'
+  ...
+# Subtest: resource attachments copy missing definitions and logos without sharing references
+ok 58 - resource attachments copy missing definitions and logos without sharing references
+  ---
+  duration_ms: 1.368625
+  type: 'test'
+  ...
+# Subtest: library fields propagate without replacing untouched child fields
+ok 59 - library fields propagate without replacing untouched child fields
+  ---
+  duration_ms: 0.98475
+  type: 'test'
+  ...
+# Subtest: edge routing and category wait changes are scoped and recalculated per scenario
+ok 60 - edge routing and category wait changes are scoped and recalculated per scenario
+  ---
+  duration_ms: 1.0585
+  type: 'test'
+  ...
+# Subtest: remove preserves comments and deletes each target incident connections
+ok 61 - remove preserves comments and deletes each target incident connections
+  ---
+  duration_ms: 1.210084
+  type: 'test'
+  ...
+# Subtest: structural inserts preserve IDs and reject collisions or orphan connections atomically
+ok 62 - structural inserts preserve IDs and reject collisions or orphan connections atomically
+  ---
+  duration_ms: 1.595125
+  type: 'test'
+  ...
+# Subtest: positions remain local by default; linked moves reject locks and overlaps
+ok 63 - positions remain local by default; linked moves reject locks and overlaps
+  ---
+  duration_ms: 1.832583
+  type: 'test'
+  ...
+# Subtest: realignment replaces common fields only and preserves child-only branches and metadata
+ok 64 - realignment replaces common fields only and preserves child-only branches and metadata
+  ---
+  duration_ms: 0.454
+  type: 'test'
+  ...
+# Subtest: one undo/redo restores all linked targets together and preserves unlink state
+ok 65 - one undo/redo restores all linked targets together and preserves unlink state
+  ---
+  duration_ms: 33.219083
+  type: 'test'
+  ...
+# Subtest: direct child command detaches it defensively and grouped typing is one undo
+ok 66 - direct child command detaches it defensively and grouped typing is one undo
+  ---
+  duration_ms: 15.604833
+  type: 'test'
+  ...
+# Subtest: structural preview is enforced and failed validation produces no history or partial edits
+ok 67 - structural preview is enforced and failed validation produces no history or partial edits
+  ---
+  duration_ms: 10.234833
+  type: 'test'
+  ...
+# Subtest: saved configuration and full edits survive reopen/export while propagation restarts paused
+ok 68 - saved configuration and full edits survive reopen/export while propagation restarts paused
+  ---
+  duration_ms: 76.68175
+  type: 'test'
+  ...
+# Subtest: new resource plus attachment is atomic and reversible for all targets
+ok 69 - new resource plus attachment is atomic and reversible for all targets
+  ---
+  duration_ms: 19.847834
+  type: 'test'
+  ...
+# Subtest: changing master pauses propagation and normalizes membership without touching baseline
+ok 70 - changing master pauses propagation and normalizes membership without touching baseline
+  ---
+  duration_ms: 16.018958
+  type: 'test'
+  ...
+# Subtest: unknown values stay unknown in business data and input maps preserve other categories
+ok 71 - unknown values stay unknown in business data and input maps preserve other categories
+  ---
+  duration_ms: 2.847916
+  type: 'test'
+  ...
+# Subtest: no-op patches do not create history; unknown operations and duplicate IDs are refused
+ok 72 - no-op patches do not create history; unknown operations and duplicate IDs are refused
+  ---
+  duration_ms: 12.522833
+  type: 'test'
+  ...
+# Subtest: closing linked editing stops its session; unrelated projects do not inherit its targets
+ok 73 - closing linked editing stops its session; unrelated projects do not inherit its targets
+  ---
+  duration_ms: 21.428208
+  type: 'test'
+  ...
+# Subtest: editing a category volume preserves other child categories and per-category metadata
+ok 74 - editing a category volume preserves other child categories and per-category metadata
+  ---
+  duration_ms: 1.828709
+  type: 'test'
+  ...
+# Subtest: category addition/removal propagates by ID and missing edited categories block atomically
+ok 75 - category addition/removal propagates by ID and missing edited categories block atomically
+  ---
+  duration_ms: 7.62125
+  type: 'test'
+  ...
+# Subtest: realignment respects child position locks and local lock edits do not leak
+ok 76 - realignment respects child position locks and local lock edits do not leak
+  ---
+  duration_ms: 1.852041
+  type: 'test'
+  ...
+# Subtest: measured placement: kyc, labels and satellites do not overlap
+ok 77 - measured placement: kyc, labels and satellites do not overlap
+  ---
+  duration_ms: 35.723959
+  type: 'test'
+  ...
+# Subtest: measured placement: simple, labels and satellites do not overlap
+ok 78 - measured placement: simple, labels and satellites do not overlap
+  ---
+  duration_ms: 2.049209
+  type: 'test'
+  ...
+# Subtest: measured placement: branches, labels and satellites do not overlap
+ok 79 - measured placement: branches, labels and satellites do not overlap
+  ---
+  duration_ms: 0.752625
+  type: 'test'
+  ...
+# Subtest: measured placement: multiple, labels and satellites do not overlap
+ok 80 - measured placement: multiple, labels and satellites do not overlap
+  ---
+  duration_ms: 0.557416
+  type: 'test'
+  ...
+# Subtest: measured placement: legacy, labels and satellites do not overlap
+ok 81 - measured placement: legacy, labels and satellites do not overlap
+  ---
+  duration_ms: 2.591125
+  type: 'test'
+  ...
+# Subtest: measured placement: custom-logo, labels and satellites do not overlap
+ok 82 - measured placement: custom-logo, labels and satellites do not overlap
+  ---
+  duration_ms: 0.682958
+  type: 'test'
+  ...
+# Subtest: incompatible locks preserve all source positions
+ok 83 - incompatible locks preserve all source positions
+  ---
+  duration_ms: 1.749542
+  type: 'test'
+  ...
+# Subtest: 200 steps / 500 edges performance reference (deterministic DAG)
+ok 84 - 200 steps / 500 edges performance reference (deterministic DAG)
+  ---
+  duration_ms: 226.674167
+  type: 'test'
+  ...
+# {"analysis":2.500416999999999,"layout":222.171709,"layoutAccepted":true}
+# Subtest: portable VSM round trip includes documents, logos, metadata and named versions
+ok 85 - portable VSM round trip includes documents, logos, metadata and named versions
+  ---
+  duration_ms: 41.030417
+  type: 'test'
+  ...
+# Subtest: importing an attachment ID collision never overwrites an older project or version
+ok 86 - importing an attachment ID collision never overwrites an older project or version
+  ---
+  duration_ms: 5.309166
+  type: 'test'
+  ...
+# Subtest: l’exemple fourni est accepté tel quel
+ok 87 - l’exemple fourni est accepté tel quel
+  ---
+  duration_ms: 1.899958
+  type: 'test'
+  ...
+# Subtest: un fichier sans nodes ou edges est refusé avec un message explicite
+ok 88 - un fichier sans nodes ou edges est refusé avec un message explicite
+  ---
+  duration_ms: 0.495208
+  type: 'test'
+  ...
+# Subtest: les nœuds malformés sont refusés, les valeurs manquantes sont normalisées
+ok 89 - les nœuds malformés sont refusés, les valeurs manquantes sont normalisées
+  ---
+  duration_ms: 0.308917
+  type: 'test'
+  ...
+# Subtest: les arêtes orphelines ou en doublon sont retirées et signalées
+ok 90 - les arêtes orphelines ou en doublon sont retirées et signalées
+  ---
+  duration_ms: 0.095333
+  type: 'test'
+  ...
+# Subtest: les ressources sans id ou sans nom sont ignorées
+ok 91 - les ressources sans id ou sans nom sont ignorées
+  ---
+  duration_ms: 0.681791
+  type: 'test'
+  ...
+# Subtest: three provider contracts keep keys in headers, output bounded and status redacted
+ok 92 - three provider contracts keep keys in headers, output bounded and status redacted
+  ---
+  duration_ms: 3.774375
+  type: 'test'
+  ...
+# Subtest: missing key, refusal, rate limit, malformed response, timeout, cancellation: no retry
+ok 93 - missing key, refusal, rate limit, malformed response, timeout, cancellation: no retry
+  ---
+  duration_ms: 8.421167
+  type: 'test'
+  ...
+# Subtest: local server denies remote origins, does not expose keys, disables analysis by default
+ok 94 - local server denies remote origins, does not expose keys, disables analysis by default
+  ---
+  duration_ms: 87.264375
+  type: 'test'
+  ...
+# Subtest: local server validates proposals and admits only one explicit request at a time
+ok 95 - local server validates proposals and admits only one explicit request at a time
+  ---
+  duration_ms: 14.000458
+  type: 'test'
+  ...
+# Subtest: PDF formulas use readable text supported by the embedded standard font
+ok 96 - PDF formulas use readable text supported by the embedded standard font
+  ---
+  duration_ms: 123.903959
+  type: 'test'
+  ...
+# Subtest: libraries merge without losing unrelated entries or metadata
+ok 97 - libraries merge without losing unrelated entries or metadata
+  ---
+  duration_ms: 0.80875
+  type: 'test'
+  ...
+# Subtest: resource references survive file roundtrip and never change flow metrics
+ok 98 - resource references survive file roundtrip and never change flow metrics
+  ---
+  duration_ms: 7.134209
+  type: 'test'
+  ...
+# Subtest: executed IT and external steps carry process time while legacy support remains unchanged
+ok 99 - executed IT and external steps carry process time while legacy support remains unchanged
+  ---
+  duration_ms: 1.98275
+  type: 'test'
+  ...
+# Subtest: renaming preserves reference identity; archiving recovers active selection without data loss
+ok 100 - renaming preserves reference identity; archiving recovers active selection without data loss
+  ---
+  duration_ms: 6.577417
+  type: 'test'
+  ...
+# Subtest: comparison is pure, identical copies have zero deltas, changes link to affected steps
+ok 101 - comparison is pure, identical copies have zero deltas, changes link to affected steps
+  ---
+  duration_ms: 21.718084
+  type: 'test'
+  ...
+# Subtest: subprocess copies remap all internal references and resource identities
+ok 102 - subprocess copies remap all internal references and resource identities
+  ---
+  duration_ms: 6.107709
+  type: 'test'
+  ...
+# Subtest: Codex package excludes attachments and logos; validates version and creates independent target
+ok 103 - Codex package excludes attachments and logos; validates version and creates independent target
+  ---
+  duration_ms: 2.956958
+  type: 'test'
+  ...
+# Subtest: proposals cannot execute code or patch arbitrary data
+ok 104 - proposals cannot execute code or patch arbitrary data
+  ---
+  duration_ms: 0.426541
+  type: 'test'
+  ...
+# Subtest: template category mapping preserves edge measurement provenance and parameters
+ok 105 - template category mapping preserves edge measurement provenance and parameters
+  ---
+  duration_ms: 0.484625
+  type: 'test'
+  ...
+# Subtest: simulation retains untouched category routing and makes explicit new assumptions
+ok 106 - simulation retains untouched category routing and makes explicit new assumptions
+  ---
+  duration_ms: 0.400042
+  type: 'test'
+  ...
+# Subtest: existing named tools get logos without rewriting saved references
+ok 107 - existing named tools get logos without rewriting saved references
+  ---
+  duration_ms: 0.581417
+  type: 'test'
+  ...
+# Subtest: all catalog logos are bundled safe images, including theme variants
+ok 108 - all catalog logos are bundled safe images, including theme variants
+  ---
+  duration_ms: 6.317958
+  type: 'test'
+  ...
+# Subtest: brand identifiers and aliases are unique and survive customized tool names
+ok 109 - brand identifiers and aliases are unique and survive customized tool names
+  ---
+  duration_ms: 1.580791
+  type: 'test'
+  ...
+# Subtest: catalog search combines aliases, descriptions and family without changing saved data
+ok 110 - catalog search combines aliases, descriptions and family without changing saved data
+  ---
+  duration_ms: 2.719792
+  type: 'test'
+  ...
+# Subtest: corpus opens without losing unknown business fields and reproduces legacy baseline
+ok 111 - corpus opens without losing unknown business fields and reproduces legacy baseline
+  ---
+  duration_ms: 17.537167
+  type: 'test'
+  ...
+# Subtest: atomic saves, interrupted transactions, conflicts, retention and recovery
+ok 112 - atomic saves, interrupted transactions, conflicts, retention and recovery
+  ---
+  duration_ms: 160.411583
+  type: 'test'
+  ...
+# Subtest: scenario duplicate is independent including resources and identical comparison is empty
+ok 113 - scenario duplicate is independent including resources and identical comparison is empty
+  ---
+  duration_ms: 0.658333
+  type: 'test'
+  ...
+# Subtest: workspace revisions stable on reads, complete undo/redo, restoration and independent scenarios
+ok 114 - workspace revisions stable on reads, complete undo/redo, restoration and independent scenarios
+  ---
+  duration_ms: 11.579209
+  type: 'test'
+  ...
+# Subtest: two workspaces conflict instead of overwriting and recover to a new project
+ok 115 - two workspaces conflict instead of overwriting and recover to a new project
+  ---
+  duration_ms: 4.617875
+  type: 'test'
+  ...
+# Subtest: named versions travel with the file and are restored as local history
+ok 116 - named versions travel with the file and are restored as local history
+  ---
+  duration_ms: 6.020875
+  type: 'test'
+  ...
+# Subtest: storage quota failure aborts atomically and remains an explicit error
+ok 117 - storage quota failure aborts atomically and remains an explicit error
+  ---
+  duration_ms: 1.141334
+  type: 'test'
+  ...
+# Subtest: v3 migration refuses silent edge or library losses
+ok 118 - v3 migration refuses silent edge or library losses
+  ---
+  duration_ms: 0.232917
+  type: 'test'
+  ...
+# Subtest: scenario tabs preserve live edits, independent resources, views and named starting point
+ok 119 - scenario tabs preserve live edits, independent resources, views and named starting point
+  ---
+  duration_ms: 9.203416
+  type: 'test'
+  ...
+1..119
+# tests 119
+# suites 0
+# pass 119
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 568.079041
