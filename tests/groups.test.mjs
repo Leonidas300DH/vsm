@@ -211,7 +211,7 @@ test("frames include full measured card and satellite extents; collective moveme
   );
   assert.throws(() => layoutGroups(s), /verrouillées/);
 });
-test("multiple inputs outputs remain separate and branch convergence preserves weighted durations", () => {
+test("folded links share a port for the same visible neighbour; detailed paths and weighted durations remain intact", () => {
   const s = fixture(4);
   s.edges = [
     {
@@ -259,11 +259,51 @@ test("multiple inputs outputs remain separate and branch convergence preserves w
   assert.equal(a.workload, 45);
   assert.equal(a.categories[0].processing, 4.5);
   assert.equal(a.categories[0].workload, 45);
-  assert.equal(
-    projectGroups(g, { collapsed: ["g"] }).edges.filter((e) => e.target === "g")
-      .length,
-    2,
-  );
+  const projected = projectGroups(g, { collapsed: ["g"] });
+  const incoming = projected.edges.filter(e => e.target === "g");
+  assert.equal(incoming.length, 1);
+  assert.deepEqual(incoming[0].data.bundleEdgeIds, ["a", "b"]);
+  assert.equal(incoming[0].data.volume, "10.0");
+  assert.equal(projected.nodes.find(n => n.id === "g").data.inputs.length, 1);
+  assert.equal(projectGroups(g).edges.filter(e => e.source === "in").length, 2);
+});
+test("KYC collapsed admission has one screening link with 70 + 30 dossiers, restoring every route on expansion", async () => {
+  const { createExample } = await import("../src/data/example.js");
+  const s = createExample(), original = structuredClone(s);
+  const projected = projectGroups(s, { collapsed: ["kyc-admission"] });
+  const edges = projected.edges.filter(e => e.source === "kyc-admission" && e.target === "screen");
+  assert.equal(edges.length, 1);
+  const edge = edges[0];
+  assert.deepEqual(edge.data.bundleEdgeIds, ["complete-screen", "recheck-screen"]);
+  assert.equal(edge.data.volume, "100.0");
+  assert.deepEqual(edge.data.labelItems.map(i => [i.id, i.amount]), [["retail", 70], ["business", 30]]);
+  assert.equal(edge.deletable, false);
+  const card = projected.nodes.find(n => n.id === "kyc-admission");
+  assert.equal(card.data.outputs.length, 1);
+  assert.equal(edge.sourceHandle, `out:${edge.id}`);
+  assert.equal(card.data.portOffsets[edge.sourceHandle], card.data.cardHeight / 2);
+  const enriched = calculateMetrics(s.nodes, s.edges);
+  assert.deepEqual(projectGroups({ ...s, ...enriched }, { collapsed: ["kyc-admission"] }).edges.find(e => e.id === edge.id).data, edge.data);
+  assert.deepEqual(projectGroups(s).edges.map(e => e.id), s.edges.map(e => e.id));
+  assert.deepEqual(s, original);
+});
+test("bundle aggregation is symmetric between two folded groups and leaves distinct destinations separate", () => {
+  const s = fixture(4);
+  s.groups = [{ id: "left", members: ["p0", "p1"] }, { id: "right", members: ["p2", "p3"] }];
+  s.edges.push({ id: "extra", source: "p0", target: "p3", data: { percentage: 50 } });
+  const projected = projectGroups(s, { collapsed: ["left", "right"] });
+  const bundle = projected.edges.find(e => e.source === "left" && e.target === "right");
+  assert.deepEqual(bundle.data.bundleEdgeIds, ["e2", "extra"]);
+  assert.deepEqual(bundle.data.bundleGroupIds, ["left", "right"]);
+  assert.equal(projected.nodes.find(n => n.id === "left").data.outputs.length, 1);
+  assert.equal(projected.nodes.find(n => n.id === "right").data.inputs.length, 1);
+  const withOther = { ...s, edges: [...s.edges, { id: "other", source: "p0", target: "out", data: { percentage: 0 } }] };
+  assert.equal(projectGroups(withOther, { collapsed: ["left", "right"] }).edges.filter(e => e.source === "left").length, 2);
+  const invalid = calculateMetrics(s.nodes, s.edges);
+  invalid.edges.find(e => e.id === "extra").data.isError = true;
+  const unknown = projectGroups({ ...s, ...invalid }, { collapsed: ["left", "right"] }).edges.find(e => e.id === bundle.id);
+  assert.equal(unknown.data.volume, undefined);
+  assert.equal(unknown.data.label, "Volume inconnu");
 });
 test("unknown measures and cycles never become a valid aggregate zero", () => {
   let s = fixture();

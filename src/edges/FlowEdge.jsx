@@ -1,4 +1,6 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef, useContext } from 'react';
+import { displayNumber as fmt } from '../services/analysis';
+import { GroupUIContext } from '../store/groupContext';
 import useStore from '../store/useStore';
 import { useGraphState } from '../store/graphContext';
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from 'reactflow';
@@ -17,9 +19,11 @@ const FlowEdge = ({
 }) => {
     const [edgePath, anchorX, anchorY] = getBezierPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition });
     const readOnly = useGraphState(s => s.readOnly || s.scenarioScoped);
+    const bundled = Boolean(data?.bundleEdgeIds);
+    const groupUI = useContext(GroupUIContext);
     const labelRef = useRef(null);
     useLayoutEffect(() => {
-        if (readOnly) return;
+        if (readOnly || bundled) return;
         const element = labelRef.current;
         const observer = new ResizeObserver(() => {
             const width = element.offsetWidth, height = element.offsetHeight;
@@ -28,7 +32,7 @@ const FlowEdge = ({
         });
         observer.observe(element);
         return () => observer.disconnect();
-    }, [id,anchorX,anchorY,readOnly]);
+    }, [id,anchorX,anchorY,readOnly,bundled]);
 
     const edgeStyle = {
         ...style,
@@ -41,6 +45,15 @@ const FlowEdge = ({
             <BaseEdge path={edgePath} markerEnd={markerEnd} style={edgeStyle} />
             <EdgeLabelRenderer>
                 <div ref={labelRef} data-edge-label={id}
+                    title={bundled ? "Cliquer pour déplier les parcours dans la carte" : undefined}
+                    role={bundled ? "button" : undefined}
+                    tabIndex={bundled ? 0 : undefined}
+                    onClick={bundled ? event => { event.stopPropagation(); groupUI.toggle?.(null, data.bundleGroupIds); } : undefined}
+                    onKeyDown={bundled ? event => {
+                        if (["Enter", " "].includes(event.key)) {
+                            event.preventDefault(); event.stopPropagation(); groupUI.toggle?.(null, data.bundleGroupIds);
+                        }
+                    } : undefined}
                     style={{
                         position: 'absolute',
                         transform: `translate(-50%, -50%) translate(${anchorX}px,${anchorY}px)`,
@@ -68,7 +81,7 @@ const FlowEdge = ({
                             {data.labelItems.map((item, i) => (
                                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', fontWeight: 600 }}>
                                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: item.color }} />
-                                    <span style={{ color: 'var(--c-dce6ec)' }}>{item.name}: {item.pct}%</span>
+                                    <span style={{ color: 'var(--c-dce6ec)' }}>{item.name}: {bundled ? fmt(item.amount) : `${item.pct}%`}</span>
                                 </div>
                             ))}
                         </div>
@@ -76,6 +89,7 @@ const FlowEdge = ({
                         data?.label || ''
                     )}
                     {data?.volume ? ` (${data.volume})` : ''}
+                    {bundled && <div style={{fontSize:'0.6rem',color:'var(--c-9aadb9)',marginTop:4}}>{data.bundleEdgeIds.length} parcours réunis</div>}
 
                     {/* Render Item Properties */}
                     {data?.itemData && Object.entries(data.itemData).map(([itemId, props]) => {

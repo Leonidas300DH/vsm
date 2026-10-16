@@ -176,18 +176,16 @@ export default function GroupedFlow({
         setInspected(null);
         setView({collapsed: [...new Set([...collapsed, command.id])]});
       }
-      if (command.expandId)
-        setView({
-          collapsed: collapsed.filter((id) => id !== command.expandId),
-        });
+      if (command.expandIds)
+        setView({ collapsed: collapsed.filter(id => !command.expandIds.includes(id)) });
       if (command.collapseId)
         setView({ collapsed: [...new Set([...collapsed, command.collapseId])] });
     } catch (e) {
       setError(e.message);
     }
   };
-  const toggle = (id) => {
-    const next = collapsed.includes(id)
+  const toggle = (id, expandIds) => {
+    const next = expandIds ? collapsed.filter(id => !expandIds.includes(id)) : collapsed.includes(id)
       ? collapsed.filter((x) => x !== id)
       : [...new Set([...collapsed, id])];
     const old = new Set(groupCollisions(scenario, { collapsed }));
@@ -209,7 +207,7 @@ export default function GroupedFlow({
         setPending({
           type: "layoutGroups",
           next: arranged,
-          expandId: next.includes(id) ? undefined : id,
+          expandIds: expandIds || (next.includes(id) ? undefined : [id]),
           collapseId: next.includes(id) ? id : undefined,
         });
       } catch (e) {
@@ -313,8 +311,13 @@ export default function GroupedFlow({
             props.onInit?.(api);
           }}
           onNodesChange={nodesChanged}
-          onEdgeClick={selecting ? undefined : props.onEdgeClick}
-          onEdgesChange={selecting ? undefined : props.onEdgesChange}
+          onEdgeClick={selecting ? undefined : (event, edge) => {
+            if (edge.data?.bundleGroupIds) toggle(null, edge.data.bundleGroupIds);
+            else props.onEdgeClick?.(event, edge);
+          }}
+          onEdgesChange={selecting ? undefined : changes => props.onEdgesChange?.(
+            changes.filter(change => scenario.edges.some(edge => edge.id === change.id))
+          )}
           multiSelectionKeyCode="Shift"
           selectionKeyCode="Shift"
           selectionOnDrag={selecting}

@@ -1,4 +1,5 @@
 import { groupLeaves, groupParents } from "./groups.js";
+import { calculateMetrics } from "../utils/calculations.js";
 import { proposeLayout } from "./placement.js";
 export const nodeSize = (n) => ({
   width: n.width || 300,
@@ -108,6 +109,49 @@ export function projectGroups(
     }
     return d;
   };
+  // Merge only visual links created by folding. The detailed graph stays intact.
+  const pairs = new Map();
+  for (const edge of scenario.edges) {
+    const source = owner.get(edge.source), target = owner.get(edge.target);
+    if (!source || !target || (source === target && source !== edge.source)) continue;
+    const key = JSON.stringify([source, target]);
+    if (!pairs.has(key)) pairs.set(key, []);
+    pairs.get(key).push({ ...edge, source, target,
+      sourceHandle: source === edge.source ? edge.sourceHandle : `out:${edge.id}`,
+      targetHandle: target === edge.target ? edge.targetHandle : `in:${edge.id}`, zIndex: 20 });
+  }
+  let calculated;
+  const edges = [...pairs.values()].flatMap(links => {
+    const { source, target } = links[0];
+    if (links.length < 2 || (!groups.has(source) && !groups.has(target))) return links;
+    const ids = links.map(e => e.id).sort();
+    let id = `__vsm_bundle__${JSON.stringify(ids)}`;
+    while (scenario.edges.some(e => e.id === id)) id += "_";
+    const flows = links.map(edge => {
+      if (Array.isArray(edge.data?.volumeStream)) return edge;
+      calculated ||= new Map(calculateMetrics(scenario.nodes, scenario.edges).edges.map(e => [e.id, e]));
+      return calculated.get(edge.id);
+    });
+    const complete = flows.every(e => !e.data.isError && Array.isArray(e.data.volumeStream) && e.data.volumeStream.every(item => Number.isFinite(item.value) && item.value >= 0));
+    const stream = new Map();
+    if (complete) for (const edge of flows) for (const item of edge.data.volumeStream) {
+      if (!stream.has(item.id)) stream.set(item.id, { ...item, value: 0 });
+      stream.get(item.id).value += item.value;
+    }
+    const volumeStream = [...stream.values()];
+    return [{ ...links[0], id, deletable: false,
+      sourceHandle: groups.has(source) ? `out:${id}` : links[0].sourceHandle,
+      targetHandle: groups.has(target) ? `in:${id}` : links[0].targetHandle,
+      selected: links.some(e => e.selected),
+      data: {
+        bundleEdgeIds: ids, bundleGroupIds: [source, target].filter(id => groups.has(id)),
+        label: complete ? "Flux réunis" : "Volume inconnu",
+        labelItems: volumeStream.map(item => ({ ...item, amount: item.value })),
+        volumeStream, volume: complete ? volumeStream.reduce((sum, item) => sum + item.value, 0).toFixed(1) : undefined,
+        isError: !complete,
+      },
+    }];
+  });
   for (const id of visible) {
     const g = groups.get(id);
     if (!g) continue;
@@ -116,8 +160,8 @@ export function projectGroups(
     const boundary = scenario.edges.filter(
       (e) => leaves.get(id).has(e.source) !== leaves.get(id).has(e.target),
     );
-    const inputs = boundary.filter((e) => leaves.get(id).has(e.target)),
-      outputs = boundary.filter((e) => leaves.get(id).has(e.source));
+    const inputs = isClosed ? edges.filter(e => e.target === id) : boundary.filter(e => leaves.get(id).has(e.target)),
+      outputs = isClosed ? edges.filter(e => e.source === id) : boundary.filter(e => leaves.get(id).has(e.source));
     const portOffsets = {};
     for (const [side, list] of [
       ["in", inputs],
@@ -180,22 +224,6 @@ export function projectGroups(
     frame.height = bottom - frame.position.y;
     frame.style = {width:frame.width, height:frame.height};
   }
-  const edges = scenario.edges.flatMap((e) => {
-    const source = owner.get(e.source),
-      target = owner.get(e.target);
-    if (!source || !target || (source === target && source !== e.source))
-      return [];
-    return [
-      {
-        ...e,
-        source,
-        target,
-        sourceHandle: source === e.source ? e.sourceHandle : `out:${e.id}`,
-        targetHandle: target === e.target ? e.targetHandle : `in:${e.id}`,
-        zIndex: 20,
-      },
-    ];
-  });
   return { nodes, edges, boxes, parents };
 }
 export function layoutGroups(scenario) {
@@ -350,10 +378,10 @@ export function groupCollisions(scenario, view = {}, sizes = {}) {
   const contains = (a, b) =>
     groups.has(a.id) &&
     (b.kind === "label"
-      ? groups
-          .get(a.id)
-          .has(scenario.edges.find((e) => e.id === b.id)?.source) &&
-        groups.get(a.id).has(scenario.edges.find((e) => e.id === b.id)?.target)
+      ? (b.edge.data?.bundleEdgeIds || [b.id]).every(id => {
+          const edge = scenario.edges.find(e => e.id === id);
+          return groups.get(a.id).has(edge?.source) && groups.get(a.id).has(edge?.target);
+        })
       : groups.has(b.id)
         ? [...groups.get(b.id)].every((id) => groups.get(a.id).has(id))
         : groups.get(a.id).has(b.id));
