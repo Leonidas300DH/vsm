@@ -1,12 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { LayoutTemplate, FileText, Save, FolderOpen, FilePlus, History, X, FlaskConical } from 'lucide-react';
 import ToolbarPopover from './ToolbarPopover';
+import useMenuLanguage from '../ui/useMenuLanguage';
 import useStore from '../store/useStore';
 import { hasFileSystemAccess, openFile, saveFile, saveFileAs } from '../utils/fileSystem';
 import { migrateProject } from '../services/project.js';
 import { makePortable, importEmbedded } from '../services/portable.js';
 
 const Header = ({ children, onExample, onHistory }) => {
+    const t = useMenuLanguage();
     const {
         projectTitle,
         setProjectTitle,
@@ -149,29 +151,29 @@ const Header = ({ children, onExample, onHistory }) => {
         <header className="project-header">
             <div className="project-identity">
                 <div className="studio-brand" title="VSM Studio"><LayoutTemplate size={18} /><span>VSM STUDIO</span></div>
-                <ToolbarPopover label="Projet">
+                <ToolbarPopover label={t("Projet")}>
                     {close => <>
-                        <span className="menu-section-label">Espace de travail</span>
-                        <MenuItem icon={<History size={16} />} label="Projets & historique" onClick={() => {close();onHistory();}} />
-                        <MenuItem icon={<FilePlus size={16} />} label="Nouveau projet" onClick={() => {close();handleNew();}} />
-                        <MenuItem icon={<FolderOpen size={16} />} label="Ouvrir un fichier…" onClick={() => {close();handleOpenClick();}} />
-                        <MenuItem icon={<FlaskConical size={16} />} label="Charger l’exemple KYC" onClick={() => {close();onExample();}} />
+                        <span className="menu-section-label">{t("Espace de travail")}</span>
+                        <MenuItem icon={<History size={16} />} label={t("Projets & historique")} onClick={() => {close();onHistory();}} />
+                        <MenuItem icon={<FilePlus size={16} />} label={t("Nouveau projet")} onClick={() => {close();handleNew();}} />
+                        <MenuItem icon={<FolderOpen size={16} />} label={t("Ouvrir un fichier…")} onClick={() => {close();handleOpenClick();}} />
+                        <MenuItem icon={<FlaskConical size={16} />} label={t("Charger l’exemple KYC")} onClick={() => {close();onExample();}} />
                         <div className="menu-separator" />
-                        <span className="menu-section-label">Exporter et partager</span>
-                        <MenuItem icon={<Save size={16} />} label="Enregistrer le fichier" onClick={() => {close();handleSave();}} />
-                        <MenuItem icon={<Save size={16} />} label="Enregistrer sous…" onClick={() => {close();handleSaveAs();}} />
-                        <MenuItem icon={<FileText size={16} />} label="Exporter le rapport PDF" onClick={() => {close();handleExportPDF();}} />
+                        <span className="menu-section-label">{t("Exporter et partager")}</span>
+                        <MenuItem icon={<Save size={16} />} label={t("Enregistrer le fichier")} onClick={() => {close();handleSave();}} />
+                        <MenuItem icon={<Save size={16} />} label={t("Enregistrer sous…")} onClick={() => {close();handleSaveAs();}} />
+                        <MenuItem icon={<FileText size={16} />} label={t("Exporter le rapport PDF")} onClick={handleExportPDF} />
+                        {report && <a className="report-download" href={report.url} download={report.name}>{t("Télécharger PDF")}</a>}
                         <div className="menu-separator" />
-                        <MenuItem icon={<X size={16} />} label="Fermer le projet" onClick={() => {close();handleClose();}} />
+                        <MenuItem icon={<X size={16} />} label={t("Fermer le projet")} onClick={() => {close();handleClose();}} />
                     </>}
                 </ToolbarPopover>
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} hidden accept=".json,.vsm" />
-                {isEditingTitle ? <input className="project-title-input" aria-label="Nom du projet" ref={titleInputRef}
+                {isEditingTitle ? <input className="project-title-input" aria-label={t("Nom du projet")} ref={titleInputRef}
                     value={projectTitle} onChange={e=>setProjectTitle(e.target.value)} onBlur={handleTitleBlur} onKeyDown={handleTitleKeyDown} />
-                    : <h1 className="project-title"><button title="Renommer le projet" onClick={handleTitleClick}>{projectTitle}</button></h1>}
+                    : <h1 className="project-title"><button title={t("Renommer le projet")} onClick={handleTitleClick}>{projectTitle}</button></h1>}
             </div>
             <div className="project-actions">
-                {report && <a className="report-download" href={report.url} download={report.name}>Télécharger PDF</a>}
                 {children}
             </div>
         </header>

@@ -17,6 +17,12 @@ const useStore = create((set, get) => ({
   edgeLabelSizes: {},
   // Reading preferences: local only, never written to the .vsm file.
   orientation: (() => { try { return localStorage.getItem('vsm.orientation') === 'vertical' ? 'vertical' : 'horizontal'; } catch { return 'horizontal'; } })(),
+  menuLanguage: (() => { try { return localStorage.getItem('vsm.menuLanguage') === 'en' ? 'en' : 'fr'; } catch { return 'fr'; } })(),
+  setMenuLanguage: (language) => {
+    const menuLanguage = language === 'en' ? 'en' : 'fr';
+    try { localStorage.setItem('vsm.menuLanguage', menuLanguage); } catch { /* session preference remains available */ }
+    set({ menuLanguage });
+  },
   // Theme: 'dark' (original palette) or 'light'. Applied to <html data-theme>, see src/theme.css.
   theme: applyTheme((() => { try { return localStorage.getItem('vsm.theme') === 'light' ? 'light' : 'dark'; } catch { return 'dark'; } })()),
   setTheme: (theme) => {

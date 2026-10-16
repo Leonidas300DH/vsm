@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Undo2, Redo2, SlidersHorizontal, LockKeyhole, UnlockKeyhole } from "lucide-react";
 import Header from "./Header";
+import SettingsMenu from "./SettingsMenu";
+import ToolbarPopover from "./ToolbarPopover";
+import useMenuLanguage from "../ui/useMenuLanguage";
 import useModalKeyboard from "./useModalKeyboard.js";
 import useStore from "../store/useStore";
 import {migrateProject} from "../services/project.js";
@@ -17,6 +20,7 @@ const labels = {
   conflict: "Conflit entre onglets",
 };
 export default function WorkspaceTools({ onInspect, onArrange, onExample, children }) {
+  const t = useMenuLanguage();
   const { fitView } = useReactFlow();
   const [presentation, setPresentation] = useState(null);
   const [layoutWarning,setLayoutWarning]=useState(false);
@@ -57,15 +61,22 @@ export default function WorkspaceTools({ onInspect, onArrange, onExample, childr
   return (
     <>
       <Header onExample={onExample} onHistory={() => run(async () => { await refresh(); setOpen(true); })}>
-        <span role="status" className={`save-state ${s.saveStatus}`}><span className="save-dot" />{labels[s.saveStatus]}</span>
-        <button className="atelier-trigger" onClick={() => setAtelier(true)}><SlidersHorizontal size={15} />Atelier</button>
-      </Header>
-      <div className="workspace-tools" role="group" aria-label="Commandes de la carte">
+      <div className="workspace-tools" role="group" aria-label={t('Commandes de la carte')}>
         <div className="history-actions">
-          <button className="icon-command" aria-label="Annuler" title="Annuler" onClick={() => s.undoBusiness()} disabled={!s.canUndo}><Undo2 size={16} /></button>
-          <button className="icon-command" aria-label="Rétablir" title="Rétablir" onClick={() => s.redoBusiness()} disabled={!s.canRedo}><Redo2 size={16} /></button>
+          <button className="icon-command" aria-label={t("Annuler")} title={t("Annuler")} onClick={() => s.undoBusiness()} disabled={!s.canUndo}><Undo2 size={16} /></button>
+          <button className="icon-command" aria-label={t("Rétablir")} title={t("Rétablir")} onClick={() => s.redoBusiness()} disabled={!s.canRedo}><Redo2 size={16} /></button>
         </div>
         <span className="toolbar-divider" />
+        {children(<select
+          aria-label={t("Niveau de détail")}
+          value={s.detailMode}
+          onChange={(e) => changeDetail(e.target.value)}
+        >
+          <option value="overview">{t("Vue d’ensemble")}</option>
+          <option value="operations">{t("Opérations")}</option>
+          <option value="detailed">{t("Données détaillées")}</option>
+        </select>)}
+        {(presentation || layoutWarning || s.comparisonIds.length > 0 || s.selectedNodeId || s.saveError || ["error", "conflict"].includes(s.saveStatus)) && <ToolbarPopover label={t('Actions en cours')} icon={<SlidersHorizontal size={16} />} iconOnly align="right">
         {presentation && (
           <>
             <button
@@ -74,7 +85,7 @@ export default function WorkspaceTools({ onInspect, onArrange, onExample, childr
                 present(presentation.items, presentation.index - 1)
               }
             >
-              Précédent
+              {t("Précédent")}
             </button>
             <span>
               {presentation.index + 1}/{presentation.items.length}
@@ -85,27 +96,17 @@ export default function WorkspaceTools({ onInspect, onArrange, onExample, childr
                 present(presentation.items, presentation.index + 1)
               }
             >
-              Suivant
+              {t("Suivant")}
             </button>
             <button onClick={() => setPresentation(null)}>
-              Quitter la présentation
+              {t("Quitter la présentation")}
             </button>
           </>
         )}
-        <select
-          aria-label="Niveau de détail"
-          value={s.detailMode}
-          onChange={(e) => changeDetail(e.target.value)}
-        >
-          <option value="overview">Vue d’ensemble</option>
-          <option value="operations">Opérations</option>
-          <option value="detailed">Données détaillées</option>
-        </select>
-        {children}
-        {layoutWarning && <button onClick={()=>{setLayoutWarning(false);onArrange();}}>Chevauchement détecté · Réagencer</button>}
-        {s.comparisonIds.length>0 && <button onClick={()=>useStore.setState({comparisonIds:[]})}>Quitter la comparaison</button>}
+        {layoutWarning && <button onClick={()=>{setLayoutWarning(false);onArrange();}}>{t("Chevauchement détecté · Réagencer")}</button>}
+        {s.comparisonIds.length>0 && <button onClick={()=>useStore.setState({comparisonIds:[]})}>{t("Quitter la comparaison")}</button>}
         {s.selectedNodeId && s.nodes.some((n) => n.id === s.selectedNodeId) && (
-          <button className="icon-command" aria-label={s.nodes.find(n=>n.id===s.selectedNodeId).data.positionLocked ? "Déverrouiller la position" : "Verrouiller la position"} title="Verrouiller ou déverrouiller la position"
+          <button
             onClick={() =>
               s.updateNodeData(s.selectedNodeId, {
                 positionLocked: !s.nodes.find((n) => n.id === s.selectedNodeId)
@@ -116,19 +117,25 @@ export default function WorkspaceTools({ onInspect, onArrange, onExample, childr
             {s.nodes.find((n) => n.id === s.selectedNodeId).data.positionLocked
               ? <UnlockKeyhole size={16} />
               : <LockKeyhole size={16} />}
+            {t(s.nodes.find(n => n.id === s.selectedNodeId).data.positionLocked ? "Déverrouiller la position" : "Verrouiller la position")}
           </button>
         )}
         {s.saveError && <span role="alert">{s.saveError}</span>}
         {s.saveStatus === "conflict" ? (
           <button onClick={() => run(s.recoverCopy)}>
-            Créer une copie de récupération
+            {t("Créer une copie de récupération")}
           </button>
         ) : (
           s.saveStatus === "error" && (
-            <button onClick={() => run(s.flushWorkspace)}>Réessayer</button>
+            <button onClick={() => run(s.flushWorkspace)}>{t("Réessayer")}</button>
           )
         )}
+        </ToolbarPopover>}
+        <button className="atelier-trigger" aria-label={t('Atelier')} title={t('Atelier')} onClick={() => setAtelier(true)}><SlidersHorizontal size={15} /><span>{t('Atelier')}</span></button>
+        <span role="status" aria-label={t(labels[s.saveStatus])} title={t(labels[s.saveStatus])} className={`save-state ${s.saveStatus}`}><span className="save-dot" /></span>
+        <SettingsMenu />
       </div>
+      </Header>
       {atelier && (
         <AnalysisPanel
           onPresent={(items) => {
