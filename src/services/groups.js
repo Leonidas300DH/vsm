@@ -28,6 +28,19 @@ export function groupParents(scenario) {
     (scenario.groups || []).flatMap((g) => g.members.map((id) => [id, g.id])),
   );
 }
+// A rectangle can enclose both a frame and its contents. Keep the outermost
+// selected unit, while the currently opened frame is only the editing context.
+export function groupingUnits(ids, parents, focusId = null) {
+  const selected = new Set(ids.filter((id) => id !== focusId));
+  return [...selected].filter((id) => {
+    let parent = parents.get(id);
+    while (parent) {
+      if (selected.has(parent)) return false;
+      parent = parents.get(parent);
+    }
+    return true;
+  });
+}
 export function validateGroups(scenario) {
   const groups = scenario.groups || [],
     ids = new Set(scenario.nodes.map((n) => n.id)),

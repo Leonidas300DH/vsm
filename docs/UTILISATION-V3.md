@@ -134,7 +134,7 @@ est en pause**. Il n’existe aucune propagation en arrière-plan hors de cet at
 
 ## Sous-processus imbriqués (format 3.1)
 
-La carte conserve son apparence et toutes les étapes métier. Maintenir **Maj** pour sélectionner plusieurs étapes (clics ou rectangle), puis choisir **Regrouper**. Les éléments doivent être connectés et appartenir au même niveau. Le message de diagnostic indique les étapes intermédiaires manquantes.
+La carte conserve son apparence et toutes les étapes métier. Cliquer sur **Sélection**, en bas à gauche de la carte, puis tracer un rectangle autour des étapes. La barre affiche le nombre d’éléments retenus : donner un nom si souhaité, puis cliquer sur **Regrouper** pour créer le cadre, ou **Annuler** pour quitter sans modification (Échap fonctionne aussi). Aucun raccourci clavier ni menu n’est nécessaire. Les éléments doivent être connectés et appartenir au même niveau ; sinon la validation reste désactivée avec une explication. Un groupe entièrement encadré compte comme un seul élément. **Annuler / Rétablir** reste disponible après validation.
 
 Un cadre contient les étapes, leurs ressources et les connexions internes. Le chevron replie le cadre en carte de synthèse ; le bouton d’agrandissement ouvre son détail avec un fil d’Ariane. Les groupes peuvent être imbriqués. Les états ouverts/repliés restent des préférences locales, indépendantes des scénarios comparés et de l’édition liée.
 

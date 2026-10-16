@@ -111,6 +111,54 @@
   top: 12px;
   left: 12px;
 }
+.canvas-selection-tool {
+  position: absolute;
+  bottom: 58px;
+  left: 15px;
+  z-index: 36;
+}
+.canvas-selection-tool button,
+.selection-confirm button {
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--c-30434f);
+  border-radius: 5px;
+  background: var(--c-111e27);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-size: 12px;
+}
+.canvas-selection-tool button[aria-pressed="true"],
+.selection-confirm .confirm-group:not(:disabled) {
+  background: var(--c-a3c8d8);
+  border-color: var(--c-a3c8d8);
+  color: var(--c-0b1218);
+}
+.selection-confirm button:disabled {
+  opacity: .45;
+  cursor: default;
+}
+.grouped-flow .group-selection.selection-confirm {
+  top: auto;
+  bottom: 100px;
+  left: 15px;
+  max-width: calc(100% - 30px);
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 18px #0003;
+}
+.selection-confirm input { width: 155px; }
+.selection-confirm small { flex-basis: 100%; color: var(--c-ff9f43); }
+.is-selecting .react-flow__pane { cursor: crosshair; }
+.is-selecting .react-flow__selection {
+  border: 2px dashed var(--c-a3c8d8);
+  background: color-mix(in srgb, var(--c-a3c8d8) 14%, transparent);
+}
+/* Expanded frames must never intercept clicks intended for their contents. */
+.react-flow__node-subprocess:has(.is-expanded) { pointer-events: none; }
+.is-selecting .react-flow__nodesselection { pointer-events: none; }
+.is-selecting .react-flow__node button,
+.is-selecting .react-flow__handle { pointer-events: none; }
 .group-breadcrumb ~ .group-selection {
   top: 50px;
 }

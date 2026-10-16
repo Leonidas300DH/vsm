@@ -5,6 +5,8 @@ import {
   applyGroupCommand,
   validateGroups,
   groupingSelection,
+  groupingUnits,
+  groupParents,
   groupLeaves,
   summarizeGroup,
 } from "../src/services/groups.js";
@@ -71,6 +73,19 @@ const metrics = (s) => {
   const a = analyze(s);
   return [a.workload, a.processing, a.waiting, a.lead, a.completedVolume];
 };
+test("rectangle selection groups a complete frame with its neighbour without duplicating its descendants", () => {
+  const s = group(fixture());
+  const ids = groupingUnits(["g", "p0", "p1", "p2"], groupParents(s));
+  assert.deepEqual(ids, ["g", "p2"]);
+  const nested = group(s, ids, "outer");
+  assert.deepEqual(groupLeaves(nested, "outer"), ["p0", "p1", "p2"]);
+  assert.deepEqual(metrics(nested), metrics(s));
+});
+test("rectangle selection inside an open group keeps the steps, not its context frame", () => {
+  const s = group(fixture());
+  assert.deepEqual(groupingUnits(["g", "p0", "p1"], groupParents(s), "g"), ["p0", "p1"]);
+  assert.throws(() => groupingSelection(s, groupingUnits(["p0", "p2"], groupParents(s))), /même niveau/);
+});
 test("grouping and dissolving preserve every leaf, edge, resources and unknown business fields", () => {
   const s = fixture();
   s.nodes[1].data.unknown = { a: [1, 2] };
