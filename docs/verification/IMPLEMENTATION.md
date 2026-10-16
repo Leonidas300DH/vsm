@@ -1,18 +1,18 @@
 # VSM Studio 3 — journal de réalisation
 
-Recette du 15 octobre 2026. Base Git `a8905bdb642a3d9106016513db2fc8c11014bad9`, avec les changements de catalogue/logos déjà présents dans le répertoire. Le manifeste `source-manifest.json` identifie les sources livrées sans inclure les documents de travail privés.
+Recette initiale du 15 octobre 2026, clôture PDF et CI du 16 octobre 2026. Base Git `a8905bdb642a3d9106016513db2fc8c11014bad9`, avec les changements de catalogue/logos déjà présents dans le répertoire. Le manifeste `source-manifest.json` identifie les sources livrées sans inclure les documents de travail privés.
 
 ## Résultat et périmètre de preuve
 
 Les lots fonctionnels 0 à 11 sont implémentés. La recette intégrée locale couvre les imports, l’analyse, les scénarios, la simulation, les propositions, la réutilisation, la présentation, le partage et la récupération. Les preuves automatiques, navigateur, PDF et déploiement sont distinguées ci-dessous. Les réserves explicitement ouvertes ne sont pas présentées comme validées.
 
-La publication a été faite en deux vagues : stockage/historique puis ensemble intégré. Les lots 2 à 11 ont des services et tests séparés, mais pas chacun une publication publique intermédiaire. La CI est livrée ; elle n’a pas été déclenchée sur GitHub, le code n’ayant pas été poussé durant cette réalisation. La publication open source et la licence restent inchangées.
+La publication a été faite en deux vagues : stockage/historique puis ensemble intégré. Les lots 2 à 11 ont des services et tests séparés, mais pas chacun une publication publique intermédiaire. La CI a été exécutée avec succès sur GitHub le 16 octobre, puis rejouée après correction du rendu PDF (72 tests). La publication open source et la licence restent inchangées.
 
 ## Livrables par lot
 
 | Lot | Implémentation et preuve | État de recette |
 | --- | --- | --- |
-| 0 Référence | 38 tests initiaux passants, métriques legacy figées dans `baseline/results.json`, capture KYC, corpus de six fichiers ; workflow GitHub lint/tests/build. | Corpus ouvert dans le navigateur ; CI distante non exécutée. |
+| 0 Référence | 38 tests initiaux passants, métriques legacy figées dans `baseline/results.json`, capture KYC, corpus de six fichiers ; workflow GitHub lint/tests/build. | Corpus ouvert dans le navigateur ; CI distante réussie, voir clôture du 16 octobre. |
 | 1 Stockage | IndexedDB, récupération, 50 autosauvegardes, versions nommées, restauration préservant l’état antérieur, annuler/rétablir, copie de récupération, migration des bibliothèques. | Tests quota/transaction interrompue/rétention ; deux vrais onglets testés avec conflit puis copie, les deux projets conservés. Version nommée et rechargement vérifiés localement, en préversion et en public pour la première vague. |
 | 2 Hypothèses et calculs | Métadonnées de mesures, unités, statut, source/date/responsable/périmètre ; analytic-1 distinct du legacy-2. | Cas manuels 10 × 4 = 40, attente 5 et lead 9 ; catégories, moyennes, inconnus et capacités testés ; ancien corpus reproduit exactement. |
 | 3 Placement | Dimensions DOM réelles, cartes incluant satellites, labels mesurés, espacement par colonnes, verrous, aperçu et annulation. Une seule courbe Bézier et étiquette à son milieu. | Corpus sans collisions ; verrous incompatibles refusés ; 200 étapes/500 liens ; KYC en navigateur : 21 cartes, 22 labels, zéro collision en préversion. |
@@ -21,7 +21,7 @@ La publication a été faite en deux vagues : stockage/historique puis ensemble 
 | 6 Simulation | Volumes, cycles, attentes, effectifs, capacités, routages ; réinitialisation et enregistrement en cible. | KYC exploré : charge 5159,82 → 5019,82 en changeant un cycle ; source conservée. Routage non modifié des autres catégories préservé. |
 | 7 Diagnostic | Charge et contribution, surcharge, attentes d’étapes/connexions, plus long parcours ; formules et ouverture de l’inspecteur. | Cas capacité zéro, affectations partagées, branches/convergences, inconnus, cycles et routages invalides testés. L’alerte surcharge 200 % ouvre le bon objet et la formule. |
 | 8 Sous-processus | Modèles, ports, paramètres, catégories explicites, copie de ressources et provenance, nouveaux identifiants. | Insertion UI d’un modèle ; tests indépendance, références internes, remappage des unités et sources des connexions. Les ports externes sont raccordés explicitement par l’utilisateur. |
-| 9 Revue et rapport | Commentaires ouverts/résolus et sélection PDF, références supprimées signalées, parcours ordonné, rapport paginé. | Commentaire et présentation exercés. PDF KYC 49 pages et rapport de texte long 9 pages générés ; pages de carte, détails avec vrai logo et texte long inspectées visuellement. Téléchargement natif non validé dans le navigateur intégré, voir réserve. |
+| 9 Revue et rapport | Commentaires ouverts/résolus et sélection PDF, références supprimées signalées, parcours ordonné, rapport paginé. | Commentaire et présentation exercés. PDF KYC 49 pages et rapport de texte long 9 pages générés ; pages de carte, détails avec vrai logo et texte long inspectées visuellement. Téléchargement natif validé dans Chrome depuis la préversion puis le site public le 16 octobre, voir clôture. |
 | 10 Codex | Dossier minimal visible, contrat 1.0, validation stricte de révision/objets/champs, prévisualisation et cible avec provenance. | Proposition de référence importée, charge recalculée à 20, actuel à 40 inchangé ; refus du JSON malformé, objet/catégorie absents, code et révision périmée. |
 | 11 Serveur local | Écoute 127.0.0.1, trois adaptateurs, .env.example, états configuré/absent, choix explicites, requête unique, limites et annulation. | Installation propre passant lint/71 tests/build ; réponses fournisseurs simulées pour refus, 429, délais, annulation, invalidité, concurrence. Configuration désactivée vérifiée sur 8787. Aucun appel payant réel réalisé. |
 | 12 Recette intégrée | Guides utilisateur/installation/contrats, exemples v3 et proposition, fichier `roundtrip.vsm`, preuves et déploiements. | Parcours intégré exercé localement et contrôles préversion/public consignés ci-dessous ; réserves de recette conservées. |
@@ -47,12 +47,11 @@ La publication a été faite en deux vagues : stockage/historique puis ensemble 
 - Rapports locaux : `output/pdf/kyc-recette.pdf` et `output/pdf/rapport-long-recette.pdf` (artefacts ignorés par Git).
 - Rendus inspectés : `tmp/pdfs/kyc-map.png`, `kyc-logo-final.png`, `long-final.png`.
 
-## Réserves de recette
+## Limites de couverture
 
-1. Le navigateur intégré annule les téléchargements natifs, y compris via un lien Blob explicite. Les PDF sont générés et inspectés sur disque avec le même moteur ; leur téléchargement natif n’est pas déclaré validé. L’export VSM dispose d’une copie JSON de secours, utilisée pour vérifier l’aller-retour réel. Le dossier Downloads de ce poste est un lien symbolique dont la cible est absente ; aucun réglage personnel n’a été modifié.
-2. Les trois fournisseurs ont été testés avec réponses simulées, sans envoyer de contenu ni engager de dépense. La compatibilité d’un modèle réel choisi par l’utilisateur reste à exercer dans son installation.
-3. Le workflow CI existe et les mêmes commandes passent dans une copie propre, mais aucune exécution GitHub distante n’est revendiquée.
-4. La recette UI et PDF porte sur les cas et pages indiqués, pas sur tous les navigateurs ni toutes les tailles de documents. Un graphe dont les contraintes ne permettent pas un placement valide reste intact avec diagnostic.
+Les réserves de téléchargement PDF et de CI distante sont levées par les vérifications du 16 octobre ci-dessous. L’échec du navigateur intégré reste une limitation de cet environnement de contrôle : Chrome a permis de terminer le parcours natif via la boîte « Enregistrer sous », sans modifier les réglages ni le lien symbolique Downloads du poste.
+
+Les trois fournisseurs IA facultatifs ont été testés avec réponses simulées, sans envoyer de contenu ni engager de dépense. Les appels réels OpenAI, Claude et Gemini avec les clés et modèles d’une installation personnelle ne sont pas couverts par cette recette. La validation porte sur le corpus et les pages inspectées, pas sur toutes les combinaisons de graphes ou tous les navigateurs.
 
 ## Déploiements et retour arrière
 
@@ -76,3 +75,29 @@ Sur l’alias public après déploiement :
 - interface indiquant que les connecteurs personnels sont réservés à l’installation locale.
 
 Le bundle servi par l’alias est comparé octet pour octet au build local dans `public-build.json`. La preuve de collisions KYC est celle de la préversion finale identique : 21 cartes, 22 étiquettes, zéro collision. Une répétition supplémentaire en production a été interrompue par le contrôle du dialogue natif du navigateur intégré ; ce contrôle supplémentaire n’est pas déclaré réussi. Les tests publics précédents restent acquis.
+
+## Clôture du 16 octobre 2026 : Chrome, PDF et CI GitHub
+
+### Correction et contrôles
+
+- Chrome 155 sur macOS, site public puis déploiement candidat : préparation du PDF, clic sur « Télécharger le PDF préparé », boîte native « Enregistrer sous », enregistrement sur disque et ouverture dans le lecteur Chrome/Acrobat. Le premier événement de téléchargement attendait cette boîte native ; la présence d’un lien Blob seul n’a pas été utilisée comme preuve de téléchargement.
+- L’inspection du premier PDF a détecté un symbole de somme `Σ` rendu comme `£` avec la police PDF standard. Correction limitée au rapport : libellé lisible « Somme des », sans modifier les formules du moteur ni les données. Les indicateurs du tableau comparatif utilisent aussi leurs libellés lisibles.
+- Régression couverte par `tests/report.test.mjs`. Lint, **72/72 tests**, compilation : réussis localement et sur GitHub.
+- CI initiale du commit `7485797` : https://github.com/Leonidas300DH/vsm/actions/runs/38852680256, succès (71 tests).
+- CI du code corrigé `40a53e045e71b4484c5937422f112dcb6be4ae70` : https://github.com/Leonidas300DH/vsm/actions/runs/38852906833, succès (installation propre Ubuntu/Node 22, lint, 72 tests, build).
+- Sources poussées sur `codex/vsm-studio-3`. Aucun document privé non suivi n’a été ajouté au dépôt.
+
+### Rapport réellement téléchargé
+
+- Préversion : `output/pdf/kyc-chrome-preview-final.pdf`, 50 pages, correction de la formule vérifiée par extraction et inspection visuelle.
+- Public après promotion : `output/pdf/kyc-chrome-public-final.pdf`, **50 pages A4, 536600 octets** ; SHA-256 `9c6fd784c09464617d263084dfc80b40a51787200006d9be669b7dd0f32461d7`.
+- Le KYC de cette session produit neuf vues de carte et 50 pages ; le rapport local de la recette initiale en comptait 49 avec un autre placement. Les calculs restent 5159,82 / 51,6 / 96,27 / 147,87 minutes pour charge / processing / attente / lead.
+- Inspection visuelle des tableaux, du logo SharePoint, des hypothèses, de la pagination et des diagnostics corrigés ; artefacts `output/pdf/public-final-detail.png`, `output/pdf/public-final-diagnostics.png` et `output/chrome-pdf-public-final.png`.
+- Contrôle DOM des cartes et satellites inclus dans leur emprise et des étiquettes : **21 cartes, 22 étiquettes, zéro intersection**, sur le candidat puis sur l’alias public. Aucune nouvelle erreur de l’application pendant le parcours ; un message préexistant est attribué à une extension Chrome tierce.
+
+### Version publiée et retour arrière
+
+- Déploiement corrigé : `dpl_EE36V9pvReKaDarYV2gAD299gyJV`, https://vsm-2x18zk0l5-herberadaniel-5440s-projects.vercel.app/ ; testé avant promotion puis retesté sur https://vsm-mauve.vercel.app/.
+- Bundle public comparé octet pour octet au build local : `recette-final.json`. Manifeste de source final : `source-manifest-final.json`. Le manifeste initial est conservé pour identifier le déploiement précédent.
+- Retour arrière compatible VSM 3 : `dpl_AAzamMVoukezNqisCFPmzZeRKnhc`, https://vsm-fypdpog4u-herberadaniel-5440s-projects.vercel.app/. Ce retour réintroduirait le défaut typographique du PDF, sans revenir au format VSM 2.
+- Aucune modification de stockage, calcul ou modèle de données dans cette correction.

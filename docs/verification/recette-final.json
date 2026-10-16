@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-16",
+  "codeCommit": "40a53e045e71b4484c5937422f112dcb6be4ae70",
+  "ciRun": "https://github.com/Leonidas300DH/vsm/actions/runs/38852906833",
+  "ciConclusion": "success",
+  "tests": 72,
+  "deployment": "dpl_EE36V9pvReKaDarYV2gAD299gyJV",
+  "publicUrl": "https://vsm-mauve.vercel.app/",
+  "assets": [
+    {
+      "path": "/assets/index-vaCEK1jE.js",
+      "sha256": "bd0cd72eda5211308aea09cac787a9c48923ecd9e51b40fecc5fff02bf8d3d93",
+      "matchesLocal": true
+    },
+    {
+      "path": "/assets/index-Ddl_ribD.css",
+      "sha256": "f87703ceca2416f35db24f78bd0c8c27c3c9f13dd0316a54b857603dbf4c8991",
+      "matchesLocal": true
+    }
+  ],
+  "pdf": {
+    "path": "output/pdf/kyc-chrome-public-final.pdf",
+    "bytes": 536600,
+    "pages": 50,
+    "sha256": "9c6fd784c09464617d263084dfc80b40a51787200006d9be669b7dd0f32461d7"
+  },
+  "geometry": {
+    "nodes": 21,
+    "labels": 22,
+    "collisions": 0
+  }
+}
