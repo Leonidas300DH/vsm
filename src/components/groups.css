@@ -170,7 +170,10 @@
 }
 /* Expanded frames must never intercept clicks intended for their contents. */
 .react-flow__node-subprocess:has(.is-expanded) { pointer-events: none; }
-.is-selecting .react-flow__nodesselection { pointer-events: none; }
+/* React Flow's selection overlay must not cover buttons on selected cards.
+   Cards and group headers still handle dragging themselves. */
+.grouped-flow .react-flow__nodesselection,
+.grouped-flow .react-flow__nodesselection-rect { pointer-events: none; }
 .is-selecting .react-flow__node button,
 .is-selecting .react-flow__handle { pointer-events: none; }
 .group-breadcrumb ~ .group-selection {
