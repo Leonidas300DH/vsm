@@ -12,7 +12,7 @@ const english = {
   'Mettre en évidence':'Highlight resources', 'Aucun focus':'No highlight', 'Outils':'Tools', 'Acteurs':'Actors', 'Équipes':'Teams',
   'Panneaux':'Panels', 'Palette':'Palette', 'Analyse':'Analysis', 'Inspecteur':'Inspector', 'Visible':'Visible', 'Repliée':'Collapsed', 'Replié':'Collapsed',
   'Niveau de détail':'Detail level', 'Vue d’ensemble':'Overview', 'Opérations':'Operations', 'Données détaillées':'Detailed data',
-  'Langue des menus':'Menu language', 'Apparence':'Appearance', 'Sombre':'Dark', 'Clair':'Light',
+  'Langue des menus':'Menu language', 'Apparence':'Appearance', 'Sombre':'Dark', 'Clair':'Light', 'Style':'Style', 'Classique':'Classic',
   'Préférences enregistrées sur cet appareil.':'Preferences saved on this device.',
   'La langue concerne les menus de navigation. Les données de vos cartes restent dans leur langue d’origine.':'Language applies to navigation menus. Your map data stays in its original language.',
   'Enregistré':'Saved', 'Récupération…':'Recovering…', 'Modifications à enregistrer':'Unsaved changes', 'Sauvegarde en cours…':'Saving…',

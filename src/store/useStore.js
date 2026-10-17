@@ -14,6 +14,16 @@ const applyTheme = (theme) => {
   if (typeof document !== 'undefined') document.documentElement.dataset.theme = theme;
   return theme;
 };
+const SIGNAL_GLASS_FONTS = 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@300;400;500;600&family=Saira+Condensed:wght@700;800&display=swap';
+// The Signal Glass fonts load only while that skin is active, so the classic skin makes no font request.
+const applySkin = (skin) => {
+  if (typeof document === 'undefined') return skin;
+  document.documentElement.dataset.skin = skin;
+  const link = document.getElementById('signal-glass-fonts');
+  if (skin === 'signal-glass' && !link) document.head.appendChild(Object.assign(document.createElement('link'), { id: 'signal-glass-fonts', rel: 'stylesheet', href: SIGNAL_GLASS_FONTS }));
+  else if (skin !== 'signal-glass' && link) link.remove();
+  return skin;
+};
 const useStore = create((set, get) => ({
   edgeLabelSizes: {},
   // Reading preferences: local only, never written to the .vsm file.
@@ -29,6 +39,13 @@ const useStore = create((set, get) => ({
   setTheme: (theme) => {
     try { localStorage.setItem('vsm.theme', theme); } catch { /* preference stays for the session */ }
     set({ theme: applyTheme(theme) });
+  },
+  // Skin: 'classic' (theme.css as is) or 'signal-glass' (opt-in layer in src/signal-glass.css). Composes with theme.
+  skin: applySkin((() => { try { return localStorage.getItem('vsm.skin') === 'signal-glass' ? 'signal-glass' : 'classic'; } catch { return 'classic'; } })()),
+  setSkin: (skin) => {
+    const value = skin === 'signal-glass' ? 'signal-glass' : 'classic';
+    try { localStorage.setItem('vsm.skin', value); } catch { /* preference stays for the session */ }
+    set({ skin: applySkin(value) });
   },
   // Focus: one resource whose steps stay lit while the rest of the canvas dims. Session only.
   focus: null,

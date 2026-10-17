@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import 'reactflow/dist/style.css'
 import './theme.css'
 import './index.css'
+import './signal-glass.css'
 import App from './App.jsx'
 
 class ErrorBoundary extends React.Component {
