@@ -467,35 +467,41 @@
 [data-skin="signal-glass"] .react-flow__minimap { border-radius: var(--sg-radius-md) !important; border-color: var(--sg-glass-edge) !important; background: var(--sg-glass) !important; -webkit-backdrop-filter: blur(var(--sg-blur-glass)); backdrop-filter: blur(var(--sg-blur-glass)); overflow: hidden; box-shadow: var(--sg-shadow-glass); }
 [data-skin="signal-glass"] .workspace .react-flow__controls-button { background: transparent; border-color: var(--sg-hairline); fill: var(--sg-ink-muted); }
 
-/* HUD canvas: steps are square instruments; the kinds read by lightness, line style and icon,
-   and only the agent (AI) step carries the cyan signal. */
-[data-skin="signal-glass"] .process-card[data-kind=standard], [data-skin="signal-glass"] .workspace aside [data-kind=standard] { --node-accent: var(--sg-data); --node-tint: var(--sg-glass); }
-[data-skin="signal-glass"] .process-card[data-kind=actor], [data-skin="signal-glass"] .workspace aside [data-kind=actor] { --node-accent: var(--sg-ink); --node-tint: var(--sg-glass-strong); }
-[data-skin="signal-glass"] .process-card[data-kind=it], [data-skin="signal-glass"] .workspace aside [data-kind=it] { --node-accent: var(--sg-ink-faint); --node-tint: var(--sg-data-soft); }
-[data-skin="signal-glass"] .process-card[data-kind=ai], [data-skin="signal-glass"] .workspace aside [data-kind=ai] { --node-accent: var(--sg-signal); --node-tint: var(--sg-accent-soft); }
-[data-skin="signal-glass"] .terminal-card, [data-skin="signal-glass"] .workspace aside [data-kind=terminal] { --node-accent: var(--sg-accent); --node-tint: var(--sg-accent-soft); }
+/* Canvas steps keep the classic colour of their kind (the same values as theme.css: terminal red,
+   actor orange, IT green, AI blue, standard grey); Signal Glass only changes their shape and type. */
+:root[data-skin="signal-glass"] {
+  --sg-kind-standard: #a5aeb8; --sg-kind-standard-tint: #282e35;
+  --sg-kind-actor: #f5a454;    --sg-kind-actor-tint: #3e2919;
+  --sg-kind-it: #53cf91;       --sg-kind-it-tint: #143629;
+  --sg-kind-ai: #4bafff;       --sg-kind-ai-tint: #112c48;
+  --sg-kind-terminal: #f36f79; --sg-kind-terminal-tint: #381c26; --sg-kind-terminal-ink: #ffe0e4;
+  --sg-card: #101b23;
+}
+:root[data-skin="signal-glass"][data-theme="light"] {
+  --sg-kind-standard: #47505a; --sg-kind-standard-tint: #cad0d7;
+  --sg-kind-actor: #ab5a0a;    --sg-kind-actor-tint: #e6d1c1;
+  --sg-kind-it: #30ac6e;       --sg-kind-it-tint: #c9ebde;
+  --sg-kind-ai: #0064b4;       --sg-kind-ai-tint: #b7d2ee;
+  --sg-kind-terminal: #900c16; --sg-kind-terminal-tint: #e3c7d1; --sg-kind-terminal-ink: #1f0004;
+  --sg-card: #ffffff;
+}
+[data-skin="signal-glass"] .process-card[data-kind=standard], [data-skin="signal-glass"] .workspace aside [data-kind=standard] { --node-accent: var(--sg-kind-standard); --node-tint: var(--sg-kind-standard-tint); }
+[data-skin="signal-glass"] .process-card[data-kind=actor], [data-skin="signal-glass"] .workspace aside [data-kind=actor] { --node-accent: var(--sg-kind-actor); --node-tint: var(--sg-kind-actor-tint); }
+[data-skin="signal-glass"] .process-card[data-kind=it], [data-skin="signal-glass"] .workspace aside [data-kind=it] { --node-accent: var(--sg-kind-it); --node-tint: var(--sg-kind-it-tint); }
+[data-skin="signal-glass"] .process-card[data-kind=ai], [data-skin="signal-glass"] .workspace aside [data-kind=ai] { --node-accent: var(--sg-kind-ai); --node-tint: var(--sg-kind-ai-tint); }
+[data-skin="signal-glass"] .terminal-card, [data-skin="signal-glass"] .workspace aside [data-kind=terminal] { --node-accent: var(--sg-kind-terminal); --node-tint: var(--sg-kind-terminal-tint); }
 [data-skin="signal-glass"] .process-card {
   border-radius: var(--sg-radius-hud) !important;
-  border-width: 1px !important;
-  background: var(--sg-surface) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .28) !important;
+  background: linear-gradient(145deg, var(--node-tint), var(--sg-card)) !important;
 }
-[data-skin="signal-glass"][data-theme="light"] .process-card { background: #ffffff !important; box-shadow: 0 6px 20px rgba(5, 27, 44, .08) !important; }
-[data-skin="signal-glass"] .process-card[data-kind=it] { border-style: dashed !important; }
-[data-skin="signal-glass"] .process-card[data-kind=ai] { box-shadow: var(--sg-glow-signal) !important; }
 [data-skin="signal-glass"] .process-card[data-kind] > .process-header {
   border-radius: 0 !important;
   font-family: var(--sg-font-display); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; font-size: 15px;
 }
 [data-skin="signal-glass"] .process-card td,
-[data-skin="signal-glass"] .process-card th { border-color: var(--sg-hairline) !important; font-family: var(--sg-font-mono); font-size: 10px; letter-spacing: .04em; }
-[data-skin="signal-glass"] .terminal-card {
-  border-radius: var(--sg-radius-lg) !important;
-  background: var(--sg-teal-deep) !important;
-  color: #ffffee !important;
-}
+[data-skin="signal-glass"] .process-card th { font-family: var(--sg-font-mono); font-size: 10px; letter-spacing: .04em; }
+[data-skin="signal-glass"] .terminal-card { border-radius: var(--sg-radius-hud) !important; color: var(--sg-kind-terminal-ink) !important; }
 [data-skin="signal-glass"] .workspace aside [draggable=true] { border-radius: var(--sg-radius-sm) !important; }
-[data-skin="signal-glass"] .workspace aside [draggable=true][data-kind=it] { border-style: dashed !important; }
 
 /* Selection and flow highlights use the signal instead of the classic blue. */
 [data-skin="signal-glass"] .node-selected,
