@@ -840,3 +840,35 @@ test('dragging a reflowed node translates only its position back to the editable
   const selection={id:'p2',type:'select',selected:true};
   assert.equal(canonicalNodeChange(selection,view),selection);
 });
+
+test('a drag after local folding is one undoable gesture, with independent subsequent gestures', async () => {
+  const { reflowGroupView, canonicalNodeChange } = await import('../src/services/groupViewLayout.js');
+  const s=layoutGroups(group(fixture(4)));
+  const store=createStore(()=>({...s,projectTitle:'Drag QA'}));
+  const api=installWorkspace(store,{factory:new IDBFactory(),listen:false});
+  await api.initialized;
+  try {
+    const view=reflowGroupView(s,{collapsed:[]},['g'],'g');
+    const visible=projectGroups(s,view).nodes.find(n=>n.id==='p2');
+    const original=structuredClone(store.getState().nodes);
+    const drag = deltas => {
+      store.getState().beginBusinessGesture();
+      for(const dx of deltas) {
+        const c=canonicalNodeChange({id:'p2',type:'position',position:{x:visible.position.x+dx,y:visible.position.y}},view);
+        store.setState({nodes:store.getState().nodes.map(n=>n.id===c.id?{...n,position:c.position}:n)});
+      }
+      store.getState().endBusinessGesture();
+    };
+    drag([10,20,30,40]);
+    const moved=structuredClone(store.getState().nodes);
+    store.getState().undoBusiness();
+    assert.deepEqual(store.getState().nodes.map(n=>n.position),original.map(n=>n.position));
+    store.getState().redoBusiness();
+    assert.deepEqual(store.getState().nodes.map(n=>n.position),moved.map(n=>n.position));
+    drag([50,60]);
+    store.getState().undoBusiness();
+    assert.deepEqual(store.getState().nodes.map(n=>n.position),moved.map(n=>n.position));
+    store.getState().undoBusiness();
+    assert.deepEqual(store.getState().nodes.map(n=>n.position),original.map(n=>n.position));
+  } finally { api.close(); }
+});

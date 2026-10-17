@@ -31,7 +31,8 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
     previous,
     lastKey,
     lastState,
-    historyGroup = null;
+    historyGroup = null,
+    gesture = null;
   const status = (saveStatus, saveError = "") =>
     store.setState({ saveStatus, saveError });
   const capture = () => {
@@ -285,6 +286,8 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
       hydrate(project);
       await flush("Copie de récupération");
     },
+    beginBusinessGesture: () => { gesture = uid(); },
+    endBusinessGesture: () => { gesture = null; },
     undoBusiness: () => {
       if (!past.length) return;
       future.push(capture());
@@ -314,7 +317,8 @@ export function installWorkspace(store, { factory, listen = true } = {}) {
     const structural =
       project.nodes.length !== previous.nodes.length ||
       project.edges.length !== previous.edges.length;
-    past.push(previous);
+    if (!gesture || historyGroup !== gesture) past.push(previous);
+    historyGroup = gesture;
     past = past.slice(-100);
     future = [];
     const scenario = activeScenario(project);

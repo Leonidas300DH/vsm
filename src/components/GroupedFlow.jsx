@@ -346,6 +346,7 @@ export default function GroupedFlow({
             if (!selecting) props.onPaneClick?.(event);
           }}
           onNodeDragStart={(event, node) => {
+            state.beginBusinessGesture?.();
             if (node.type === "subprocess") {
               dragStart.current = { id: node.id, ...node.position };
             } else props.onNodeDragStart?.(event, {...node,position:canonicalNodeChange({...node,type:"position"}, view).position});
@@ -379,6 +380,7 @@ export default function GroupedFlow({
               setDrag(null);
               dragStart.current = null;
             } else props.onNodeDragStop?.(event, {...node,position:canonicalNodeChange({...node,type:"position"}, view).position});
+            state.endBusinessGesture?.();
           }}
           onConnect={(c) => {
             if (
