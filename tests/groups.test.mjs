@@ -760,3 +760,83 @@ test("attachment vault stores portable bytes and reads legacy blobs without loss
     globalThis.indexedDB = previous;
   }
 });
+
+test('folding compacts neighbours, reopening makes space, and disclosure is deterministic and local', async () => {
+  const { reflowGroupView } = await import('../src/services/groupViewLayout.js');
+  const { groupCollisions } = await import('../src/services/groupProjection.js');
+  const s = layoutGroups(group(fixture(4))), original = structuredClone(s);
+  const initial = projectGroups(s), anchor = initial.nodes.find(n => n.id === 'g');
+  const closed = reflowGroupView(s, {collapsed:[]}, ['g'], 'g');
+  const compact = projectGroups(s, closed), card = compact.nodes.find(n => n.id === 'g');
+  assert.deepEqual(card.position, anchor.position);
+  assert.ok(compact.nodes.find(n => n.id === 'p2').position.x < initial.nodes.find(n => n.id === 'p2').position.x - 500);
+  assert.deepEqual(groupCollisions(s, closed), []);
+  const opened = reflowGroupView(s, closed, [], 'g');
+  assert.deepEqual(groupCollisions(s, opened), []);
+  assert.ok(projectGroups(s,opened).nodes.find(n => n.id === 'p2').position.x > compact.nodes.find(n => n.id === 'p2').position.x + 500);
+  const again = reflowGroupView(s, opened, ['g'], 'g');
+  assert.deepEqual(projectGroups(s, again).nodes.map(n => [n.id,n.position]), compact.nodes.map(n => [n.id,n.position]));
+  assert.deepEqual(s, original);
+  assert.deepEqual(projectGroups(s, JSON.parse(JSON.stringify(closed))), compact);
+});
+
+test('KYC local reflow clears cards, satellites and midpoint labels for all nested disclosure states', async () => {
+  const { createExample } = await import('../src/data/example.js');
+  const { reflowGroupView } = await import('../src/services/groupViewLayout.js');
+  const { groupCollisions } = await import('../src/services/groupProjection.js');
+  const s = layoutGroups(createExample()), original = structuredClone(s);
+  let view = {collapsed:[]};
+  const originalWidth = projectGroups(s).nodes.find(n=>n.id==='kyc-admission').width;
+  for (const collapsed of [['kyc-documents'],['kyc-documents','kyc-completeness'],['kyc-admission','kyc-documents','kyc-completeness'],['kyc-documents','kyc-completeness'],[]]) {
+    view = reflowGroupView(s,view,collapsed,'kyc-admission');
+    assert.deepEqual(groupCollisions(s,view),[]);
+    const p = projectGroups(s,view), admission = p.nodes.find(n=>n.id==='kyc-admission');
+    if(collapsed.length) assert.ok(admission.width < originalWidth);
+    if(collapsed.includes('kyc-admission')) {
+      const screen = p.nodes.find(n=>n.id==='screen');
+      assert.ok(screen.position.x-admission.position.x-admission.width <= 800);
+      assert.equal(p.edges.filter(e=>e.source==='kyc-admission' && e.target==='screen').length,1);
+      assert.deepEqual(p.edges.find(e=>e.source==='kyc-admission' && e.target==='screen').data.volumeStream.map(i=>i.value),[70,30]);
+    }
+  }
+  assert.deepEqual(s,original);
+});
+
+test('five levels compact independently and reopen without redundant space or overlaps', async () => {
+  const { reflowGroupView } = await import('../src/services/groupViewLayout.js');
+  const { groupCollisions } = await import('../src/services/groupProjection.js');
+  let s = group(fixture(7));
+  for (let i=2;i<6;i++) s=group(s,[i===2?'g':`g${i-1}`,`p${i}`],`g${i}`);
+  let view={collapsed:[]};
+  for(const id of ['g','g2','g3','g4','g5']) {
+    view=reflowGroupView(s,view,[...view.collapsed,id],id);
+    assert.deepEqual(groupCollisions(s,view),[]);
+  }
+  for(const id of ['g5','g4','g3','g2','g']) {
+    view=reflowGroupView(s,view,view.collapsed.filter(x=>x!==id),id);
+    assert.deepEqual(groupCollisions(s,view),[]);
+  }
+  assert.equal(projectGroups(s,view).nodes.filter(n=>n.type!=='subprocess').length,s.nodes.length);
+});
+
+test('a locked neighbour prevents disclosure atomically with a useful diagnostic', async () => {
+  const { reflowGroupView } = await import('../src/services/groupViewLayout.js');
+  const s=layoutGroups(group(fixture(4)));
+  s.nodes.find(n=>n.id==='p2').data.positionLocked=true;
+  const view={collapsed:[]}, original=structuredClone(s);
+  assert.throws(()=>reflowGroupView(s,view,['g'],'g'),/verrouillée.*Étape 2/);
+  assert.deepEqual(view,{collapsed:[]});
+  assert.deepEqual(s,original);
+});
+
+test('dragging a reflowed node translates only its position back to the editable graph', async () => {
+  const { canonicalNodeChange, reflowGroupView } = await import('../src/services/groupViewLayout.js');
+  const s=layoutGroups(group(fixture(4))), view=reflowGroupView(s,{collapsed:[]},['g'],'g');
+  const visible=projectGroups(s,view).nodes.find(n=>n.id==='p2');
+  const change=canonicalNodeChange({id:'p2',type:'position',dragging:true,position:{x:visible.position.x+42,y:visible.position.y+19}},view);
+  const canonical=s.nodes.find(n=>n.id==='p2');
+  assert.deepEqual(change.position,{x:canonical.position.x+42,y:canonical.position.y+19});
+  assert.equal(change.dragging,true);
+  const selection={id:'p2',type:'select',selected:true};
+  assert.equal(canonicalNodeChange(selection,view),selection);
+});

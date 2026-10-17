@@ -26,6 +26,7 @@ import {
   groupingUnits,
   applyGroupCommand,
 } from "../services/groups";
+import { reflowGroupView, canonicalNodeChange } from "../services/groupViewLayout";
 import { analyze, displayNumber as fmt } from "../services/analysis";
 import { uid } from "../services/project";
 import DecompositionEditor from "./DecompositionEditor";
@@ -68,6 +69,7 @@ export default function GroupedFlow({
       ...groupScenario,
       nodes: props.nodes,
       edges: props.edges,
+      edgeLabelSizes: groupScenario?.edgeLabelSizes || state.edgeLabelSizes,
       tools: groupScenario?.tools || state.tools,
       actors: groupScenario?.actors || state.actors,
       knowledge: groupScenario?.knowledge || state.knowledge,
@@ -77,6 +79,7 @@ export default function GroupedFlow({
       groupScenario,
       props.nodes,
       props.edges,
+      state.edgeLabelSizes,
       state.tools,
       state.actors,
       state.knowledge,
@@ -136,9 +139,16 @@ export default function GroupedFlow({
       }
       return next;
     });
+  const resetLayoutView = useEffectEvent(() => setView({offsets:{}}));
+  useEffect(() => {
+    if (groupScenario) return;
+    const listener = () => resetLayoutView();
+    window.addEventListener("vsm:layout-applied", listener);
+    return () => window.removeEventListener("vsm:layout-applied", listener);
+  }, [groupScenario]);
   const projection = useMemo(
-    () => projectGroups(scenario, { collapsed }),
-    [scenario, collapsed],
+    () => projectGroups(scenario, view),
+    [scenario, view],
   );
   const summaries = useMemo(() => {
     const analysis = analyze(scenario);
@@ -168,6 +178,7 @@ export default function GroupedFlow({
         }
       }
       await state.applyGroupCommand(command);
+      if (command.type === "layoutGroups" || command.arrange) setView({offsets:{}});
       setError("");
       setPending(null);
       setSelection([]);
@@ -188,36 +199,13 @@ export default function GroupedFlow({
     const next = expandIds ? collapsed.filter(id => !expandIds.includes(id)) : collapsed.includes(id)
       ? collapsed.filter((x) => x !== id)
       : [...new Set([...collapsed, id])];
-    const old = new Set(groupCollisions(scenario, { collapsed }));
-    if (
-      groupCollisions(scenario, { collapsed: next }).some(
-        (hit) => !old.has(hit),
-      )
-    ) {
-      try {
-        if (readOnly)
-          throw new Error(
-            "Ce niveau nécessite un réagencement dans son onglet éditable.",
-          );
-        const arranged = layoutGroups(scenario);
-        if (groupCollisions(arranged, { collapsed: next }).length)
-          throw new Error(
-            "Des connexions se superposent à ce niveau. Réagencez les étapes concernées avant de changer la vue.",
-          );
-        setPending({
-          type: "layoutGroups",
-          next: arranged,
-          expandIds: expandIds || (next.includes(id) ? undefined : [id]),
-          collapseId: next.includes(id) ? id : undefined,
-        });
-      } catch (e) {
-        setError(e.message);
-      }
-      return;
-    }
-    setView({ collapsed: next });
-    setInspected(null);
+    try {
+      setView(reflowGroupView(scenario, view, next, id || expandIds?.[0]));
+      setError("");
+      setInspected(null);
+    } catch (e) { setError(e.message); }
   };
+
   const reveal = useEffectEvent((id) => {
     if (
       !scenario.nodes.some((n) => n.id === id) &&
@@ -230,9 +218,11 @@ export default function GroupedFlow({
       ancestors.push(cursor);
       cursor = projection.parents.get(cursor);
     }
-    setView({
-      collapsed: collapsed.filter((g) => !ancestors.includes(g)),
-    });
+    if (ancestors.some(id => collapsed.includes(id))) {
+      try {
+        setView(reflowGroupView(scenario, view, collapsed.filter(g => !ancestors.includes(g)), ancestors[0]));
+      } catch (e) { setError(e.message); return; }
+    }
     setTimeout(
       () =>
         instance.current?.fitView({
@@ -283,7 +273,7 @@ export default function GroupedFlow({
         return groupingUnits([...ids], projection.parents);
       });
     props.onNodesChange?.(
-      changes.filter((c) => scenario.nodes.some((n) => n.id === c.id) && !(selecting && c.type === "select")),
+      changes.filter((c) => scenario.nodes.some((n) => n.id === c.id) && !(selecting && c.type === "select")).map(c => canonicalNodeChange(c, view)),
     );
   };
   return (
@@ -358,7 +348,7 @@ export default function GroupedFlow({
           onNodeDragStart={(event, node) => {
             if (node.type === "subprocess") {
               dragStart.current = { id: node.id, ...node.position };
-            } else props.onNodeDragStart?.(event, node);
+            } else props.onNodeDragStart?.(event, {...node,position:canonicalNodeChange({...node,type:"position"}, view).position});
           }}
           onNodeDrag={(event, node) => {
             if (node.type === "subprocess" && dragStart.current) {
@@ -378,7 +368,7 @@ export default function GroupedFlow({
                 dx: node.position.x - dragStart.current.x,
                 dy: node.position.y - dragStart.current.y,
               });
-            } else props.onNodeDrag?.(event, node);
+            } else props.onNodeDrag?.(event, {...node,position:canonicalNodeChange({...node,type:"position"}, view).position});
           }}
           onNodeDragStop={(event, node) => {
             if (node.type === "subprocess" && dragStart.current) {
@@ -388,7 +378,7 @@ export default function GroupedFlow({
                 execute({ type: "moveGroup", id: node.id, dx, dy });
               setDrag(null);
               dragStart.current = null;
-            } else props.onNodeDragStop?.(event, node);
+            } else props.onNodeDragStop?.(event, {...node,position:canonicalNodeChange({...node,type:"position"}, view).position});
           }}
           onConnect={(c) => {
             if (
@@ -731,6 +721,7 @@ export default function GroupedFlow({
             nodeId={draftId}
             execute={async (command) => {
               await state.applyGroupCommand(command);
+              if (command.arrange) setView({offsets:{}});
               if (command.type === "activateDraft") {
                 setView({collapsed:[...new Set([...collapsed, command.nodeId])]});
                 setTimeout(() => instance.current?.fitView({nodes:[{id:command.nodeId}],padding:.35,maxZoom:1,duration:200}),100);

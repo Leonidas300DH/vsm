@@ -70,7 +70,7 @@ function Workspace() {
         const state = useStore.getState(), scenario = state.getWorkspaceProject().scenarios.find(s => s.id === state.workspaceProject.activeScenarioId);
         const started = performance.now(), result = layoutGroups(scenario);
         if (preview) setLayoutPreview({ nodes: result.nodes, elapsedMs: performance.now() - started });
-        else { useStore.setState({nodes: result.nodes}); frame(); }
+        else { useStore.setState({nodes: result.nodes}); window.dispatchEvent(new Event("vsm:layout-applied")); frame(); }
       } catch (error) { setNotice(error.message); }
       return;
     }
@@ -88,6 +88,7 @@ function Workspace() {
     if (result.error) return setNotice(result.error+(result.conflicts?.length?" Éléments : "+[...new Set(result.conflicts)].map(id=>graphNodes.find(n=>n.id===id)?.data.label||id).join(", "):""));
     if(preview){setLayoutPreview(result);return;}
     useStore.setState({ nodes: result.nodes });
+    window.dispatchEvent(new Event("vsm:layout-applied"));
     setNotice(`Disposition ${nextOrientation === 'vertical' ? 'de haut en bas' : 'de gauche à droite'} · branches parallèles et convergence en fin de flux.`);
     frame();
   };
@@ -139,7 +140,7 @@ function Workspace() {
       </div>
       </>}
     </WorkspaceTools>
-    {layoutPreview&&<div className="studio-backdrop"><section className="studio-dialog" role="dialog" aria-label="Aperçu du placement"><h2>Proposition de placement</h2><p>{layoutPreview.nodes.length} étapes · aucun chevauchement détecté · {Math.round(layoutPreview.elapsedMs)} ms. Appliquer reste annulable.</p><svg viewBox={`${Math.min(...layoutPreview.nodes.map(n=>n.position.x))-30} ${Math.min(...layoutPreview.nodes.map(n=>n.position.y))-30} ${Math.max(...layoutPreview.nodes.map(n=>n.position.x))-Math.min(...layoutPreview.nodes.map(n=>n.position.x))+400} ${Math.max(...layoutPreview.nodes.map(n=>n.position.y))-Math.min(...layoutPreview.nodes.map(n=>n.position.y))+550}`} style={{width:'100%',height:250}}>{layoutPreview.nodes.map(n=><g key={n.id}><rect x={n.position.x} y={n.position.y} width={n.width||300} height={n.height||300} fill="none" stroke="#8fbfd1" strokeWidth="8"/><text x={n.position.x} y={n.position.y+40} fill="currentColor" fontSize="30">{n.data.label}</text></g>)}</svg><div className="studio-row"><button onClick={()=>{useStore.setState({nodes:layoutPreview.nodes});setLayoutPreview(null);frame();}}>Appliquer le placement</button><button onClick={()=>setLayoutPreview(null)}>Conserver la carte</button></div></section></div>}
+    {layoutPreview&&<div className="studio-backdrop"><section className="studio-dialog" role="dialog" aria-label="Aperçu du placement"><h2>Proposition de placement</h2><p>{layoutPreview.nodes.length} étapes · aucun chevauchement détecté · {Math.round(layoutPreview.elapsedMs)} ms. Appliquer reste annulable.</p><svg viewBox={`${Math.min(...layoutPreview.nodes.map(n=>n.position.x))-30} ${Math.min(...layoutPreview.nodes.map(n=>n.position.y))-30} ${Math.max(...layoutPreview.nodes.map(n=>n.position.x))-Math.min(...layoutPreview.nodes.map(n=>n.position.x))+400} ${Math.max(...layoutPreview.nodes.map(n=>n.position.y))-Math.min(...layoutPreview.nodes.map(n=>n.position.y))+550}`} style={{width:'100%',height:250}}>{layoutPreview.nodes.map(n=><g key={n.id}><rect x={n.position.x} y={n.position.y} width={n.width||300} height={n.height||300} fill="none" stroke="#8fbfd1" strokeWidth="8"/><text x={n.position.x} y={n.position.y+40} fill="currentColor" fontSize="30">{n.data.label}</text></g>)}</svg><div className="studio-row"><button onClick={()=>{useStore.setState({nodes:layoutPreview.nodes});window.dispatchEvent(new Event("vsm:layout-applied"));setLayoutPreview(null);frame();}}>Appliquer le placement</button><button onClick={()=>setLayoutPreview(null)}>Conserver la carte</button></div></section></div>}
     {lastDeletion && <div className="workspace-notice is-undo" role="status">{deletionLabel}<button className="notice-action" onClick={undoDeletion}>Annuler</button><button aria-label="Fermer le message" onClick={dismissDeletion}><X size={13} /></button></div>}
     {focus && !lastDeletion && <div className="workspace-notice is-focus" role="status">{FOCUS_KIND_LABEL[focus.kind]} « {focus.label} » · {focusCount} étape{focusCount > 1 ? 's' : ''} concernée{focusCount > 1 ? 's' : ''} · le reste est estompé<button className="notice-action" onClick={() => setFocus(null)}>Retirer le focus</button></div>}
     {notice && !lastDeletion && !focus && <div className="workspace-notice" role="status">{notice}<button aria-label="Fermer le message" onClick={() => setNotice('')}><X size={13} /></button></div>}

@@ -30,7 +30,7 @@ export function inlineGroupView(scenario, saved = {}) {
 
 export function projectGroups(
   scenario,
-  { collapsed = [] } = {},
+  { collapsed = [], offsets = {} } = {},
 ) {
   const groups = new Map((scenario.groups || []).map((g) => [g.id, g])),
     parents = groupParents(scenario),
@@ -214,12 +214,25 @@ export function projectGroups(
       },
     });
   }
-  // A collapsed child can have more satellites than any individual leaf.
-  // Extend its open ancestors to contain the projected card and resources.
+  for (const node of nodes) {
+    const offset = offsets[node.id];
+    if (offset) node.position = { x: node.position.x + offset.x, y: node.position.y + offset.y };
+  }
+  // Rebuild open frames from their visible contents, including satellites and
+  // midpoint labels. Ancestors must shrink as well as grow when children fold.
   for (const frame of nodes.filter(n => n.type === "subprocess" && !n.data.collapsed).sort((a,b) => depth(b.id)-depth(a.id))) {
     const children = nodes.filter(n => parents.get(n.id) === frame.id);
-    const right = Math.max(frame.position.x + frame.width, ...children.map(n => n.position.x + nodeSize(n).width + 32));
-    const bottom = Math.max(frame.position.y + frame.height, ...children.map(n => n.position.y + nodeSize(n).height + 32));
+    const parts = children.map(n => ({...n.position, ...nodeSize(n)}));
+    for (const edge of edges) {
+      const s = nodes.find(n => n.id === edge.source), t = nodes.find(n => n.id === edge.target);
+      if (!leaves.get(frame.id).has(groupLeaves(scenario, s.id)[0]) || !leaves.get(frame.id).has(groupLeaves(scenario, t.id)[0])) continue;
+      const size = scenario.edgeLabelSizes?.[edge.id] || {width:260,height:Object.keys(edge.data?.itemData || {}).length ? 200 : 70};
+      const port = (n, side) => n.type === "subprocess" ? n.data.portOffsets[`${side}:${edge.id}`] : n.layoutMetrics?.[side === "out" ? "sourceOffset" : "targetOffset"]?.y || Math.min(nodeSize(n).height / 2, 150);
+      parts.push({x:(s.position.x+nodeSize(s).width+t.position.x)/2-size.width/2,y:(s.position.y+port(s,"out")+t.position.y+port(t,"in"))/2-size.height/2,...size});
+    }
+    frame.position = {x:Math.min(...parts.map(b=>b.x))-32,y:Math.min(...parts.map(b=>b.y))-58};
+    const right = Math.max(...parts.map(b=>b.x+b.width))+32;
+    const bottom = Math.max(...parts.map(b=>b.y+b.height))+32;
     frame.width = right - frame.position.x;
     frame.height = bottom - frame.position.y;
     frame.style = {width:frame.width, height:frame.height};
@@ -329,8 +342,9 @@ export function layoutGroups(scenario) {
 }
 // Parent/descendant containment is intentional; all other overlaps are diagnostics.
 export function groupCollisions(scenario, view = {}, sizes = {}) {
-  const projection = projectGroups(scenario, view),
-    groups = new Map(
+  const projection = projectGroups(scenario, view);
+  sizes = {...scenario.edgeLabelSizes, ...sizes};
+  const groups = new Map(
       (scenario.groups || []).map((g) => [
         g.id,
         new Set(groupLeaves(scenario, g.id)),
