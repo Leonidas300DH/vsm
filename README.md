@@ -29,6 +29,7 @@ Ouvrir http://127.0.0.1:8787. Les appels fournisseurs sont désactivés par déf
 - Scénarios actuel/cible, comparaison, simulation exploratoire et diagnostics.
 - Sous-processus copiables, commentaires, présentation ordonnée et rapports PDF paginés.
 - Dossiers d’analyse Codex, propositions validées et adaptateurs locaux OpenAI, Claude et Gemini.
+- Deux styles au choix dans Réglages → Style : Classique (par défaut) ou Signal Glass (`src/signal-glass.css`), chacun en sombre et en clair.
 
 ## Documentation et vérification
 
